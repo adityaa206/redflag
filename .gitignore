@@ -15,6 +15,9 @@ __pycache__/
 dist/
 build/
 
+# Markdown docs
+*.md
+
 # Backup files
 *.bak
 
