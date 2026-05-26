@@ -1,4 +1,4 @@
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from enum import Enum
 from datetime import datetime, timezone
@@ -81,5 +81,4 @@ class Finding(BaseModel):
 
     discovered_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
-    class Config:
-        use_enum_values = True
+    model_config = ConfigDict(use_enum_values=True)

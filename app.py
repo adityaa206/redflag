@@ -4,12 +4,15 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from reports.generator import export_findings_csv
+from reports.pdf_report import generate_pdf_report
 from scanners.nmap_scan import run_nmap_scan
 from analysis.parser import analyze_nmap_file
 from analysis.triage import triage_all
 from scanners.shodan_scan import lookup_host, enrich_findings_with_shodan, create_shodan_findings
 from scanners.openvas_parse import parse_openvas_xml, merge_openvas_with_nmap
 from scanners.vulners_parse import parse_vulners_from_nmap_xml, merge_vulners_with_nmap
+from scanners.zap_scan import parse_zap_xml, merge_zap_with_nmap
+from analysis.parsers.excel_assets import parse_asset_excel, apply_sensitivity_to_findings
 
 
 st.set_page_config(
@@ -215,9 +218,26 @@ with scan_col1:
 with scan_col2:
     run_scan = st.button("🔍  Run Scan", use_container_width=True, type="primary")
 
-with st.expander("Upload OpenVAS XML report (optional)"):
-    st.caption("Run an OpenVAS / Greenbone scan separately, export the XML report, and upload it here to merge verified findings into the triage pipeline.")
-    openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed")
+upload_col1, upload_col2, upload_col3 = st.columns(3)
+
+with upload_col1:
+    with st.expander("Upload OpenVAS XML (optional)"):
+        st.caption("Export the XML report from OpenVAS / Greenbone and upload to merge verified CVE findings.")
+        openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed", key="ov_upload")
+
+with upload_col2:
+    with st.expander("Upload ZAP XML (optional)"):
+        st.caption("Export the XML report from OWASP ZAP and upload to merge web application findings.")
+        zap_file = st.file_uploader("ZAP XML", type=["xml"], label_visibility="collapsed", key="zap_upload")
+
+with upload_col3:
+    with st.expander("Upload Asset Inventory Excel (optional)"):
+        st.caption("Upload an Excel file mapping host IPs to data sensitivity tiers (Crown Jewel, Regulated, Sensitive, Low). Unlocks the most impactful deal-killer rules.")
+        st.markdown(
+            "<small style='color:#6b7280'>Required columns: <code>IP</code> (or Host) · <code>Sensitivity</code></small>",
+            unsafe_allow_html=True,
+        )
+        asset_file = st.file_uploader("Asset Inventory Excel", type=["xlsx", "xls"], label_visibility="collapsed", key="asset_upload")
 
 # ── Scan execution ────────────────────────────────────────────────────────────
 
@@ -243,9 +263,11 @@ if run_scan:
                 shodan_standalone = create_shodan_findings(shodan_result, resolved_ip)
                 all_findings      = findings + shodan_standalone
 
-                openvas_findings  = []
+                import tempfile, os
+
+                # ── OpenVAS ──────────────────────────────────────────────────
+                openvas_findings = []
                 if openvas_file is not None:
-                    import tempfile, os
                     with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as tmp:
                         tmp.write(openvas_file.read())
                         tmp_path = tmp.name
@@ -257,14 +279,46 @@ if run_scan:
                         os.unlink(tmp_path)
 
                 if openvas_findings:
-                    # Merge: upgrades Nmap findings where OpenVAS confirms same host+port,
-                    # returns unmatched OpenVAS findings as standalone entries
                     merged_nmap = merge_openvas_with_nmap(findings, openvas_findings)
                     all_findings = merged_nmap + shodan_standalone
                     openvas_matched = len(findings) + len(openvas_findings) - len(merged_nmap)
                     st.session_state["openvas_matched"] = openvas_matched
+                    findings = merged_nmap  # keep reference for ZAP merge below
                 else:
                     st.session_state["openvas_matched"] = 0
+
+                # ── ZAP ──────────────────────────────────────────────────────
+                zap_findings = []
+                if zap_file is not None:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".xml") as tmp:
+                        tmp.write(zap_file.read())
+                        tmp_path = tmp.name
+                    try:
+                        zap_findings = parse_zap_xml(tmp_path)
+                    except ValueError as e:
+                        st.warning(f"ZAP parse error: {e}")
+                    finally:
+                        os.unlink(tmp_path)
+
+                if zap_findings:
+                    merged_nmap = merge_zap_with_nmap(findings, zap_findings)
+                    all_findings = merged_nmap + shodan_standalone
+                st.session_state["zap_count"] = len(zap_findings)
+
+                # ── Asset inventory / data_sensitivity ───────────────────────
+                asset_map = {}
+                if asset_file is not None:
+                    with tempfile.NamedTemporaryFile(delete=False, suffix=".xlsx") as tmp:
+                        tmp.write(asset_file.read())
+                        tmp_path = tmp.name
+                    try:
+                        asset_map = parse_asset_excel(tmp_path)
+                        all_findings = apply_sensitivity_to_findings(all_findings, asset_map)
+                    except ValueError as e:
+                        st.warning(f"Asset inventory error: {e}")
+                    finally:
+                        os.unlink(tmp_path)
+                st.session_state["asset_hosts"] = len(asset_map)
 
                 findings = triage_all(all_findings)
 
@@ -273,6 +327,8 @@ if run_scan:
             st.session_state["resolved_ip"]      = resolved_ip
             st.session_state["clean_target"]     = clean_target
             st.session_state["openvas_count"]    = len(openvas_findings)
+            st.session_state["zap_count"]        = len(zap_findings)
+            st.session_state["asset_hosts"]      = len(asset_map)
 
             deal_killers = sum(1 for f in findings if str(getattr(f.deal_tier, "value", f.deal_tier)) == "deal_killer")
             if deal_killers:
@@ -325,15 +381,25 @@ with tab_overview:
 
     st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
 
-    st.markdown("""
-    <div style="background:#1e1a0a; border:1px solid #92400e; border-left:4px solid #f59e0b;
-                border-radius:8px; padding:12px 16px; font-size:0.83rem; color:#fbbf24;">
-        <strong>⚠️ Data Sensitivity Not Assessed</strong> &nbsp;—&nbsp;
-        All findings currently score <code>data_sensitivity = UNKNOWN</code> (25% of the risk model).
-        Scores will be materially different once an asset inventory is provided.
-        Upload an asset list to classify hosts as Crown Jewel, Regulated, or Sensitive.
-    </div>
-    """, unsafe_allow_html=True)
+    _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
+    if _asset_hosts_loaded:
+        st.markdown(f"""
+        <div style="background:#0a1e0a; border:1px solid #166534; border-left:4px solid #22c55e;
+                    border-radius:8px; padding:12px 16px; font-size:0.83rem; color:#4ade80;">
+            <strong>✅ Asset Inventory Loaded</strong> &nbsp;—&nbsp;
+            {_asset_hosts_loaded} hosts classified. Data sensitivity is factored into all scores.
+        </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.markdown("""
+        <div style="background:#1e1a0a; border:1px solid #92400e; border-left:4px solid #f59e0b;
+                    border-radius:8px; padding:12px 16px; font-size:0.83rem; color:#fbbf24;">
+            <strong>⚠️ Data Sensitivity Not Assessed</strong> &nbsp;—&nbsp;
+            All findings score <code>data_sensitivity = UNKNOWN</code> (25% of the risk model).
+            Upload an asset inventory Excel to classify hosts as Crown Jewel, Regulated, or Sensitive
+            and unlock the most impactful deal-killer rules.
+        </div>
+        """, unsafe_allow_html=True)
 
     st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
 
@@ -413,10 +479,11 @@ with tab_overview:
         vulners_status  = f"✅ {vulners_count} CVEs found" if vulners_count else "— Script not installed"
         openvas_count   = st.session_state.get("openvas_count", 0)
         openvas_matched = st.session_state.get("openvas_matched", 0)
-        if openvas_count:
-            ov_status = f"✅ {openvas_count} findings ({openvas_matched} merged with Nmap)"
-        else:
-            ov_status = "— Not uploaded"
+        zap_count       = st.session_state.get("zap_count", 0)
+        asset_hosts     = st.session_state.get("asset_hosts", 0)
+        ov_status       = f"✅ {openvas_count} findings ({openvas_matched} merged)" if openvas_count else "— Not uploaded"
+        zap_status      = f"✅ {zap_count} findings" if zap_count else "— Not uploaded"
+        asset_status    = f"✅ {asset_hosts} hosts classified" if asset_hosts else "— Not uploaded"
 
         st.markdown(f"""
         <div class="info-panel">
@@ -432,6 +499,10 @@ with tab_overview:
             <div class="ip-value">{shodan_status}</div>
             <div class="ip-label">OpenVAS</div>
             <div class="ip-value">{ov_status}</div>
+            <div class="ip-label">ZAP</div>
+            <div class="ip-value">{zap_status}</div>
+            <div class="ip-label">Asset Inventory</div>
+            <div class="ip-value">{asset_status}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -630,5 +701,17 @@ with tab_export:
                 data=f,
                 file_name=csv_file.split("\\")[-1].split("/")[-1],
                 mime="text/csv",
+                use_container_width=True,
+            )
+
+        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+        pdf_file = generate_pdf_report(findings, clean_target, resolved_ip)
+        with open(pdf_file, "rb") as f:
+            st.download_button(
+                label="⬇️  Download PDF Report",
+                data=f,
+                file_name=pdf_file.split("\\")[-1].split("/")[-1],
+                mime="application/pdf",
                 use_container_width=True,
             )

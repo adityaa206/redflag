@@ -13,6 +13,7 @@ from analysis.schema import (
 )
 from scanners.kev_lookup import is_kev, get_kev_entry
 from scanners.vulners_enrich import get_exploit_status_from_vulners
+from config import SHODAN_MAX_CVES
 
 load_dotenv()
 
@@ -177,7 +178,7 @@ def enrich_findings_with_shodan(findings, shodan_result):
     return findings
 
 
-def create_shodan_findings(shodan_result, host, max_cves=10):
+def create_shodan_findings(shodan_result, host, max_cves=SHODAN_MAX_CVES):
     """
     Create standalone findings directly from Shodan data.
 

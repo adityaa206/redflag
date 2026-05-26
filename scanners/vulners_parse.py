@@ -8,6 +8,7 @@ from analysis.schema import (
     EvidenceStrength,
 )
 from scanners.kev_lookup import is_kev
+from config import VULNERS_MIN_CVSS, VULNERS_STANDALONE_MIN_CVSS
 
 _EXPLOIT_RANK = {
     ExploitStatus.ACTIVE_EXPLOITATION: 3,
@@ -16,8 +17,8 @@ _EXPLOIT_RANK = {
     ExploitStatus.NO_EXPLOIT: 0,
 }
 
-_MIN_CVSS = 5.0          # ignore trivial CVEs from NSE output
-_STANDALONE_MIN_CVSS = 7.0  # threshold for additional CVEs on an already-merged port
+_MIN_CVSS            = VULNERS_MIN_CVSS
+_STANDALONE_MIN_CVSS = VULNERS_STANDALONE_MIN_CVSS
 
 
 def _higher_exploit(a: ExploitStatus, b: ExploitStatus) -> ExploitStatus:

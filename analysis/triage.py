@@ -6,12 +6,14 @@ from analysis.schema import (
     ExploitStatus,
     EvidenceStrength,
 )
-
-
-WEIGHT_CVSS = 0.35
-WEIGHT_EXPOSURE = 0.25
-WEIGHT_SENSITIVITY = 0.25
-WEIGHT_EXPLOIT = 0.15
+from config import (
+    WEIGHT_CVSS,
+    WEIGHT_EXPOSURE,
+    WEIGHT_SENSITIVITY,
+    WEIGHT_EXPLOIT,
+    TIER_THRESHOLD_CRITICAL,
+    TIER_THRESHOLD_MODERATE,
+)
 
 
 EXPOSURE_SCORES = {
@@ -116,9 +118,9 @@ def calculate_score(finding: Finding) -> float:
 
 
 def score_to_tier(score: float) -> DealTier:
-    if score >= 75:
+    if score >= TIER_THRESHOLD_CRITICAL:
         return DealTier.CRITICAL
-    elif score >= 50:
+    elif score >= TIER_THRESHOLD_MODERATE:
         return DealTier.MODERATE
     else:
         return DealTier.MANAGEABLE

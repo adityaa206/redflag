@@ -2,6 +2,7 @@ import os
 import datetime
 import nmap
 from dotenv import load_dotenv
+from config import NMAP_SCAN_ARGS
 
 load_dotenv()
 
@@ -60,7 +61,7 @@ def run_nmap_scan(target: str, output_dir: str = "data/results") -> str:
 
     scanner.scan(
         hosts=target,
-        arguments=f"-sV --open{vulners_args}"
+        arguments=f"{NMAP_SCAN_ARGS}{vulners_args}"
     )
 
     xml_output = scanner.get_nmap_last_output()
