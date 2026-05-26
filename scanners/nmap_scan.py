@@ -34,6 +34,15 @@ def _vulners_script_args(nmap_path: str) -> str:
     return args
 
 
+def vulners_nse_available() -> bool:
+    """Return True if vulners.nse is present in the Nmap scripts directory."""
+    nmap_path = find_nmap()
+    if not nmap_path:
+        return False
+    scripts_dir = os.path.join(os.path.dirname(nmap_path), "scripts")
+    return os.path.exists(os.path.join(scripts_dir, "vulners.nse"))
+
+
 def run_nmap_scan(target: str, output_dir: str = "data/results", fast_mode: bool = False) -> str:
     os.makedirs(output_dir, exist_ok=True)
 

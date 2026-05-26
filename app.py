@@ -5,7 +5,7 @@ import plotly.graph_objects as go
 
 from reports.generator import export_findings_csv
 from reports.pdf_report import generate_pdf_report
-from scanners.nmap_scan import run_nmap_scan
+from scanners.nmap_scan import run_nmap_scan, vulners_nse_available
 from analysis.parser import analyze_nmap_file
 from analysis.triage import triage_all
 from scanners.shodan_scan import lookup_host, enrich_findings_with_shodan, create_shodan_findings
@@ -594,7 +594,8 @@ if run_scan:
                 vulners_raw       = parse_vulners_from_nmap_xml(xml_file)
                 if vulners_raw:
                     nmap_findings = merge_vulners_with_nmap(nmap_findings, vulners_raw)
-                st.session_state["vulners_count"] = len(vulners_raw)
+                st.session_state["vulners_count"]  = len(vulners_raw)
+                st.session_state["vulners_active"] = vulners_nse_available()
 
                 resolved_ip       = socket.gethostbyname(clean_target)
                 shodan_result     = lookup_host(resolved_ip)
@@ -818,6 +819,7 @@ with tab_overview:
 
         # ── Scanner pipeline ──────────────────────────────────────────
         vulners_count   = st.session_state.get("vulners_count", 0)
+        vulners_active  = st.session_state.get("vulners_active", False)
         openvas_count   = st.session_state.get("openvas_count", 0)
         openvas_matched = st.session_state.get("openvas_matched", 0)
         zap_count       = st.session_state.get("zap_count", 0)
@@ -831,8 +833,12 @@ with tab_overview:
                     f'<div class="rf-pi-status {status_cls}">{status}</div></div></div>')
 
         nmap_pi    = _pi("ok",  "Nmap",          "Completed", "ok")
-        vulners_pi = _pi("ok" if vulners_count else "off", "Vulners NSE",
-                         f"{vulners_count} CVEs" if vulners_count else "Not detected", "ok" if vulners_count else "")
+        if vulners_count:
+            vulners_pi = _pi("ok",  "Vulners NSE", f"{vulners_count} CVEs", "ok")
+        elif vulners_active:
+            vulners_pi = _pi("warn", "Vulners NSE", "Installed — 0 CVEs", "")
+        else:
+            vulners_pi = _pi("off", "Vulners NSE", "Not installed", "")
         shodan_pi  = _pi("ok" if shodan_ok else "err", "Shodan",
                          "Connected" if shodan_ok else "Unavailable", "ok" if shodan_ok else "")
         ov_pi      = _pi("ok" if openvas_count else "off", "OpenVAS",
