@@ -17,4 +17,10 @@ VULNERS_MIN_CVSS            = 5.0   # ignore CVEs below this CVSS from NSE outpu
 VULNERS_STANDALONE_MIN_CVSS = 7.0   # min CVSS for secondary CVEs on a matched port
 
 # ── Nmap ──────────────────────────────────────────────────────────────────────
-NMAP_SCAN_ARGS = "-sV --open"       # base arguments (Vulners NSE appended if installed
+# -T4             : aggressive timing (default T3 is ~2x slower, T5 can miss ports)
+# --max-retries 2 : fewer retransmissions without losing reliability
+NMAP_SCAN_ARGS = "-sV --open -T4 --max-retries 2"
+
+# Fast mode: top 200 ports, lower version probe intensity, one retry
+# Cuts scan time to ~15-25s vs 40-70s for the full args above
+NMAP_FAST_ARGS = "-sV --open -T4 --top-ports 200 --version-intensity 3 --max-retries 1"

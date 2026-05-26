@@ -26,128 +26,444 @@ st.set_page_config(
 
 st.markdown("""
 <style>
-/* ── Base ── */
-[data-testid="stAppViewContainer"] { background: #0e1117; }
-[data-testid="stHeader"] { background: transparent; }
+/* ══════════════════════════════════════════════════════════════
+   REDFLAG  —  Design System v2
+   Fonts  : Fira Code (mono/technical) + Fira Sans (body)
+   Palette: Deep navy · Severity red / orange / yellow / green
+══════════════════════════════════════════════════════════════ */
 
-/* ── Metric cards ── */
+@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+
+/* ── Base ── */
+[data-testid="stAppViewContainer"] { background: #07090f; }
+[data-testid="stHeader"]           { background: transparent; }
+[data-testid="stMainBlockContainer"] { padding-top: 0 !important; }
+html, body, [class*="css"],
+[data-testid="stMarkdownContainer"] p,
+[data-testid="stMarkdownContainer"] li,
+.stCheckbox label, .stSlider label, .stMultiSelect label,
+.stCaption, .stAlert p, button { font-family: 'Fira Sans', -apple-system, sans-serif !important; }
+
+/* ── METRIC CARDS ── */
 .rf-metric {
-    background: #1a1d27;
-    border: 1px solid #2a2d3a;
-    border-radius: 12px;
-    padding: 18px 20px;
+    background: #0c0f1a;
+    border: 1px solid #17203a;
+    border-radius: 10px;
+    padding: 16px 18px 20px;
     text-align: center;
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.2s ease;
+    cursor: default;
+    position: relative;
 }
+.rf-metric:hover { transform: translateY(-3px); }
 .rf-metric .label {
-    font-size: 0.75rem;
+    font-size: 0.62rem;
     font-weight: 600;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.13em;
     text-transform: uppercase;
-    color: #6b7280;
-    margin-bottom: 6px;
+    color: #364060;
+    margin-bottom: 10px;
+    font-family: 'Fira Code', monospace;
 }
 .rf-metric .value {
-    font-size: 2.2rem;
+    font-size: 2.7rem;
     font-weight: 700;
     line-height: 1;
+    font-family: 'Fira Code', monospace;
 }
-.rf-metric.red   { border-top: 3px solid #ef4444; }
-.rf-metric.red   .value { color: #ef4444; }
+.rf-metric.red    { border-top: 3px solid #ef4444; }
+.rf-metric.red    .value { color: #ef4444; }
+.rf-metric.red:hover    { border-color: rgba(239,68,68,0.5); box-shadow: 0 8px 32px rgba(239,68,68,0.2); }
 .rf-metric.orange { border-top: 3px solid #f97316; }
 .rf-metric.orange .value { color: #f97316; }
+.rf-metric.orange:hover { border-color: rgba(249,115,22,0.5); box-shadow: 0 8px 32px rgba(249,115,22,0.2); }
 .rf-metric.yellow { border-top: 3px solid #eab308; }
 .rf-metric.yellow .value { color: #eab308; }
+.rf-metric.yellow:hover { border-color: rgba(234,179,8,0.5); box-shadow: 0 8px 32px rgba(234,179,8,0.18); }
 .rf-metric.green  { border-top: 3px solid #22c55e; }
 .rf-metric.green  .value { color: #22c55e; }
+.rf-metric.green:hover  { border-color: rgba(34,197,94,0.5); box-shadow: 0 8px 32px rgba(34,197,94,0.2); }
 .rf-metric.blue   { border-top: 3px solid #3b82f6; }
-.rf-metric.blue   .value { color: #e2e8f0; }
+.rf-metric.blue   .value { color: #c7d8f5; }
+.rf-metric.blue:hover   { border-color: rgba(59,130,246,0.5); box-shadow: 0 8px 32px rgba(59,130,246,0.2); }
 
-/* ── Tier badges ── */
+/* ── SECTION LABEL ── */
+.rf-section-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.61rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #364060;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    margin-top: 4px;
+}
+.rf-section-label::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, #17203a 0%, transparent 100%);
+}
+
+/* ── BADGES ── */
 .badge {
     display: inline-block;
-    padding: 3px 10px;
-    border-radius: 999px;
-    font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-size: 0.62rem;
+    font-weight: 700;
+    letter-spacing: 0.09em;
     text-transform: uppercase;
+    font-family: 'Fira Code', monospace;
 }
-.badge-dk   { background: #3b1212; color: #ef4444; border: 1px solid #ef4444; }
-.badge-crit { background: #3b1e0a; color: #f97316; border: 1px solid #f97316; }
-.badge-mod  { background: #2d2a0a; color: #eab308; border: 1px solid #eab308; }
-.badge-man  { background: #0a2d1a; color: #22c55e; border: 1px solid #22c55e; }
-.badge-unk  { background: #1e1e2e; color: #6b7280; border: 1px solid #374151; }
+.badge-dk   { background: rgba(239,68,68,0.14);  color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
+.badge-crit { background: rgba(249,115,22,0.14); color: #fb923c; border: 1px solid rgba(249,115,22,0.35); }
+.badge-mod  { background: rgba(234,179,8,0.12);  color: #facc15; border: 1px solid rgba(234,179,8,0.35); }
+.badge-man  { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.35); }
+.badge-unk  { background: rgba(107,114,128,0.1); color: #6b7280; border: 1px solid rgba(107,114,128,0.25); }
+.badge-inet { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.35); }
+.badge-part { background: rgba(167,139,250,0.12);color: #a78bfa; border: 1px solid rgba(124,58,237,0.35); }
+.badge-int  { background: rgba(74,222,128,0.10); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
+.badge-ukn  { background: rgba(107,114,128,0.1); color: #6b7280; border: 1px solid rgba(55,65,81,0.3); }
 
-/* ── Exposure badges ── */
-.badge-inet { background: #0a1e3b; color: #60a5fa; border: 1px solid #3b82f6; }
-.badge-part { background: #1a1e2d; color: #a78bfa; border: 1px solid #7c3aed; }
-.badge-int  { background: #1a2d1a; color: #4ade80; border: 1px solid #166534; }
-.badge-ukn  { background: #1e1e2e; color: #6b7280; border: 1px solid #374151; }
-
-/* ── Finding card ── */
+/* ── FINDING CARDS ── */
 .finding-card {
-    background: #1a1d27;
-    border: 1px solid #2a2d3a;
-    border-radius: 12px;
-    padding: 20px 24px;
-    margin-bottom: 12px;
+    background: #0c0f1a;
+    border: 1px solid #17203a;
+    border-left: 3px solid #17203a;
+    border-radius: 10px;
+    padding: 18px 22px 18px 20px;
+    margin-bottom: 8px;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.2s ease;
 }
+.finding-card:hover { background: #0f1422; box-shadow: 0 4px 36px rgba(0,0,0,0.65); }
+.finding-card.dk   { border-left-color: #ef4444; }
+.finding-card.crit { border-left-color: #f97316; }
+.finding-card.mod  { border-left-color: #eab308; }
+.finding-card.man  { border-left-color: #22c55e; }
+.finding-card.dk:hover   { border-color: rgba(239,68,68,0.35); box-shadow: 0 4px 36px rgba(239,68,68,0.12); }
+.finding-card.crit:hover { border-color: rgba(249,115,22,0.35); box-shadow: 0 4px 36px rgba(249,115,22,0.12); }
+.finding-card.mod:hover  { border-color: rgba(234,179,8,0.35); }
+.finding-card.man:hover  { border-color: rgba(34,197,94,0.35); }
 .finding-card h4 {
-    color: #f1f5f9;
-    font-size: 1rem;
+    color: #dde4f0;
+    font-size: 0.97rem;
     font-weight: 600;
-    margin: 0 0 6px 0;
+    margin: 0 0 8px 0;
+    font-family: 'Fira Sans', sans-serif;
+    line-height: 1.4;
 }
-.finding-card .meta { color: #9ca3af; font-size: 0.82rem; margin-bottom: 14px; }
-.finding-card .field-label { color: #6b7280; font-size: 0.75rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
-.finding-card .field-value { color: #cbd5e1; font-size: 0.88rem; margin-bottom: 12px; }
+.finding-card .meta {
+    color: #4b6080;
+    font-size: 0.79rem;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+.finding-card .fc-divider { border: none; border-top: 1px solid #17203a; margin: 12px 0; }
+.finding-card .field-label {
+    color: #364060;
+    font-size: 0.61rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    margin-bottom: 3px;
+    font-family: 'Fira Code', monospace;
+}
+.finding-card .field-value { color: #7a93b8; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.6; }
 .finding-card .score-pill {
-    background: #0f172a;
-    border: 1px solid #334155;
+    background: #07090f;
+    border: 1px solid #17203a;
     border-radius: 8px;
-    padding: 8px 14px;
+    padding: 12px 14px;
     text-align: center;
+    min-width: 72px;
 }
-.finding-card .score-pill .s-label { color: #6b7280; font-size: 0.7rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.06em; }
-.finding-card .score-pill .s-value { font-size: 1.6rem; font-weight: 700; }
+.finding-card .score-pill .s-label {
+    color: #364060;
+    font-size: 0.59rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.11em;
+    font-family: 'Fira Code', monospace;
+    display: block;
+    margin-bottom: 4px;
+}
+.finding-card .score-pill .s-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    font-family: 'Fira Code', monospace;
+    line-height: 1;
+}
 
-/* ── Info panel ── */
+/* ── STATUS DOTS ── */
+.rf-dot {
+    display: inline-block;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    margin-top: 1px;
+}
+.rf-dot.ok   { background: #22c55e; box-shadow: 0 0 7px rgba(34,197,94,0.8); }
+.rf-dot.warn { background: #eab308; box-shadow: 0 0 7px rgba(234,179,8,0.8); }
+.rf-dot.err  { background: #ef4444; box-shadow: 0 0 7px rgba(239,68,68,0.8); }
+.rf-dot.off  { background: #1c2a45; }
+
+/* ── SCANNER PIPELINE ── */
+.rf-pipeline {
+    background: #0c0f1a;
+    border: 1px solid #17203a;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 10px;
+}
+.rf-pipeline-header {
+    padding: 9px 16px;
+    border-bottom: 1px solid #17203a;
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: #364060;
+    background: #07090f;
+}
+.rf-pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; }
+.rf-pipeline-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    padding: 10px 14px;
+    border-bottom: 1px solid #0d1120;
+    transition: background 0.15s ease;
+}
+.rf-pipeline-item:nth-child(odd)  { border-right: 1px solid #0d1120; }
+.rf-pipeline-item:hover           { background: #0f1422; }
+.rf-pi-name {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.77rem;
+    color: #7a93b8;
+    min-width: 78px;
+    font-weight: 500;
+}
+.rf-pi-status { font-size: 0.77rem; color: #364060; font-family: 'Fira Sans', sans-serif; }
+.rf-pi-status.ok     { color: #4ade80; }
+.rf-pi-status.active { color: #60a5fa; }
+.rf-pi-status.warn   { color: #facc15; }
+
+/* ── TARGET PANEL ── */
+.rf-target-panel {
+    background: #0c0f1a;
+    border: 1px solid #17203a;
+    border-radius: 10px;
+    padding: 14px 16px 6px;
+    margin-bottom: 10px;
+}
+.rf-tp-row {
+    display: grid;
+    grid-template-columns: 80px 1fr;
+    align-items: baseline;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+.rf-tp-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #364060;
+}
+.rf-tp-value {
+    font-size: 0.84rem;
+    color: #dde4f0;
+    font-family: 'Fira Code', monospace;
+    word-break: break-all;
+}
+
+/* ── SHODAN SNAPSHOT ── */
+.rf-shodan {
+    background: #0c0f1a;
+    border: 1px solid #17203a;
+    border-left: 3px solid #1d4ed8;
+    border-radius: 10px;
+    padding: 14px 16px 6px;
+}
+.rf-shodan-row {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    align-items: baseline;
+    margin-bottom: 8px;
+    gap: 8px;
+}
+.rf-shodan-label {
+    font-family: 'Fira Code', monospace;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: #364060;
+}
+.rf-shodan-value { font-size: 0.84rem; color: #7a93b8; font-family: 'Fira Sans', sans-serif; }
+
+/* ── INFO PANEL (legacy compat) ── */
 .info-panel {
-    background: #1a1d27;
-    border: 1px solid #2a2d3a;
-    border-radius: 12px;
-    padding: 18px 20px;
+    background: #0c0f1a;
+    border: 1px solid #17203a;
+    border-radius: 10px;
+    padding: 14px 16px;
 }
-.info-panel .ip-label { color: #6b7280; font-size: 0.72rem; font-weight: 600;
-    text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 2px; }
-.info-panel .ip-value { color: #e2e8f0; font-size: 0.9rem; margin-bottom: 10px; }
-.info-panel .status-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+.info-panel .ip-label {
+    color: #364060;
+    font-size: 0.61rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    margin-bottom: 2px;
+    font-family: 'Fira Code', monospace;
+}
+.info-panel .ip-value { color: #dde4f0; font-size: 0.86rem; margin-bottom: 10px; }
 
-/* ── Divider ── */
-.rf-divider { border: none; border-top: 1px solid #2a2d3a; margin: 20px 0; }
+/* ── DIVIDERS ── */
+.rf-divider { border: none; border-top: 1px solid #17203a; margin: 14px 0; }
 
-/* ── Scan bar ── */
+/* ── SCAN BAR ── */
 [data-testid="stTextInput"] input {
-    background: #1a1d27 !important;
-    border: 1px solid #2a2d3a !important;
+    background: #0c0f1a !important;
+    border: 1px solid #17203a !important;
     border-radius: 8px !important;
-    color: #e2e8f0 !important;
-    font-size: 0.95rem !important;
+    color: #dde4f0 !important;
+    font-size: 0.9rem !important;
+    font-family: 'Fira Code', monospace !important;
+    letter-spacing: 0.025em !important;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 [data-testid="stTextInput"] input:focus {
     border-color: #ef4444 !important;
-    box-shadow: 0 0 0 2px rgba(239,68,68,0.2) !important;
+    box-shadow: 0 0 0 2px rgba(239,68,68,0.12), 0 0 24px rgba(239,68,68,0.05) !important;
+}
+[data-testid="stTextInput"] input::placeholder { color: #1c2a45 !important; }
+[data-testid="stTextInput"] label {
+    color: #364060 !important;
+    font-size: 0.6rem !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.15em !important;
+    text-transform: uppercase !important;
+    font-family: 'Fira Code', monospace !important;
 }
 
-/* ── Tab styling ── */
-[data-testid="stTabs"] button { font-weight: 600; }
+/* ── PRIMARY BUTTON ── */
+[data-testid="stButton"] > button[kind="primary"],
+[data-testid="stBaseButton-primary"] {
+    background: linear-gradient(160deg, #ef4444 0%, #b91c1c 100%) !important;
+    border: 1px solid rgba(239,68,68,0.35) !important;
+    border-radius: 8px !important;
+    font-family: 'Fira Sans', sans-serif !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.05em !important;
+    box-shadow: 0 2px 20px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.07) !important;
+    transition: box-shadow 0.15s ease, transform 0.1s ease !important;
+}
+[data-testid="stButton"] > button[kind="primary"]:hover,
+[data-testid="stBaseButton-primary"]:hover {
+    box-shadow: 0 4px 28px rgba(239,68,68,0.55), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    transform: translateY(-1px) !important;
+}
+[data-testid="stButton"] > button[kind="primary"]:active,
+[data-testid="stBaseButton-primary"]:active { transform: translateY(0) !important; }
 
-/* ── Scrollbar ── */
-::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #0e1117; }
-::-webkit-scrollbar-thumb { background: #2a2d3a; border-radius: 3px; }
+/* ── DOWNLOAD BUTTONS ── */
+[data-testid="stDownloadButton"] > button {
+    background: #0c0f1a !important;
+    border: 1px solid #17203a !important;
+    border-radius: 8px !important;
+    color: #7a93b8 !important;
+    font-family: 'Fira Sans', sans-serif !important;
+    font-weight: 500 !important;
+    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+}
+[data-testid="stDownloadButton"] > button:hover {
+    border-color: #2563eb !important;
+    color: #60a5fa !important;
+    box-shadow: 0 2px 18px rgba(37,99,235,0.22) !important;
+}
+
+/* ── TABS ── */
+[data-testid="stTabs"] [role="tablist"] {
+    border-bottom: 1px solid #17203a !important;
+    gap: 0 !important;
+    background: transparent !important;
+}
+[data-testid="stTabs"] button[role="tab"] {
+    font-family: 'Fira Sans', sans-serif !important;
+    font-weight: 600 !important;
+    font-size: 0.84rem !important;
+    color: #364060 !important;
+    letter-spacing: 0.05em !important;
+    padding: 10px 26px !important;
+    border-bottom: 2px solid transparent !important;
+    transition: color 0.15s ease !important;
+    background: transparent !important;
+    border-radius: 0 !important;
+}
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    color: #dde4f0 !important;
+    border-bottom-color: #ef4444 !important;
+}
+[data-testid="stTabs"] button[role="tab"]:hover { color: #7a93b8 !important; }
+
+/* ── EXPANDERS ── */
+[data-testid="stExpander"] details {
+    background: #0c0f1a !important;
+    border: 1px solid #17203a !important;
+    border-radius: 8px !important;
+}
+[data-testid="stExpander"] summary {
+    font-family: 'Fira Sans', sans-serif !important;
+    font-weight: 500 !important;
+    font-size: 0.84rem !important;
+    color: #7a93b8 !important;
+    padding: 11px 16px !important;
+}
+[data-testid="stExpander"] summary:hover { color: #dde4f0 !important; }
+[data-testid="stExpander"] details > div { padding: 4px 16px 14px !important; }
+
+/* ── MULTISELECT ── */
+[data-testid="stMultiSelect"] [data-baseweb="select"] > div {
+    background: #0c0f1a !important;
+    border-color: #17203a !important;
+    border-radius: 8px !important;
+}
+
+/* ── CHECKBOX ── */
+[data-testid="stCheckbox"] label {
+    font-size: 0.86rem !important;
+    color: #7a93b8 !important;
+    font-family: 'Fira Sans', sans-serif !important;
+}
+
+/* ── CAPTION ── */
+[data-testid="stCaptionContainer"] p {
+    font-family: 'Fira Code', monospace !important;
+    font-size: 0.74rem !important;
+    color: #364060 !important;
+    letter-spacing: 0.02em !important;
+}
+
+/* ── ALERTS ── */
+[data-testid="stAlertContainer"] { border-radius: 8px !important; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #07090f; }
+::-webkit-scrollbar-thumb { background: #17203a; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #1f2d4a; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -195,46 +511,69 @@ def format_label(value):
 # ── Header ────────────────────────────────────────────────────────────────────
 
 st.markdown("""
-<div style="display:flex; align-items:center; gap:12px; margin-bottom:4px;">
-    <span style="font-size:2rem;">🚩</span>
+<div style="display:flex; align-items:center; justify-content:space-between;
+            padding: 18px 0 14px; border-bottom: 1px solid #17203a; margin-bottom:20px;">
+  <div style="display:flex; align-items:center; gap:14px;">
+    <div style="width:40px; height:40px; background:linear-gradient(135deg,#ef4444,#9b1c1c);
+                border-radius:9px; display:flex; align-items:center; justify-content:center;
+                font-size:1.25rem; flex-shrink:0; box-shadow:0 4px 18px rgba(239,68,68,0.4);">🚩</div>
     <div>
-        <h1 style="margin:0; font-size:1.8rem; font-weight:800; color:#f1f5f9; letter-spacing:-0.02em;">RedFlag</h1>
-        <p style="margin:0; color:#6b7280; font-size:0.85rem;">Cybersecurity Due Diligence · M&A Risk Intelligence</p>
+      <div style="font-size:1.55rem; font-weight:800; color:#dde4f0; letter-spacing:-0.03em;
+                  font-family:'Fira Sans',sans-serif; line-height:1.1;">RedFlag</div>
+      <div style="font-size:0.59rem; font-weight:600; letter-spacing:0.16em;
+                  text-transform:uppercase; color:#364060; font-family:'Fira Code',monospace;
+                  margin-top:2px;">Cybersecurity Due Diligence &nbsp;·&nbsp; M&amp;A Risk Intelligence</div>
     </div>
+  </div>
+  <div style="display:flex; gap:20px; align-items:center;">
+    <div style="text-align:right;">
+      <div style="font-size:0.59rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
+                  color:#364060; font-family:'Fira Code',monospace; margin-bottom:3px;">Platform</div>
+      <div style="font-size:0.78rem; color:#7a93b8; font-family:'Fira Code',monospace;">
+        Nmap · Shodan · Vulners · OpenVAS · ZAP
+      </div>
+    </div>
+  </div>
 </div>
-<hr class="rf-divider">
 """, unsafe_allow_html=True)
 
 # ── Scan controls ─────────────────────────────────────────────────────────────
 
-scan_col1, scan_col2 = st.columns([5, 1])
+scan_col1, scan_col2, scan_col3 = st.columns([5, 1, 1])
 with scan_col1:
     target = st.text_input(
-        "target",
+        ">_ Scan Target",
         value="scanme.nmap.org",
-        placeholder="Enter target IP, hostname, or subnet — e.g. scanme.nmap.org",
-        label_visibility="collapsed"
+        placeholder="IP address, hostname, or subnet  —  e.g.  192.168.1.0/24  ·  scanme.nmap.org",
     )
 with scan_col2:
-    run_scan = st.button("🔍  Run Scan", use_container_width=True, type="primary")
+    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+    run_scan = st.button("Run Scan", use_container_width=True, type="primary")
+with scan_col3:
+    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
+    fast_mode = st.checkbox("Fast Scan", value=False,
+                            help="Top 200 ports · version-intensity 3 · ~2x faster. May miss uncommon ports.")
 
+st.markdown('<div class="rf-section-label" style="margin-top:4px;">Optional Intelligence Sources</div>',
+            unsafe_allow_html=True)
 upload_col1, upload_col2, upload_col3 = st.columns(3)
 
 with upload_col1:
-    with st.expander("Upload OpenVAS XML (optional)"):
-        st.caption("Export the XML report from OpenVAS / Greenbone and upload to merge verified CVE findings.")
+    with st.expander("OpenVAS XML"):
+        st.caption("Upload OpenVAS / Greenbone XML to merge verified CVE findings with CONFIRMED evidence strength.")
         openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed", key="ov_upload")
 
 with upload_col2:
-    with st.expander("Upload ZAP XML (optional)"):
-        st.caption("Export the XML report from OWASP ZAP and upload to merge web application findings.")
+    with st.expander("OWASP ZAP XML"):
+        st.caption("Upload OWASP ZAP XML to merge web application layer findings into the risk model.")
         zap_file = st.file_uploader("ZAP XML", type=["xml"], label_visibility="collapsed", key="zap_upload")
 
 with upload_col3:
-    with st.expander("Upload Asset Inventory Excel (optional)"):
-        st.caption("Upload an Excel file mapping host IPs to data sensitivity tiers (Crown Jewel, Regulated, Sensitive, Low). Unlocks the most impactful deal-killer rules.")
+    with st.expander("Asset Inventory Excel"):
+        st.caption("Map host IPs to sensitivity tiers (Crown Jewel / Regulated / Sensitive). Unlocks the most impactful deal-killer rules.")
         st.markdown(
-            "<small style='color:#6b7280'>Required columns: <code>IP</code> (or Host) · <code>Sensitivity</code></small>",
+            "<span style='color:#364060;font-size:0.75rem;font-family:Fira Code,monospace;'>"
+            "Required columns: IP &nbsp;·&nbsp; Sensitivity</span>",
             unsafe_allow_html=True,
         )
         asset_file = st.file_uploader("Asset Inventory Excel", type=["xlsx", "xls"], label_visibility="collapsed", key="asset_upload")
@@ -248,7 +587,7 @@ if run_scan:
         try:
             with st.spinner("Scanning target · Vulners CVE lookup · Shodan enrichment · NVD CVSS · CISA KEV — this may take 30–60s..."):
                 clean_target      = target.strip()
-                xml_file          = run_nmap_scan(clean_target)
+                xml_file          = run_nmap_scan(clean_target, fast_mode=fast_mode)
                 nmap_findings     = analyze_nmap_file(xml_file)
 
                 # Vulners NSE: parse CVEs from same XML, merge back into Nmap findings
@@ -379,168 +718,185 @@ with tab_overview:
     mc4.markdown(metric_card("Moderate",       n_mod,   "yellow"), unsafe_allow_html=True)
     mc5.markdown(metric_card("Manageable",     n_man,   "green"),  unsafe_allow_html=True)
 
-    st.markdown("<div style='height:16px'></div>", unsafe_allow_html=True)
+    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
 
     _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
     if _asset_hosts_loaded:
         st.markdown(f"""
-        <div style="background:#0a1e0a; border:1px solid #166534; border-left:4px solid #22c55e;
-                    border-radius:8px; padding:12px 16px; font-size:0.83rem; color:#4ade80;">
-            <strong>✅ Asset Inventory Loaded</strong> &nbsp;—&nbsp;
+        <div style="background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.25);
+                    border-left:3px solid #22c55e; border-radius:8px; padding:11px 16px;
+                    font-size:0.82rem; color:#4ade80; font-family:'Fira Sans',sans-serif;
+                    margin-bottom:16px;">
+            <strong>Asset Inventory Active</strong> &nbsp;—&nbsp;
             {_asset_hosts_loaded} hosts classified. Data sensitivity is factored into all scores.
-        </div>
-        """, unsafe_allow_html=True)
+        </div>""", unsafe_allow_html=True)
     else:
         st.markdown("""
-        <div style="background:#1e1a0a; border:1px solid #92400e; border-left:4px solid #f59e0b;
-                    border-radius:8px; padding:12px 16px; font-size:0.83rem; color:#fbbf24;">
-            <strong>⚠️ Data Sensitivity Not Assessed</strong> &nbsp;—&nbsp;
-            All findings score <code>data_sensitivity = UNKNOWN</code> (25% of the risk model).
-            Upload an asset inventory Excel to classify hosts as Crown Jewel, Regulated, or Sensitive
-            and unlock the most impactful deal-killer rules.
-        </div>
-        """, unsafe_allow_html=True)
+        <div style="background:rgba(234,179,8,0.05); border:1px solid rgba(234,179,8,0.2);
+                    border-left:3px solid #eab308; border-radius:8px; padding:11px 16px;
+                    font-size:0.82rem; color:#facc15; font-family:'Fira Sans',sans-serif;
+                    margin-bottom:16px;">
+            <strong>Data Sensitivity Unclassified</strong> &nbsp;—&nbsp;
+            All findings default to <code style="font-family:'Fira Code',monospace;font-size:0.78rem;">UNKNOWN</code>
+            (25% of the risk model). Upload an asset inventory to unlock the most impactful deal-killer rules.
+        </div>""", unsafe_allow_html=True)
 
-    st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
-
-    # Charts + Shodan panel
-    chart_col, shodan_col = st.columns([1, 1])
+    # Charts + Intel panel
+    chart_col, shodan_col = st.columns([11, 9])
 
     with chart_col:
-        # Donut chart — tier breakdown
-        labels = []
-        values = []
-        colors = []
-        for tier, count in [
-            ("Deal Killer", n_dk),
-            ("Critical",    n_crit),
-            ("Moderate",    n_mod),
-            ("Manageable",  n_man),
-        ]:
+        st.markdown('<div class="rf-section-label">Risk Breakdown</div>', unsafe_allow_html=True)
+
+        # Donut — tier breakdown
+        labels, values, colors = [], [], []
+        for tier, count in [("Deal Killer", n_dk), ("Critical", n_crit),
+                             ("Moderate", n_mod), ("Manageable", n_man)]:
             if count:
-                labels.append(tier)
-                values.append(count)
+                labels.append(tier); values.append(count)
                 colors.append(TIER_COLOR[tier.lower().replace(" ", "_")])
 
         if values:
             fig = go.Figure(go.Pie(
-                labels=labels,
-                values=values,
-                hole=0.65,
-                marker=dict(colors=colors, line=dict(color="#0e1117", width=2)),
+                labels=labels, values=values, hole=0.68,
+                marker=dict(colors=colors, line=dict(color="#07090f", width=3)),
                 textinfo="label+percent",
-                textfont=dict(size=12, color="#e2e8f0"),
-                hovertemplate="<b>%{label}</b><br>%{value} findings<extra></extra>",
+                textfont=dict(size=11, color="#7a93b8", family="Fira Code"),
+                hovertemplate="<b>%{label}</b><br>%{value} findings (%{percent})<extra></extra>",
             ))
             fig.update_layout(
                 showlegend=False,
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(t=10, b=10, l=10, r=10),
-                height=240,
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                margin=dict(t=8, b=8, l=8, r=8), height=230,
                 annotations=[dict(
-                    text=f"<b>{n_total}</b><br><span style='font-size:11px;color:#6b7280'>findings</span>",
-                    x=0.5, y=0.5, font_size=22, font_color="#f1f5f9",
-                    showarrow=False
+                    text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#364060'>total</span>",
+                    x=0.5, y=0.5, font_size=24, font_color="#dde4f0",
+                    font=dict(family="Fira Code"), showarrow=False,
                 )],
             )
             st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-        # Top findings by score — horizontal bar
+        # Horizontal bar — top findings by score
         top_n = sorted(findings, key=lambda f: f.risk_score, reverse=True)[:8]
         if top_n:
-            bar_labels = [f.title[:40] + "…" if len(f.title) > 40 else f.title for f in top_n]
+            bar_labels = [f.title[:38] + "…" if len(f.title) > 38 else f.title for f in top_n]
             bar_values = [f.risk_score for f in top_n]
             bar_colors = [score_color(s) for s in bar_values]
 
             fig2 = go.Figure(go.Bar(
-                x=bar_values,
-                y=bar_labels,
-                orientation="h",
-                marker=dict(color=bar_colors, line=dict(width=0)),
+                x=bar_values, y=bar_labels, orientation="h",
+                marker=dict(color=bar_colors, line=dict(width=0),
+                            opacity=0.85),
                 hovertemplate="<b>%{y}</b><br>Risk Score: %{x:.1f}<extra></extra>",
             ))
             fig2.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)",
-                plot_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(range=[0, 100], gridcolor="#2a2d3a", tickfont=dict(color="#6b7280"), title=""),
-                yaxis=dict(autorange="reversed", tickfont=dict(color="#cbd5e1", size=11), title=""),
-                margin=dict(t=4, b=4, l=4, r=4),
-                height=260,
+                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                xaxis=dict(range=[0, 100], gridcolor="#17203a", zeroline=False,
+                           tickfont=dict(color="#364060", size=10, family="Fira Code"), title=""),
+                yaxis=dict(autorange="reversed",
+                           tickfont=dict(color="#7a93b8", size=10, family="Fira Sans"), title=""),
+                margin=dict(t=0, b=4, l=4, r=4), height=250,
             )
-            st.markdown("<p style='color:#6b7280;font-size:0.75rem;font-weight:600;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:4px;'>Top Findings by Risk Score</p>", unsafe_allow_html=True)
+            st.markdown('<div class="rf-section-label">Top Findings by Risk Score</div>',
+                        unsafe_allow_html=True)
             st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
 
     with shodan_col:
-        # Scan info panel
-        nmap_status     = "✅ Completed"
-        shodan_status   = "✅ Connected" if shodan_result.get("success") else "❌ Unavailable"
+        # ── Target intelligence ───────────────────────────────────────
+        st.markdown('<div class="rf-section-label">Target Intelligence</div>', unsafe_allow_html=True)
+        st.markdown(f"""
+        <div class="rf-target-panel">
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Target</span>
+            <span class="rf-tp-value">{clean_target}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Resolved IP</span>
+            <span class="rf-tp-value">{resolved_ip}</span>
+          </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        # ── Scanner pipeline ──────────────────────────────────────────
         vulners_count   = st.session_state.get("vulners_count", 0)
-        vulners_status  = f"✅ {vulners_count} CVEs found" if vulners_count else "— Script not installed"
         openvas_count   = st.session_state.get("openvas_count", 0)
         openvas_matched = st.session_state.get("openvas_matched", 0)
         zap_count       = st.session_state.get("zap_count", 0)
         asset_hosts     = st.session_state.get("asset_hosts", 0)
-        ov_status       = f"✅ {openvas_count} findings ({openvas_matched} merged)" if openvas_count else "— Not uploaded"
-        zap_status      = f"✅ {zap_count} findings" if zap_count else "— Not uploaded"
-        asset_status    = f"✅ {asset_hosts} hosts classified" if asset_hosts else "— Not uploaded"
+        shodan_ok       = shodan_result.get("success", False)
+
+        def _pi(dot_cls, name, status, status_cls=""):
+            return (f'<div class="rf-pipeline-item">'
+                    f'<span class="rf-dot {dot_cls}"></span>'
+                    f'<div><div class="rf-pi-name">{name}</div>'
+                    f'<div class="rf-pi-status {status_cls}">{status}</div></div></div>')
+
+        nmap_pi    = _pi("ok",  "Nmap",          "Completed", "ok")
+        vulners_pi = _pi("ok" if vulners_count else "off", "Vulners NSE",
+                         f"{vulners_count} CVEs" if vulners_count else "Not detected", "ok" if vulners_count else "")
+        shodan_pi  = _pi("ok" if shodan_ok else "err", "Shodan",
+                         "Connected" if shodan_ok else "Unavailable", "ok" if shodan_ok else "")
+        ov_pi      = _pi("ok" if openvas_count else "off", "OpenVAS",
+                         f"{openvas_count} findings" if openvas_count else "Not uploaded", "ok" if openvas_count else "")
+        zap_pi     = _pi("ok" if zap_count else "off", "ZAP",
+                         f"{zap_count} findings" if zap_count else "Not uploaded", "ok" if zap_count else "")
+        asset_pi   = _pi("ok" if asset_hosts else "warn", "Asset Inv.",
+                         f"{asset_hosts} hosts" if asset_hosts else "Not uploaded", "ok" if asset_hosts else "warn")
 
         st.markdown(f"""
-        <div class="info-panel">
-            <div class="ip-label">Target</div>
-            <div class="ip-value">{clean_target}</div>
-            <div class="ip-label">Resolved IP</div>
-            <div class="ip-value">{resolved_ip}</div>
-            <div class="ip-label">Nmap</div>
-            <div class="ip-value">{nmap_status}</div>
-            <div class="ip-label">Vulners NSE</div>
-            <div class="ip-value">{vulners_status}</div>
-            <div class="ip-label">Shodan</div>
-            <div class="ip-value">{shodan_status}</div>
-            <div class="ip-label">OpenVAS</div>
-            <div class="ip-value">{ov_status}</div>
-            <div class="ip-label">ZAP</div>
-            <div class="ip-value">{zap_status}</div>
-            <div class="ip-label">Asset Inventory</div>
-            <div class="ip-value">{asset_status}</div>
+        <div class="rf-pipeline">
+          <div class="rf-pipeline-header">Scanner Pipeline</div>
+          <div class="rf-pipeline-grid">
+            {nmap_pi}{vulners_pi}{shodan_pi}{ov_pi}{zap_pi}{asset_pi}
+          </div>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
-
-        # Shodan snapshot panel
+        # ── Shodan snapshot ───────────────────────────────────────────
         if shodan_result.get("success"):
-            ports_str = ", ".join(map(str, shodan_result.get("ports", []))) or "—"
+            ports_str  = ", ".join(map(str, shodan_result.get("ports", []))) or "—"
             vuln_count = len(shodan_result.get("vulns", []))
-            org = shodan_result.get("organization") or "Unknown"
-            isp = shodan_result.get("isp") or "Unknown"
-            country = shodan_result.get("country") or "Unknown"
-            city = shodan_result.get("city") or "Unknown"
+            org        = shodan_result.get("organization") or "Unknown"
+            isp        = shodan_result.get("isp") or "Unknown"
+            country    = shodan_result.get("country") or "Unknown"
+            city       = shodan_result.get("city") or "Unknown"
+            cve_color  = "#f87171" if vuln_count else "#4ade80"
 
             st.markdown(f"""
-            <div class="info-panel">
-                <div class="ip-label">Organization</div>
-                <div class="ip-value">{org}</div>
-                <div class="ip-label">ISP</div>
-                <div class="ip-value">{isp}</div>
-                <div class="ip-label">Location</div>
-                <div class="ip-value">{city}, {country}</div>
-                <div class="ip-label">Open Ports Observed</div>
-                <div class="ip-value">{ports_str}</div>
-                <div class="ip-label">CVEs Associated</div>
-                <div class="ip-value" style="color:{'#ef4444' if vuln_count else '#22c55e'};font-weight:600">{vuln_count}</div>
+            <div class="rf-shodan">
+              <div class="rf-section-label" style="margin-bottom:10px;">Shodan Snapshot</div>
+              <div class="rf-shodan-row">
+                <span class="rf-shodan-label">Org</span>
+                <span class="rf-shodan-value">{org}</span>
+              </div>
+              <div class="rf-shodan-row">
+                <span class="rf-shodan-label">ISP</span>
+                <span class="rf-shodan-value">{isp}</span>
+              </div>
+              <div class="rf-shodan-row">
+                <span class="rf-shodan-label">Location</span>
+                <span class="rf-shodan-value">{city}, {country}</span>
+              </div>
+              <div class="rf-shodan-row">
+                <span class="rf-shodan-label">Open Ports</span>
+                <span class="rf-shodan-value" style="font-family:'Fira Code',monospace;font-size:0.78rem;">{ports_str}</span>
+              </div>
+              <div class="rf-shodan-row">
+                <span class="rf-shodan-label">CVEs</span>
+                <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'Fira Code',monospace;">{vuln_count}</span>
+              </div>
             </div>
             """, unsafe_allow_html=True)
 
             if shodan_result["vulns"]:
-                with st.expander(f"View {len(shodan_result['vulns'])} associated CVEs"):
-                    top_cves = shodan_result["vulns"][:10]
-                    rest = shodan_result["vulns"][10:]
-                    st.markdown(" ".join(
-                        f'<span class="badge badge-dk">{c}</span>' for c in top_cves
-                    ), unsafe_allow_html=True)
+                with st.expander(f"Associated CVEs  ({len(shodan_result['vulns'])})"):
+                    top_cves = shodan_result["vulns"][:12]
+                    rest     = shodan_result["vulns"][12:]
+                    st.markdown(
+                        "<div style='display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;'>"
+                        + "".join(f'<span class="badge badge-dk">{c}</span>' for c in top_cves)
+                        + "</div>", unsafe_allow_html=True)
                     if rest:
-                        st.caption(f"+ {len(rest)} more CVEs")
+                        st.caption(f"+ {len(rest)} more CVEs not shown")
         else:
             st.warning(shodan_result.get("error", "Shodan enrichment unavailable."))
 
@@ -571,6 +927,7 @@ with tab_findings:
         df = pd.DataFrame(rows).sort_values("Risk Score", ascending=False).reset_index(drop=True)
 
         # Filters
+        st.markdown('<div class="rf-section-label">Filter Findings</div>', unsafe_allow_html=True)
         fc1, fc2, fc3 = st.columns(3)
         with fc1:
             selected_tiers = st.multiselect(
@@ -593,7 +950,7 @@ with tab_findings:
             (df["Risk Score"] >= min_score)
         ].copy()
 
-        st.caption(f"Showing **{len(filtered_df)}** of {len(df)} findings")
+        st.caption(f"Showing {len(filtered_df)} of {len(df)} findings")
 
         # Table
         table_df = filtered_df[["Title", "Host", "Port", "Service", "Scanner", "Risk Score", "Deal Tier", "Exposure", "Evidence"]].copy()
@@ -623,50 +980,57 @@ with tab_findings:
         st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
         # Detail cards
-        show_details = st.checkbox("Show detailed finding cards", value=False)
+        st.markdown('<div class="rf-section-label" style="margin-top:12px;">Detailed Findings</div>',
+                    unsafe_allow_html=True)
+        show_details = st.checkbox("Expand finding cards", value=False)
+
+        TIER_CSS = {"deal killer": "dk", "critical": "crit", "moderate": "mod", "manageable": "man"}
 
         if not filtered_df.empty and show_details:
-            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
             for _, row in filtered_df.iterrows():
-                tier_val = str(row["Deal Tier"]).lower().replace(" ", "_")
-                sc = score_color(row["Risk Score"])
-                tier_html  = tier_badge_html(tier_val)
-                exp_html   = exposure_badge_html(str(row["Exposure"]).lower().replace(" ", "_"))
-                evid_label = format_label(row["Evidence"])
+                tier_val     = str(row["Deal Tier"]).lower().replace(" ", "_")
+                tier_display = str(row["Deal Tier"]).lower()
+                sev_cls      = TIER_CSS.get(tier_display, "")
+                sc           = score_color(row["Risk Score"])
+                tier_html    = tier_badge_html(tier_val)
+                exp_html     = exposure_badge_html(str(row["Exposure"]).lower().replace(" ", "_"))
+                evid_label   = format_label(row["Evidence"])
+                port_svc     = f'{row["Port"]} / {row["Service"]}' if row["Port"] else row["Service"]
 
                 st.markdown(f"""
-                <div class="finding-card">
-                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
-                        <div style="flex:1; min-width:0; padding-right:16px;">
-                            <h4>{row['Title']}</h4>
-                            <div class="meta">
-                                {tier_html}&nbsp;&nbsp;{exp_html}
-                                &nbsp;&nbsp;<span style="color:#6b7280;font-size:0.78rem;">Evidence: {evid_label}</span>
-                            </div>
-                            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 24px;">
-                                <div>
-                                    <div class="field-label">Host</div>
-                                    <div class="field-value">{row['Host']}</div>
-                                </div>
-                                <div>
-                                    <div class="field-label">Port / Service</div>
-                                    <div class="field-value">{row['Port'] if row['Port'] else '—'} / {row['Service']}</div>
-                                </div>
-                                <div>
-                                    <div class="field-label">Description</div>
-                                    <div class="field-value">{row['Description']}</div>
-                                </div>
-                                <div>
-                                    <div class="field-label">Remediation</div>
-                                    <div class="field-value">{row['Remediation']}</div>
-                                </div>
-                            </div>
+                <div class="finding-card {sev_cls}">
+                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+                    <div style="flex:1; min-width:0;">
+                      <h4>{row['Title']}</h4>
+                      <div class="meta">
+                        {tier_html}&nbsp;{exp_html}
+                        &nbsp;<span style="font-family:'Fira Code',monospace;font-size:0.72rem;
+                                          color:#364060;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
+                      </div>
+                      <hr class="fc-divider">
+                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 28px;">
+                        <div>
+                          <div class="field-label">Description</div>
+                          <div class="field-value">{row['Description']}</div>
                         </div>
-                        <div class="score-pill" style="min-width:72px;">
-                            <div class="s-label">Score</div>
-                            <div class="s-value" style="color:{sc}">{row['Risk Score']:.1f}</div>
+                        <div>
+                          <div class="field-label">Remediation</div>
+                          <div class="field-value">{row['Remediation']}</div>
                         </div>
+                      </div>
+                      <div style="display:flex; gap:24px; margin-top:4px;">
+                        <div>
+                          <span class="field-label">Evidence</span>&nbsp;
+                          <span style="font-family:'Fira Code',monospace;font-size:0.78rem;
+                                       color:#7a93b8;">{evid_label}</span>
+                        </div>
+                      </div>
                     </div>
+                    <div class="score-pill">
+                      <span class="s-label">Risk</span>
+                      <div class="s-value" style="color:{sc}">{row['Risk Score']:.1f}</div>
+                    </div>
+                  </div>
                 </div>
                 """, unsafe_allow_html=True)
 
@@ -675,29 +1039,53 @@ with tab_findings:
 # ══════════════════════════════════════════════════════════════════════════════
 
 with tab_export:
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
     exp_col, _ = st.columns([2, 3])
     with exp_col:
+        st.markdown('<div class="rf-section-label">Report Summary</div>', unsafe_allow_html=True)
+
+        dk_color  = "#f87171" if n_dk   else "#4ade80"
+        crt_color = "#fb923c" if n_crit else "#364060"
+
         st.markdown(f"""
-        <div class="info-panel">
-            <div class="ip-label">Target</div>
-            <div class="ip-value">{clean_target}</div>
-            <div class="ip-label">Total Findings</div>
-            <div class="ip-value">{n_total}</div>
-            <div class="ip-label">Deal Killers</div>
-            <div class="ip-value" style="color:{'#ef4444' if n_dk else '#22c55e'};font-weight:600">{n_dk}</div>
-            <div class="ip-label">Critical</div>
-            <div class="ip-value" style="color:#f97316;font-weight:600">{n_crit}</div>
+        <div class="rf-target-panel" style="margin-bottom:16px;">
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Target</span>
+            <span class="rf-tp-value">{clean_target}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">IP</span>
+            <span class="rf-tp-value">{resolved_ip}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Findings</span>
+            <span class="rf-tp-value" style="color:#c7d8f5;">{n_total}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Deal Killers</span>
+            <span class="rf-tp-value" style="color:{dk_color};font-weight:700;">{n_dk}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Critical</span>
+            <span class="rf-tp-value" style="color:{crt_color};font-weight:600;">{n_crit}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Moderate</span>
+            <span class="rf-tp-value" style="color:#364060;">{n_mod}</span>
+          </div>
+          <div class="rf-tp-row">
+            <span class="rf-tp-label">Manageable</span>
+            <span class="rf-tp-value" style="color:#364060;">{n_man}</span>
+          </div>
         </div>
         """, unsafe_allow_html=True)
 
-        st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+        st.markdown('<div class="rf-section-label">Download Reports</div>', unsafe_allow_html=True)
 
         csv_file = export_findings_csv(findings)
         with open(csv_file, "rb") as f:
             st.download_button(
-                label="⬇️  Download CSV Report",
+                label="Download CSV Report",
                 data=f,
                 file_name=csv_file.split("\\")[-1].split("/")[-1],
                 mime="text/csv",
@@ -709,7 +1097,7 @@ with tab_export:
         pdf_file = generate_pdf_report(findings, clean_target, resolved_ip)
         with open(pdf_file, "rb") as f:
             st.download_button(
-                label="⬇️  Download PDF Report",
+                label="Download PDF Report",
                 data=f,
                 file_name=pdf_file.split("\\")[-1].split("/")[-1],
                 mime="application/pdf",

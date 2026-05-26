@@ -2,7 +2,7 @@ import os
 import datetime
 import nmap
 from dotenv import load_dotenv
-from config import NMAP_SCAN_ARGS
+from config import NMAP_SCAN_ARGS, NMAP_FAST_ARGS
 
 load_dotenv()
 
@@ -34,7 +34,7 @@ def _vulners_script_args(nmap_path: str) -> str:
     return args
 
 
-def run_nmap_scan(target: str, output_dir: str = "data/results") -> str:
+def run_nmap_scan(target: str, output_dir: str = "data/results", fast_mode: bool = False) -> str:
     os.makedirs(output_dir, exist_ok=True)
 
     nmap_path = find_nmap()
@@ -49,9 +49,10 @@ def run_nmap_scan(target: str, output_dir: str = "data/results") -> str:
 
     scanner = nmap.PortScanner(nmap_search_path=(nmap_path,))
 
+    base_args = NMAP_FAST_ARGS if fast_mode else NMAP_SCAN_ARGS
+    mode_label = "fast (top 200 ports)" if fast_mode else "full"
     print(f"[INFO] Using Nmap binary: {nmap_path}")
-    print(f"[INFO] Starting Nmap scan on: {target}")
-    print("[INFO] This may take 1-2 minutes...")
+    print(f"[INFO] Starting Nmap scan on: {target}  [{mode_label}]")
 
     vulners_args = _vulners_script_args(nmap_path)
     if vulners_args:
@@ -61,7 +62,7 @@ def run_nmap_scan(target: str, output_dir: str = "data/results") -> str:
 
     scanner.scan(
         hosts=target,
-        arguments=f"{NMAP_SCAN_ARGS}{vulners_args}"
+        arguments=f"{base_args}{vulners_args}"
     )
 
     xml_output = scanner.get_nmap_last_output()

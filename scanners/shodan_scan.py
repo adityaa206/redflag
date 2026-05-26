@@ -1,6 +1,6 @@
 import os
-import time
 import requests
+from concurrent.futures import ThreadPoolExecutor, as_completed
 from dotenv import load_dotenv
 import shodan
 
@@ -57,16 +57,32 @@ def fetch_cvss_from_nvd(cve_id: str) -> float:
     return score
 
 
-def fetch_cvss_batch(cve_ids: list[str], delay: float = 0.7) -> dict[str, float]:
+def fetch_cvss_batch(cve_ids: list[str]) -> dict[str, float]:
     """
-    Fetch CVSS scores for a list of CVEs with a small inter-request delay
-    to stay within the NVD rate limit (5 req/30s without key).
+    Fetch CVSS scores in parallel (up to 5 workers).
+
+    NVD allows 5 req/30s without an API key. We stay safe by capping
+    workers at 5 and only fetching CVEs not already in the in-process cache.
+    Individual fetch errors fall back to 6.5 inside fetch_cvss_from_nvd.
     """
-    results = {}
-    for cve in cve_ids:
-        results[cve] = fetch_cvss_from_nvd(cve)
-        if cve not in _nvd_cache or _nvd_cache.get(cve) == 6.5:
-            time.sleep(delay)
+    if not cve_ids:
+        return {}
+
+    cached   = {c: _nvd_cache[c] for c in cve_ids if c in _nvd_cache}
+    to_fetch = [c for c in cve_ids if c not in _nvd_cache]
+
+    if not to_fetch:
+        return cached
+
+    results = dict(cached)
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        future_map = {executor.submit(fetch_cvss_from_nvd, cve): cve for cve in to_fetch}
+        for future in as_completed(future_map):
+            cve = future_map[future]
+            try:
+                results[cve] = future.result()
+            except Exception:
+                results[cve] = 6.5
     return results
 
 
