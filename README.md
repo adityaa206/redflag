@@ -1,6 +1,6 @@
 # RedFlag
 
-RedFlag is a Streamlit-based cybersecurity due diligence platform for mergers and acquisitions. It combines network discovery, external threat intelligence, vulnerability scanner outputs, and a weighted triage model to help identify findings that could materially affect a deal. [web:377][web:373]
+RedFlag is a Streamlit-based cybersecurity due diligence platform for mergers and acquisitions. It combines network discovery, external threat intelligence, vulnerability scanner outputs, and a weighted triage model to help identify findings that could materially affect a deal. 
 
 ## Highlights
 
@@ -229,13 +229,6 @@ RedFlag currently supports:
 - Add ticketing integrations for remediation tracking
 - Add historical comparison between scan runs
 
-## Contributing
 
-1. Create a feature branch.
-2. Make your changes.
-3. Test the Streamlit flow and report exports.
-4. Open a pull request with a clear summary.
 
-## License
 
-Add your preferred license here, for example MIT.
