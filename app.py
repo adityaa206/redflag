@@ -8,7 +8,7 @@ from reports.pdf_report import generate_pdf_report
 from scanners.nmap_scan import run_nmap_scan, vulners_nse_available
 from analysis.parser import analyze_nmap_file
 from analysis.triage import triage_all
-from scanners.shodan_scan import lookup_host, enrich_findings_with_shodan, create_shodan_findings
+from scanners.shodan_scan import lookup_host, enrich_findings_with_shodan, create_shodan_findings, parse_shodan_json
 from scanners.openvas_parse import parse_openvas_xml, merge_openvas_with_nmap
 from scanners.vulners_parse import parse_vulners_from_nmap_xml, merge_vulners_with_nmap
 from scanners.zap_scan import parse_zap_xml, merge_zap_with_nmap
@@ -27,74 +27,83 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* ══════════════════════════════════════════════════════════════
-   REDFLAG  —  Design System v2
-   Fonts  : Fira Code (mono/technical) + Fira Sans (body)
-   Palette: Deep navy · Severity red / orange / yellow / green
+   REDFLAG  —  Design System v3
+   Fonts  : JetBrains Mono (data/mono) + Inter (body)
+   Palette: Deep void · Signal red · Threat amber · Safe emerald
 ══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600;700&family=Fira+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* ── Base ── */
-[data-testid="stAppViewContainer"] { background: #07090f; }
-[data-testid="stHeader"]           { background: transparent; }
+[data-testid="stAppViewContainer"] { background: #030508 !important; }
+[data-testid="stHeader"]           { background: transparent !important; }
 [data-testid="stMainBlockContainer"] { padding-top: 0 !important; }
 html, body, [class*="css"],
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] li,
 .stCheckbox label, .stSlider label, .stMultiSelect label,
-.stCaption, .stAlert p, button { font-family: 'Fira Sans', -apple-system, sans-serif !important; }
+.stCaption, .stAlert p, button { font-family: 'Inter', -apple-system, sans-serif !important; }
 
 /* ── METRIC CARDS ── */
 .rf-metric {
-    background: #0c0f1a;
-    border: 1px solid #17203a;
-    border-radius: 10px;
-    padding: 16px 18px 20px;
+    background: linear-gradient(160deg, #080d1c 0%, #060a16 100%);
+    border: 1px solid #0e1828;
+    border-radius: 14px;
+    padding: 20px 16px 22px;
     text-align: center;
-    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.2s ease;
-    cursor: default;
     position: relative;
+    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.25s ease;
+    cursor: default;
 }
-.rf-metric:hover { transform: translateY(-3px); }
+.rf-metric::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 14px 14px 0 0;
+}
+.rf-metric:hover { transform: translateY(-4px); }
 .rf-metric .label {
-    font-size: 0.62rem;
-    font-weight: 600;
-    letter-spacing: 0.13em;
+    font-size: 0.58rem;
+    font-weight: 700;
+    letter-spacing: 0.18em;
     text-transform: uppercase;
-    color: #364060;
-    margin-bottom: 10px;
-    font-family: 'Fira Code', monospace;
+    color: #263550;
+    margin-bottom: 12px;
+    font-family: 'JetBrains Mono', monospace;
 }
 .rf-metric .value {
-    font-size: 2.7rem;
+    font-size: 2.9rem;
     font-weight: 700;
     line-height: 1;
-    font-family: 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -0.03em;
 }
-.rf-metric.red    { border-top: 3px solid #ef4444; }
-.rf-metric.red    .value { color: #ef4444; }
-.rf-metric.red:hover    { border-color: rgba(239,68,68,0.5); box-shadow: 0 8px 32px rgba(239,68,68,0.2); }
-.rf-metric.orange { border-top: 3px solid #f97316; }
-.rf-metric.orange .value { color: #f97316; }
-.rf-metric.orange:hover { border-color: rgba(249,115,22,0.5); box-shadow: 0 8px 32px rgba(249,115,22,0.2); }
-.rf-metric.yellow { border-top: 3px solid #eab308; }
-.rf-metric.yellow .value { color: #eab308; }
-.rf-metric.yellow:hover { border-color: rgba(234,179,8,0.5); box-shadow: 0 8px 32px rgba(234,179,8,0.18); }
-.rf-metric.green  { border-top: 3px solid #22c55e; }
-.rf-metric.green  .value { color: #22c55e; }
-.rf-metric.green:hover  { border-color: rgba(34,197,94,0.5); box-shadow: 0 8px 32px rgba(34,197,94,0.2); }
-.rf-metric.blue   { border-top: 3px solid #3b82f6; }
-.rf-metric.blue   .value { color: #c7d8f5; }
-.rf-metric.blue:hover   { border-color: rgba(59,130,246,0.5); box-shadow: 0 8px 32px rgba(59,130,246,0.2); }
+.rf-metric.red::before    { background: linear-gradient(90deg, #f43f5e, #9f1239); }
+.rf-metric.red .value     { color: #f43f5e; }
+.rf-metric.red:hover      { box-shadow: 0 12px 44px rgba(244,63,94,0.25), 0 0 0 1px rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.2); }
+.rf-metric.orange::before { background: linear-gradient(90deg, #fb923c, #c2410c); }
+.rf-metric.orange .value  { color: #fb923c; }
+.rf-metric.orange:hover   { box-shadow: 0 12px 44px rgba(251,146,60,0.22), 0 0 0 1px rgba(251,146,60,0.12); border-color: rgba(251,146,60,0.2); }
+.rf-metric.yellow::before { background: linear-gradient(90deg, #fbbf24, #b45309); }
+.rf-metric.yellow .value  { color: #fbbf24; }
+.rf-metric.yellow:hover   { box-shadow: 0 12px 44px rgba(251,191,36,0.18), 0 0 0 1px rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.18); }
+.rf-metric.green::before  { background: linear-gradient(90deg, #34d399, #065f46); }
+.rf-metric.green .value   { color: #34d399; }
+.rf-metric.green:hover    { box-shadow: 0 12px 44px rgba(52,211,153,0.2), 0 0 0 1px rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.18); }
+.rf-metric.blue::before   { background: linear-gradient(90deg, #60a5fa, #1d4ed8); }
+.rf-metric.blue .value    { color: #93b8f8; }
+.rf-metric.blue:hover     { box-shadow: 0 12px 44px rgba(96,165,250,0.2), 0 0 0 1px rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.18); }
 
 /* ── SECTION LABEL ── */
 .rf-section-label {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.61rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #364060;
+    color: #243048;
     display: flex;
     align-items: center;
     gap: 10px;
@@ -105,274 +114,314 @@ html, body, [class*="css"],
     content: '';
     flex: 1;
     height: 1px;
-    background: linear-gradient(90deg, #17203a 0%, transparent 100%);
+    background: linear-gradient(90deg, #0d1a30 0%, transparent 100%);
 }
 
 /* ── BADGES ── */
 .badge {
-    display: inline-block;
-    padding: 2px 8px;
-    border-radius: 3px;
-    font-size: 0.62rem;
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-size: 0.59rem;
     font-weight: 700;
-    letter-spacing: 0.09em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    font-family: 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', monospace;
 }
-.badge-dk   { background: rgba(239,68,68,0.14);  color: #f87171; border: 1px solid rgba(239,68,68,0.35); }
-.badge-crit { background: rgba(249,115,22,0.14); color: #fb923c; border: 1px solid rgba(249,115,22,0.35); }
-.badge-mod  { background: rgba(234,179,8,0.12);  color: #facc15; border: 1px solid rgba(234,179,8,0.35); }
-.badge-man  { background: rgba(34,197,94,0.12);  color: #4ade80; border: 1px solid rgba(34,197,94,0.35); }
-.badge-unk  { background: rgba(107,114,128,0.1); color: #6b7280; border: 1px solid rgba(107,114,128,0.25); }
-.badge-inet { background: rgba(96,165,250,0.12); color: #60a5fa; border: 1px solid rgba(59,130,246,0.35); }
-.badge-part { background: rgba(167,139,250,0.12);color: #a78bfa; border: 1px solid rgba(124,58,237,0.35); }
-.badge-int  { background: rgba(74,222,128,0.10); color: #4ade80; border: 1px solid rgba(34,197,94,0.3); }
-.badge-ukn  { background: rgba(107,114,128,0.1); color: #6b7280; border: 1px solid rgba(55,65,81,0.3); }
+.badge-dk   { background: rgba(244,63,94,0.12);  color: #f87171; border: 1px solid rgba(244,63,94,0.3); }
+.badge-crit { background: rgba(251,146,60,0.12); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
+.badge-mod  { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.badge-man  { background: rgba(52,211,153,0.1);  color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.badge-unk  { background: rgba(107,114,128,0.08);color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
+.badge-inet { background: rgba(96,165,250,0.1);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.badge-part { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
+.badge-int  { background: rgba(52,211,153,0.08); color: #34d399; border: 1px solid rgba(52,211,153,0.22); }
+.badge-ukn  { background: rgba(107,114,128,0.08);color: #6b7280; border: 1px solid rgba(55,65,81,0.22); }
 
 /* ── FINDING CARDS ── */
-.finding-card {
-    background: #0c0f1a;
-    border: 1px solid #17203a;
-    border-left: 3px solid #17203a;
-    border-radius: 10px;
-    padding: 18px 22px 18px 20px;
-    margin-bottom: 8px;
-    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.2s ease;
+@keyframes pulse-dk {
+    0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.3), 0 4px 28px rgba(244,63,94,0.08); }
+    50%      { box-shadow: 0 0 0 5px rgba(244,63,94,0), 0 4px 28px rgba(244,63,94,0.18); }
 }
-.finding-card:hover { background: #0f1422; box-shadow: 0 4px 36px rgba(0,0,0,0.65); }
-.finding-card.dk   { border-left-color: #ef4444; }
-.finding-card.crit { border-left-color: #f97316; }
-.finding-card.mod  { border-left-color: #eab308; }
-.finding-card.man  { border-left-color: #22c55e; }
-.finding-card.dk:hover   { border-color: rgba(239,68,68,0.35); box-shadow: 0 4px 36px rgba(239,68,68,0.12); }
-.finding-card.crit:hover { border-color: rgba(249,115,22,0.35); box-shadow: 0 4px 36px rgba(249,115,22,0.12); }
-.finding-card.mod:hover  { border-color: rgba(234,179,8,0.35); }
-.finding-card.man:hover  { border-color: rgba(34,197,94,0.35); }
+.finding-card {
+    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
+    border: 1px solid #0e1828;
+    border-left: 3px solid #0e1828;
+    border-radius: 12px;
+    padding: 18px 22px;
+    margin-bottom: 8px;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    position: relative;
+}
+.finding-card:hover { background: linear-gradient(145deg, #0c1220 0%, #09101c 100%); }
+.finding-card.dk   { border-left-color: #f43f5e; animation: pulse-dk 3s ease-in-out infinite; }
+.finding-card.crit { border-left-color: #fb923c; }
+.finding-card.mod  { border-left-color: #fbbf24; }
+.finding-card.man  { border-left-color: #34d399; }
+.finding-card.dk:hover   { border-color: rgba(244,63,94,0.28);  box-shadow: 0 6px 40px rgba(244,63,94,0.14); }
+.finding-card.crit:hover { border-color: rgba(251,146,60,0.28); box-shadow: 0 6px 40px rgba(251,146,60,0.12); }
+.finding-card.mod:hover  { border-color: rgba(251,191,36,0.25); box-shadow: 0 4px 28px rgba(251,191,36,0.08); }
+.finding-card.man:hover  { border-color: rgba(52,211,153,0.22); box-shadow: 0 4px 28px rgba(52,211,153,0.08); }
 .finding-card h4 {
-    color: #dde4f0;
-    font-size: 0.97rem;
+    color: #dce8ff;
+    font-size: 0.96rem;
     font-weight: 600;
     margin: 0 0 8px 0;
-    font-family: 'Fira Sans', sans-serif;
-    line-height: 1.4;
+    font-family: 'Inter', sans-serif;
+    line-height: 1.45;
+    letter-spacing: -0.01em;
 }
 .finding-card .meta {
-    color: #4b6080;
-    font-size: 0.79rem;
-    margin-bottom: 12px;
+    color: #374e6e;
+    font-size: 0.78rem;
+    margin-bottom: 14px;
     display: flex;
     gap: 8px;
     flex-wrap: wrap;
     align-items: center;
 }
-.finding-card .fc-divider { border: none; border-top: 1px solid #17203a; margin: 12px 0; }
+.finding-card .fc-divider { border: none; border-top: 1px solid #0e1828; margin: 12px 0; }
 .finding-card .field-label {
-    color: #364060;
-    font-size: 0.61rem;
-    font-weight: 600;
+    color: #243048;
+    font-size: 0.57rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.11em;
-    margin-bottom: 3px;
-    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.15em;
+    margin-bottom: 4px;
+    font-family: 'JetBrains Mono', monospace;
 }
-.finding-card .field-value { color: #7a93b8; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.6; }
+.finding-card .field-value { color: #5f7ca0; font-size: 0.84rem; margin-bottom: 12px; line-height: 1.65; }
 .finding-card .score-pill {
-    background: #07090f;
-    border: 1px solid #17203a;
-    border-radius: 8px;
-    padding: 12px 14px;
+    background: #050810;
+    border: 1px solid #0e1828;
+    border-radius: 10px;
+    padding: 14px 16px;
     text-align: center;
-    min-width: 72px;
+    min-width: 76px;
+    flex-shrink: 0;
 }
 .finding-card .score-pill .s-label {
-    color: #364060;
-    font-size: 0.59rem;
-    font-weight: 600;
+    color: #243048;
+    font-size: 0.56rem;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.11em;
-    font-family: 'Fira Code', monospace;
+    letter-spacing: 0.15em;
+    font-family: 'JetBrains Mono', monospace;
     display: block;
-    margin-bottom: 4px;
+    margin-bottom: 5px;
 }
 .finding-card .score-pill .s-value {
-    font-size: 1.8rem;
+    font-size: 1.9rem;
     font-weight: 700;
-    font-family: 'Fira Code', monospace;
+    font-family: 'JetBrains Mono', monospace;
     line-height: 1;
+    letter-spacing: -0.03em;
 }
 
 /* ── STATUS DOTS ── */
 .rf-dot {
     display: inline-block;
-    width: 7px;
-    height: 7px;
+    width: 7px; height: 7px;
     border-radius: 50%;
     flex-shrink: 0;
-    margin-top: 1px;
+    margin-top: 2px;
 }
-.rf-dot.ok   { background: #22c55e; box-shadow: 0 0 7px rgba(34,197,94,0.8); }
-.rf-dot.warn { background: #eab308; box-shadow: 0 0 7px rgba(234,179,8,0.8); }
-.rf-dot.err  { background: #ef4444; box-shadow: 0 0 7px rgba(239,68,68,0.8); }
-.rf-dot.off  { background: #1c2a45; }
+@keyframes warn-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
+.rf-dot.ok   { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.9); }
+.rf-dot.warn { background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.9); animation: warn-blink 2s infinite; }
+.rf-dot.err  { background: #f43f5e; box-shadow: 0 0 8px rgba(244,63,94,0.9); }
+.rf-dot.off  { background: #182236; }
 
-/* ── SCANNER PIPELINE ── */
-.rf-pipeline {
-    background: #0c0f1a;
-    border: 1px solid #17203a;
-    border-radius: 10px;
-    overflow: hidden;
+/* ── SCANNER PIPELINE (horizontal flow) ── */
+.rf-pipeline-h {
+    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
+    border: 1px solid #0e1828;
+    border-radius: 12px;
+    padding: 14px 16px 12px;
     margin-bottom: 10px;
 }
 .rf-pipeline-header {
-    padding: 9px 16px;
-    border-bottom: 1px solid #17203a;
-    font-family: 'Fira Code', monospace;
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.15em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.56rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #364060;
-    background: #07090f;
+    color: #243048;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #0e1828;
 }
-.rf-pipeline-grid { display: grid; grid-template-columns: 1fr 1fr; }
-.rf-pipeline-item {
+.rf-pipeline-flow {
     display: flex;
     align-items: flex-start;
-    gap: 9px;
-    padding: 10px 14px;
-    border-bottom: 1px solid #0d1120;
+    gap: 0;
+    flex-wrap: wrap;
+    row-gap: 8px;
+}
+.rf-pipeline-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border-radius: 8px;
     transition: background 0.15s ease;
+    min-width: 64px;
+    cursor: default;
 }
-.rf-pipeline-item:nth-child(odd)  { border-right: 1px solid #0d1120; }
-.rf-pipeline-item:hover           { background: #0f1422; }
-.rf-pi-name {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.77rem;
-    color: #7a93b8;
-    min-width: 78px;
-    font-weight: 500;
+.rf-pipeline-step:hover { background: rgba(255,255,255,0.025); }
+.rf-pipeline-step .step-dot { margin-bottom: 2px; }
+.rf-pipeline-step .step-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.67rem;
+    font-weight: 600;
+    color: #5f7ca0;
+    white-space: nowrap;
 }
-.rf-pi-status { font-size: 0.77rem; color: #364060; font-family: 'Fira Sans', sans-serif; }
-.rf-pi-status.ok     { color: #4ade80; }
-.rf-pi-status.active { color: #60a5fa; }
-.rf-pi-status.warn   { color: #facc15; }
+.rf-pipeline-step .step-status {
+    font-size: 0.62rem;
+    color: #243048;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+    text-align: center;
+}
+.rf-pipeline-step .step-status.ok   { color: #34d399; }
+.rf-pipeline-step .step-status.warn { color: #fbbf24; }
+.rf-pipeline-arrow {
+    color: #182236;
+    font-size: 0.85rem;
+    margin: 0 1px;
+    padding-top: 16px;
+    flex-shrink: 0;
+}
 
 /* ── TARGET PANEL ── */
 .rf-target-panel {
-    background: #0c0f1a;
-    border: 1px solid #17203a;
-    border-radius: 10px;
-    padding: 14px 16px 6px;
+    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
+    border: 1px solid #0e1828;
+    border-radius: 12px;
+    padding: 14px 16px 8px;
     margin-bottom: 10px;
 }
 .rf-tp-row {
     display: grid;
-    grid-template-columns: 80px 1fr;
+    grid-template-columns: 86px 1fr;
     align-items: baseline;
-    margin-bottom: 8px;
+    margin-bottom: 9px;
     gap: 8px;
 }
 .rf-tp-label {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #364060;
+    color: #243048;
 }
 .rf-tp-value {
-    font-size: 0.84rem;
-    color: #dde4f0;
-    font-family: 'Fira Code', monospace;
+    font-size: 0.83rem;
+    color: #dce8ff;
+    font-family: 'JetBrains Mono', monospace;
     word-break: break-all;
 }
 
 /* ── SHODAN SNAPSHOT ── */
 .rf-shodan {
-    background: #0c0f1a;
-    border: 1px solid #17203a;
-    border-left: 3px solid #1d4ed8;
-    border-radius: 10px;
-    padding: 14px 16px 6px;
+    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
+    border: 1px solid #0e1828;
+    border-left: 3px solid #2563eb;
+    border-radius: 12px;
+    padding: 14px 16px 8px;
 }
 .rf-shodan-row {
     display: grid;
     grid-template-columns: 90px 1fr;
     align-items: baseline;
-    margin-bottom: 8px;
+    margin-bottom: 9px;
     gap: 8px;
 }
 .rf-shodan-label {
-    font-family: 'Fira Code', monospace;
-    font-size: 0.6rem;
-    font-weight: 600;
-    letter-spacing: 0.12em;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.57rem;
+    font-weight: 700;
+    letter-spacing: 0.15em;
     text-transform: uppercase;
-    color: #364060;
+    color: #243048;
 }
-.rf-shodan-value { font-size: 0.84rem; color: #7a93b8; font-family: 'Fira Sans', sans-serif; }
+.rf-shodan-value { font-size: 0.83rem; color: #5f7ca0; font-family: 'Inter', sans-serif; }
 
-/* ── INFO PANEL (legacy compat) ── */
-.info-panel {
-    background: #0c0f1a;
-    border: 1px solid #17203a;
+/* ── DEAL-KILLER ALERT BANNER ── */
+.dk-alert {
+    background: linear-gradient(135deg, rgba(244,63,94,0.07) 0%, rgba(159,18,57,0.04) 100%);
+    border: 1px solid rgba(244,63,94,0.22);
+    border-left: 4px solid #f43f5e;
     border-radius: 10px;
-    padding: 14px 16px;
+    padding: 13px 18px;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
 }
-.info-panel .ip-label {
-    color: #364060;
-    font-size: 0.61rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.12em;
-    margin-bottom: 2px;
-    font-family: 'Fira Code', monospace;
+.dk-alert-body { flex: 1; }
+.dk-alert-title { font-size: 0.84rem; font-weight: 700; color: #f43f5e; font-family: 'Inter', sans-serif; margin-bottom: 2px; }
+.dk-alert-sub   { font-size: 0.77rem; color: rgba(244,63,94,0.65); font-family: 'Inter', sans-serif; }
+.dk-alert-count { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: #f43f5e; line-height: 1; flex-shrink: 0; }
+
+/* ── ASSET INVENTORY NOTICE ── */
+.inv-notice {
+    border-radius: 10px; padding: 11px 16px; margin-bottom: 16px;
+    font-size: 0.82rem; font-family: 'Inter', sans-serif;
+    display: flex; align-items: center; gap: 10px;
 }
-.info-panel .ip-value { color: #dde4f0; font-size: 0.86rem; margin-bottom: 10px; }
+.inv-notice.active { background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.2); border-left: 3px solid #34d399; color: #34d399; }
+.inv-notice.warn   { background: rgba(251,191,36,0.04);  border: 1px solid rgba(251,191,36,0.18); border-left: 3px solid #fbbf24; color: #fbbf24; }
 
 /* ── DIVIDERS ── */
-.rf-divider { border: none; border-top: 1px solid #17203a; margin: 14px 0; }
+.rf-divider { border: none; border-top: 1px solid #0e1828; margin: 14px 0; }
 
-/* ── SCAN BAR ── */
+/* ── SCAN INPUT ── */
 [data-testid="stTextInput"] input {
-    background: #0c0f1a !important;
-    border: 1px solid #17203a !important;
-    border-radius: 8px !important;
-    color: #dde4f0 !important;
-    font-size: 0.9rem !important;
-    font-family: 'Fira Code', monospace !important;
-    letter-spacing: 0.025em !important;
+    background: #070b16 !important;
+    border: 1px solid #0f1d35 !important;
+    border-radius: 10px !important;
+    color: #dce8ff !important;
+    font-size: 0.92rem !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    letter-spacing: 0.02em !important;
+    padding: 10px 14px !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 [data-testid="stTextInput"] input:focus {
-    border-color: #ef4444 !important;
-    box-shadow: 0 0 0 2px rgba(239,68,68,0.12), 0 0 24px rgba(239,68,68,0.05) !important;
+    border-color: #f43f5e !important;
+    box-shadow: 0 0 0 3px rgba(244,63,94,0.1), 0 0 30px rgba(244,63,94,0.06) !important;
 }
-[data-testid="stTextInput"] input::placeholder { color: #1c2a45 !important; }
+[data-testid="stTextInput"] input::placeholder { color: #182236 !important; }
 [data-testid="stTextInput"] label {
-    color: #364060 !important;
-    font-size: 0.6rem !important;
+    color: #243048 !important;
+    font-size: 0.57rem !important;
     font-weight: 700 !important;
-    letter-spacing: 0.15em !important;
+    letter-spacing: 0.18em !important;
     text-transform: uppercase !important;
-    font-family: 'Fira Code', monospace !important;
+    font-family: 'JetBrains Mono', monospace !important;
 }
 
 /* ── PRIMARY BUTTON ── */
 [data-testid="stButton"] > button[kind="primary"],
 [data-testid="stBaseButton-primary"] {
-    background: linear-gradient(160deg, #ef4444 0%, #b91c1c 100%) !important;
-    border: 1px solid rgba(239,68,68,0.35) !important;
-    border-radius: 8px !important;
-    font-family: 'Fira Sans', sans-serif !important;
+    background: linear-gradient(160deg, #f43f5e 0%, #9f1239 100%) !important;
+    border: 1px solid rgba(244,63,94,0.4) !important;
+    border-radius: 10px !important;
+    font-family: 'Inter', sans-serif !important;
     font-weight: 700 !important;
-    letter-spacing: 0.05em !important;
-    box-shadow: 0 2px 20px rgba(239,68,68,0.3), inset 0 1px 0 rgba(255,255,255,0.07) !important;
-    transition: box-shadow 0.15s ease, transform 0.1s ease !important;
+    letter-spacing: 0.06em !important;
+    font-size: 0.86rem !important;
+    box-shadow: 0 4px 24px rgba(244,63,94,0.38), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    transition: box-shadow 0.15s ease, transform 0.12s ease !important;
 }
 [data-testid="stButton"] > button[kind="primary"]:hover,
 [data-testid="stBaseButton-primary"]:hover {
-    box-shadow: 0 4px 28px rgba(239,68,68,0.55), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    box-shadow: 0 6px 36px rgba(244,63,94,0.6), inset 0 1px 0 rgba(255,255,255,0.1) !important;
     transform: translateY(-1px) !important;
 }
 [data-testid="stButton"] > button[kind="primary"]:active,
@@ -380,90 +429,124 @@ html, body, [class*="css"],
 
 /* ── DOWNLOAD BUTTONS ── */
 [data-testid="stDownloadButton"] > button {
-    background: #0c0f1a !important;
-    border: 1px solid #17203a !important;
-    border-radius: 8px !important;
-    color: #7a93b8 !important;
-    font-family: 'Fira Sans', sans-serif !important;
+    background: #070b16 !important;
+    border: 1px solid #0f1d35 !important;
+    border-radius: 10px !important;
+    color: #5f7ca0 !important;
+    font-family: 'Inter', sans-serif !important;
     font-weight: 500 !important;
-    transition: border-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease !important;
+    transition: all 0.15s ease !important;
 }
 [data-testid="stDownloadButton"] > button:hover {
     border-color: #2563eb !important;
     color: #60a5fa !important;
-    box-shadow: 0 2px 18px rgba(37,99,235,0.22) !important;
+    box-shadow: 0 2px 22px rgba(37,99,235,0.22) !important;
 }
 
 /* ── TABS ── */
 [data-testid="stTabs"] [role="tablist"] {
-    border-bottom: 1px solid #17203a !important;
+    border-bottom: 1px solid #0e1828 !important;
     gap: 0 !important;
     background: transparent !important;
 }
 [data-testid="stTabs"] button[role="tab"] {
-    font-family: 'Fira Sans', sans-serif !important;
+    font-family: 'Inter', sans-serif !important;
     font-weight: 600 !important;
-    font-size: 0.84rem !important;
-    color: #364060 !important;
-    letter-spacing: 0.05em !important;
-    padding: 10px 26px !important;
+    font-size: 0.83rem !important;
+    color: #243048 !important;
+    letter-spacing: 0.04em !important;
+    padding: 11px 28px !important;
     border-bottom: 2px solid transparent !important;
     transition: color 0.15s ease !important;
     background: transparent !important;
     border-radius: 0 !important;
 }
 [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    color: #dde4f0 !important;
-    border-bottom-color: #ef4444 !important;
+    color: #dce8ff !important;
+    border-bottom-color: #f43f5e !important;
 }
-[data-testid="stTabs"] button[role="tab"]:hover { color: #7a93b8 !important; }
+[data-testid="stTabs"] button[role="tab"]:hover { color: #5f7ca0 !important; }
 
 /* ── EXPANDERS ── */
 [data-testid="stExpander"] details {
-    background: #0c0f1a !important;
-    border: 1px solid #17203a !important;
-    border-radius: 8px !important;
+    background: #070b16 !important;
+    border: 1px solid #0e1828 !important;
+    border-radius: 10px !important;
 }
 [data-testid="stExpander"] summary {
-    font-family: 'Fira Sans', sans-serif !important;
+    font-family: 'Inter', sans-serif !important;
     font-weight: 500 !important;
-    font-size: 0.84rem !important;
-    color: #7a93b8 !important;
-    padding: 11px 16px !important;
+    font-size: 0.83rem !important;
+    color: #5f7ca0 !important;
+    padding: 12px 16px !important;
 }
-[data-testid="stExpander"] summary:hover { color: #dde4f0 !important; }
+[data-testid="stExpander"] summary:hover { color: #dce8ff !important; }
 [data-testid="stExpander"] details > div { padding: 4px 16px 14px !important; }
 
 /* ── MULTISELECT ── */
 [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
-    background: #0c0f1a !important;
-    border-color: #17203a !important;
+    background: #070b16 !important;
+    border-color: #0e1828 !important;
     border-radius: 8px !important;
 }
 
 /* ── CHECKBOX ── */
 [data-testid="stCheckbox"] label {
-    font-size: 0.86rem !important;
-    color: #7a93b8 !important;
-    font-family: 'Fira Sans', sans-serif !important;
+    font-size: 0.85rem !important;
+    color: #5f7ca0 !important;
+    font-family: 'Inter', sans-serif !important;
 }
 
 /* ── CAPTION ── */
 [data-testid="stCaptionContainer"] p {
-    font-family: 'Fira Code', monospace !important;
-    font-size: 0.74rem !important;
-    color: #364060 !important;
+    font-family: 'JetBrains Mono', monospace !important;
+    font-size: 0.71rem !important;
+    color: #243048 !important;
     letter-spacing: 0.02em !important;
 }
 
 /* ── ALERTS ── */
-[data-testid="stAlertContainer"] { border-radius: 8px !important; }
+[data-testid="stAlertContainer"] { border-radius: 10px !important; }
+
+/* ── METRIC CARD — clickable view buttons ──
+   Target secondary buttons inside ANY 5-column horizontal block.
+   The metric row is the only 5-col layout in the app, so this is specific enough.
+   Uses CSS :has() — supported in all modern browsers (Chrome 105+, FF 121+, Safari 15.4+).
+── */
+[data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
+    [data-testid="stBaseButton-secondary"] button,
+[data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
+    [data-testid="stBaseButton-secondaryFormSubmit"] button {
+    background:     transparent !important;
+    border:         none        !important;
+    box-shadow:     none        !important;
+    color:          #1e2d48     !important;
+    font-size:      0.53rem     !important;
+    font-family:    'JetBrains Mono', monospace !important;
+    font-weight:    700         !important;
+    letter-spacing: 0.16em      !important;
+    text-transform: uppercase   !important;
+    padding:        3px 0 2px   !important;
+    margin-top:     -4px        !important;
+    width:          100%        !important;
+    transition:     color 0.15s ease, transform 0.1s ease !important;
+}
+[data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
+    [data-testid="stBaseButton-secondary"] button:hover {
+    color:      #5f7ca0     !important;
+    background: transparent !important;
+    box-shadow: none        !important;
+    transform:  none        !important;
+}
+/* Accent the first column (mc1 = Total Findings) — not clickable, no button */
+[data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
+    > div:first-child [data-testid="stBaseButton-secondary"] { display: none; }
 
 /* ── SCROLLBAR ── */
-::-webkit-scrollbar { width: 5px; height: 5px; }
-::-webkit-scrollbar-track { background: #07090f; }
-::-webkit-scrollbar-thumb { background: #17203a; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #1f2d4a; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: #030508; }
+::-webkit-scrollbar-thumb { background: #0e1828; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #182236; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -471,10 +554,10 @@ html, body, [class*="css"],
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 TIER_COLOR = {
-    "deal_killer": "#ef4444",
-    "critical":    "#f97316",
-    "moderate":    "#eab308",
-    "manageable":  "#22c55e",
+    "deal_killer": "#f43f5e",
+    "critical":    "#fb923c",
+    "moderate":    "#fbbf24",
+    "manageable":  "#34d399",
     "unscored":    "#6b7280",
 }
 
@@ -491,17 +574,16 @@ def exposure_badge_html(exposure):
     return f'<span class="badge {cls}">{label}</span>'
 
 def metric_card(label, value, color_class):
-    return f"""
-    <div class="rf-metric {color_class}">
+    return f"""<div class="rf-metric {color_class}">
         <div class="label">{label}</div>
         <div class="value">{value}</div>
     </div>"""
 
 def score_color(score):
-    if score >= 75: return "#ef4444"
-    if score >= 50: return "#f97316"
-    if score >= 25: return "#eab308"
-    return "#22c55e"
+    if score >= 75: return "#f43f5e"
+    if score >= 50: return "#fb923c"
+    if score >= 25: return "#fbbf24"
+    return "#34d399"
 
 def format_label(value):
     if value is None: return "—"
@@ -512,28 +594,44 @@ def format_label(value):
 
 st.markdown("""
 <div style="display:flex; align-items:center; justify-content:space-between;
-            padding: 18px 0 14px; border-bottom: 1px solid #17203a; margin-bottom:20px;">
-  <div style="display:flex; align-items:center; gap:14px;">
-    <div style="width:40px; height:40px; background:linear-gradient(135deg,#ef4444,#9b1c1c);
-                border-radius:9px; display:flex; align-items:center; justify-content:center;
-                font-size:1.25rem; flex-shrink:0; box-shadow:0 4px 18px rgba(239,68,68,0.4);">🚩</div>
+            padding:22px 0 16px; border-bottom:1px solid #0e1828; margin-bottom:22px;">
+
+  <!-- Left: logo + wordmark -->
+  <div style="display:flex; align-items:center; gap:16px;">
+    <div style="width:46px; height:46px; flex-shrink:0;
+                background:linear-gradient(140deg,#f43f5e 0%,#9f1239 100%);
+                border-radius:13px; display:flex; align-items:center; justify-content:center;
+                font-size:1.4rem;
+                box-shadow:0 4px 28px rgba(244,63,94,0.5), 0 0 0 1px rgba(244,63,94,0.25);">🚩</div>
     <div>
-      <div style="font-size:1.55rem; font-weight:800; color:#dde4f0; letter-spacing:-0.03em;
-                  font-family:'Fira Sans',sans-serif; line-height:1.1;">RedFlag</div>
-      <div style="font-size:0.59rem; font-weight:600; letter-spacing:0.16em;
-                  text-transform:uppercase; color:#364060; font-family:'Fira Code',monospace;
-                  margin-top:2px;">Cybersecurity Due Diligence &nbsp;·&nbsp; M&amp;A Risk Intelligence</div>
-    </div>
-  </div>
-  <div style="display:flex; gap:20px; align-items:center;">
-    <div style="text-align:right;">
-      <div style="font-size:0.59rem; font-weight:600; letter-spacing:0.14em; text-transform:uppercase;
-                  color:#364060; font-family:'Fira Code',monospace; margin-bottom:3px;">Platform</div>
-      <div style="font-size:0.78rem; color:#7a93b8; font-family:'Fira Code',monospace;">
-        Nmap · Shodan · Vulners · OpenVAS · ZAP
+      <div style="font-size:1.65rem; font-weight:800; color:#dce8ff; letter-spacing:-0.04em;
+                  font-family:'Inter',sans-serif; line-height:1.05;">RedFlag</div>
+      <div style="font-size:0.57rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;
+                  color:#243048; font-family:'JetBrains Mono',monospace; margin-top:3px;">
+        M&amp;A Cybersecurity Intelligence Platform
       </div>
     </div>
   </div>
+
+  <!-- Right: engine chips -->
+  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
+                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
+                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Nmap</span>
+    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
+                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
+                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Vulners</span>
+    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
+                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
+                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Shodan</span>
+    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
+                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
+                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">OpenVAS</span>
+    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
+                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
+                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">ZAP</span>
+  </div>
+
 </div>
 """, unsafe_allow_html=True)
 
@@ -556,19 +654,35 @@ with scan_col3:
 
 st.markdown('<div class="rf-section-label" style="margin-top:4px;">Optional Intelligence Sources</div>',
             unsafe_allow_html=True)
-upload_col1, upload_col2, upload_col3 = st.columns(3)
+upload_col1, upload_col2, upload_col3, upload_col4 = st.columns(4)
 
 with upload_col1:
+    with st.expander("Shodan JSON (Target-provided)"):
+        st.caption(
+            "Upload a Shodan host JSON exported by the target company instead of running a live API scan. "
+            "If uploaded, this replaces the automatic Shodan lookup — no API credit is consumed."
+        )
+        st.markdown(
+            "<span style='color:#364060;font-size:0.75rem;font-family:Fira Code,monospace;'>"
+            "Export via: <code style='font-family:Fira Code,monospace'>shodan host &lt;ip&gt; --save</code>"
+            " or Shodan web UI → Download JSON</span>",
+            unsafe_allow_html=True,
+        )
+        shodan_json_file = st.file_uploader(
+            "Shodan JSON", type=["json"], label_visibility="collapsed", key="shodan_json_upload"
+        )
+
+with upload_col2:
     with st.expander("OpenVAS XML"):
         st.caption("Upload OpenVAS / Greenbone XML to merge verified CVE findings with CONFIRMED evidence strength.")
         openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed", key="ov_upload")
 
-with upload_col2:
+with upload_col3:
     with st.expander("OWASP ZAP XML"):
         st.caption("Upload OWASP ZAP XML to merge web application layer findings into the risk model.")
         zap_file = st.file_uploader("ZAP XML", type=["xml"], label_visibility="collapsed", key="zap_upload")
 
-with upload_col3:
+with upload_col4:
     with st.expander("Asset Inventory Excel"):
         st.caption("Map host IPs to sensitivity tiers (Crown Jewel / Regulated / Sensitive). Unlocks the most impactful deal-killer rules.")
         st.markdown(
@@ -597,8 +711,23 @@ if run_scan:
                 st.session_state["vulners_count"]  = len(vulners_raw)
                 st.session_state["vulners_active"] = vulners_nse_available()
 
-                resolved_ip       = socket.gethostbyname(clean_target)
-                shodan_result     = lookup_host(resolved_ip)
+                resolved_ip = socket.gethostbyname(clean_target)
+
+                # ── Shodan source: uploaded JSON takes priority over live API ─
+                if shodan_json_file is not None:
+                    import json as _json
+                    try:
+                        raw_shodan_data = _json.loads(shodan_json_file.read())
+                        shodan_result   = parse_shodan_json(raw_shodan_data)
+                        st.session_state["shodan_source"] = "external_json"
+                    except (ValueError, _json.JSONDecodeError) as _e:
+                        st.warning(f"Shodan JSON parse error: {_e}  —  falling back to live API scan.")
+                        shodan_result = lookup_host(resolved_ip)
+                        st.session_state["shodan_source"] = "api"
+                else:
+                    shodan_result = lookup_host(resolved_ip)
+                    st.session_state["shodan_source"] = "api"
+
                 findings          = enrich_findings_with_shodan(nmap_findings, shodan_result)
                 shodan_standalone = create_shodan_findings(shodan_result, resolved_ip)
                 all_findings      = findings + shodan_standalone
@@ -679,433 +808,675 @@ if run_scan:
         except Exception as e:
             st.error(f"Scan failed: {e}")
 
-# ── Guard ─────────────────────────────────────────────────────────────────────
+# ── Main results (only rendered after a scan) ───────────────────────────────
 
-if "findings" not in st.session_state:
-    st.stop()
+if "findings" in st.session_state:
 
-findings      = st.session_state["findings"]
-shodan_result = st.session_state["shodan_result"]
-resolved_ip   = st.session_state["resolved_ip"]
-clean_target  = st.session_state["clean_target"]
 
-# Pre-compute counts
-tier_counts = {}
-for f in findings:
-    t = str(getattr(f.deal_tier, "value", f.deal_tier))
-    tier_counts[t] = tier_counts.get(t, 0) + 1
+    findings      = st.session_state["findings"]
+    shodan_result = st.session_state["shodan_result"]
+    resolved_ip   = st.session_state["resolved_ip"]
+    clean_target  = st.session_state["clean_target"]
 
-n_total = len(findings)
-n_dk    = tier_counts.get("deal_killer", 0)
-n_crit  = tier_counts.get("critical", 0)
-n_mod   = tier_counts.get("moderate", 0)
-n_man   = tier_counts.get("manageable", 0)
+    # Pre-compute counts
+    tier_counts = {}
+    for f in findings:
+        t = str(getattr(f.deal_tier, "value", f.deal_tier))
+        tier_counts[t] = tier_counts.get(t, 0) + 1
 
-# ── Tabs ──────────────────────────────────────────────────────────────────────
+    n_total = len(findings)
+    n_dk    = tier_counts.get("deal_killer", 0)
+    n_crit  = tier_counts.get("critical", 0)
+    n_mod   = tier_counts.get("moderate", 0)
+    n_man   = tier_counts.get("manageable", 0)
 
-tab_overview, tab_findings, tab_export = st.tabs(["  Overview  ", "  Findings  ", "  Export  "])
+    # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab: Overview
-# ══════════════════════════════════════════════════════════════════════════════
+    tab_overview, tab_findings, tab_export = st.tabs(
+        ["  Overview  ", "  Findings  ", "  Export  "]
+    )
 
-with tab_overview:
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Overview
+    # ══════════════════════════════════════════════════════════════════════════════
 
-    # Metric cards
-    mc1, mc2, mc3, mc4, mc5 = st.columns(5)
-    mc1.markdown(metric_card("Total Findings", n_total, "blue"),   unsafe_allow_html=True)
-    mc2.markdown(metric_card("Deal Killers",   n_dk,    "red"),    unsafe_allow_html=True)
-    mc3.markdown(metric_card("Critical",       n_crit,  "orange"), unsafe_allow_html=True)
-    mc4.markdown(metric_card("Moderate",       n_mod,   "yellow"), unsafe_allow_html=True)
-    mc5.markdown(metric_card("Manageable",     n_man,   "green"),  unsafe_allow_html=True)
+    with tab_overview:
 
-    st.markdown("<div style='height:14px'></div>", unsafe_allow_html=True)
+        # Metric cards — mc2–mc5 are clickable; clicking navigates to a pre-filtered Findings tab
+        mc1, mc2, mc3, mc4, mc5 = st.columns(5)
+        with mc1:
+            st.markdown(metric_card("Total Findings", n_total, "blue"), unsafe_allow_html=True)
+        with mc2:
+            st.markdown(metric_card("Deal Killers", n_dk, "red"), unsafe_allow_html=True)
+            if st.button("View all ›", key="mc_dk", use_container_width=True):
+                st.session_state["tier_preset"]         = "deal_killer"
+                st.session_state["_switch_to_findings"] = True
+        with mc3:
+            st.markdown(metric_card("Critical", n_crit, "orange"), unsafe_allow_html=True)
+            if st.button("View all ›", key="mc_crit", use_container_width=True):
+                st.session_state["tier_preset"]         = "critical"
+                st.session_state["_switch_to_findings"] = True
+        with mc4:
+            st.markdown(metric_card("Moderate", n_mod, "yellow"), unsafe_allow_html=True)
+            if st.button("View all ›", key="mc_mod", use_container_width=True):
+                st.session_state["tier_preset"]         = "moderate"
+                st.session_state["_switch_to_findings"] = True
+        with mc5:
+            st.markdown(metric_card("Manageable", n_man, "green"), unsafe_allow_html=True)
+            if st.button("View all ›", key="mc_man", use_container_width=True):
+                st.session_state["tier_preset"]         = "manageable"
+                st.session_state["_switch_to_findings"] = True
 
-    _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
-    if _asset_hosts_loaded:
-        st.markdown(f"""
-        <div style="background:rgba(34,197,94,0.06); border:1px solid rgba(34,197,94,0.25);
-                    border-left:3px solid #22c55e; border-radius:8px; padding:11px 16px;
-                    font-size:0.82rem; color:#4ade80; font-family:'Fira Sans',sans-serif;
-                    margin-bottom:16px;">
-            <strong>Asset Inventory Active</strong> &nbsp;—&nbsp;
-            {_asset_hosts_loaded} hosts classified. Data sensitivity is factored into all scores.
-        </div>""", unsafe_allow_html=True)
-    else:
-        st.markdown("""
-        <div style="background:rgba(234,179,8,0.05); border:1px solid rgba(234,179,8,0.2);
-                    border-left:3px solid #eab308; border-radius:8px; padding:11px 16px;
-                    font-size:0.82rem; color:#facc15; font-family:'Fira Sans',sans-serif;
-                    margin-bottom:16px;">
-            <strong>Data Sensitivity Unclassified</strong> &nbsp;—&nbsp;
-            All findings default to <code style="font-family:'Fira Code',monospace;font-size:0.78rem;">UNKNOWN</code>
-            (25% of the risk model). Upload an asset inventory to unlock the most impactful deal-killer rules.
-        </div>""", unsafe_allow_html=True)
+        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
 
-    # Charts + Intel panel
-    chart_col, shodan_col = st.columns([11, 9])
-
-    with chart_col:
-        st.markdown('<div class="rf-section-label">Risk Breakdown</div>', unsafe_allow_html=True)
-
-        # Donut — tier breakdown
-        labels, values, colors = [], [], []
-        for tier, count in [("Deal Killer", n_dk), ("Critical", n_crit),
-                             ("Moderate", n_mod), ("Manageable", n_man)]:
-            if count:
-                labels.append(tier); values.append(count)
-                colors.append(TIER_COLOR[tier.lower().replace(" ", "_")])
-
-        if values:
-            fig = go.Figure(go.Pie(
-                labels=labels, values=values, hole=0.68,
-                marker=dict(colors=colors, line=dict(color="#07090f", width=3)),
-                textinfo="label+percent",
-                textfont=dict(size=11, color="#7a93b8", family="Fira Code"),
-                hovertemplate="<b>%{label}</b><br>%{value} findings (%{percent})<extra></extra>",
-            ))
-            fig.update_layout(
-                showlegend=False,
-                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                margin=dict(t=8, b=8, l=8, r=8), height=230,
-                annotations=[dict(
-                    text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#364060'>total</span>",
-                    x=0.5, y=0.5, font_size=24, font_color="#dde4f0",
-                    font=dict(family="Fira Code"), showarrow=False,
-                )],
-            )
-            st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
-
-        # Horizontal bar — top findings by score
-        top_n = sorted(findings, key=lambda f: f.risk_score, reverse=True)[:8]
-        if top_n:
-            bar_labels = [f.title[:38] + "…" if len(f.title) > 38 else f.title for f in top_n]
-            bar_values = [f.risk_score for f in top_n]
-            bar_colors = [score_color(s) for s in bar_values]
-
-            fig2 = go.Figure(go.Bar(
-                x=bar_values, y=bar_labels, orientation="h",
-                marker=dict(color=bar_colors, line=dict(width=0),
-                            opacity=0.85),
-                hovertemplate="<b>%{y}</b><br>Risk Score: %{x:.1f}<extra></extra>",
-            ))
-            fig2.update_layout(
-                paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                xaxis=dict(range=[0, 100], gridcolor="#17203a", zeroline=False,
-                           tickfont=dict(color="#364060", size=10, family="Fira Code"), title=""),
-                yaxis=dict(autorange="reversed",
-                           tickfont=dict(color="#7a93b8", size=10, family="Fira Sans"), title=""),
-                margin=dict(t=0, b=4, l=4, r=4), height=250,
-            )
-            st.markdown('<div class="rf-section-label">Top Findings by Risk Score</div>',
-                        unsafe_allow_html=True)
-            st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
-
-    with shodan_col:
-        # ── Target intelligence ───────────────────────────────────────
-        st.markdown('<div class="rf-section-label">Target Intelligence</div>', unsafe_allow_html=True)
-        st.markdown(f"""
-        <div class="rf-target-panel">
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Target</span>
-            <span class="rf-tp-value">{clean_target}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Resolved IP</span>
-            <span class="rf-tp-value">{resolved_ip}</span>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # ── Scanner pipeline ──────────────────────────────────────────
-        vulners_count   = st.session_state.get("vulners_count", 0)
-        vulners_active  = st.session_state.get("vulners_active", False)
-        openvas_count   = st.session_state.get("openvas_count", 0)
-        openvas_matched = st.session_state.get("openvas_matched", 0)
-        zap_count       = st.session_state.get("zap_count", 0)
-        asset_hosts     = st.session_state.get("asset_hosts", 0)
-        shodan_ok       = shodan_result.get("success", False)
-
-        def _pi(dot_cls, name, status, status_cls=""):
-            return (f'<div class="rf-pipeline-item">'
-                    f'<span class="rf-dot {dot_cls}"></span>'
-                    f'<div><div class="rf-pi-name">{name}</div>'
-                    f'<div class="rf-pi-status {status_cls}">{status}</div></div></div>')
-
-        nmap_pi    = _pi("ok",  "Nmap",          "Completed", "ok")
-        if vulners_count:
-            vulners_pi = _pi("ok",  "Vulners NSE", f"{vulners_count} CVEs", "ok")
-        elif vulners_active:
-            vulners_pi = _pi("warn", "Vulners NSE", "Installed — 0 CVEs", "")
-        else:
-            vulners_pi = _pi("off", "Vulners NSE", "Not installed", "")
-        shodan_pi  = _pi("ok" if shodan_ok else "err", "Shodan",
-                         "Connected" if shodan_ok else "Unavailable", "ok" if shodan_ok else "")
-        ov_pi      = _pi("ok" if openvas_count else "off", "OpenVAS",
-                         f"{openvas_count} findings" if openvas_count else "Not uploaded", "ok" if openvas_count else "")
-        zap_pi     = _pi("ok" if zap_count else "off", "ZAP",
-                         f"{zap_count} findings" if zap_count else "Not uploaded", "ok" if zap_count else "")
-        asset_pi   = _pi("ok" if asset_hosts else "warn", "Asset Inv.",
-                         f"{asset_hosts} hosts" if asset_hosts else "Not uploaded", "ok" if asset_hosts else "warn")
-
-        st.markdown(f"""
-        <div class="rf-pipeline">
-          <div class="rf-pipeline-header">Scanner Pipeline</div>
-          <div class="rf-pipeline-grid">
-            {nmap_pi}{vulners_pi}{shodan_pi}{ov_pi}{zap_pi}{asset_pi}
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
-
-        # ── Shodan snapshot ───────────────────────────────────────────
-        if shodan_result.get("success"):
-            ports_str  = ", ".join(map(str, shodan_result.get("ports", []))) or "—"
-            vuln_count = len(shodan_result.get("vulns", []))
-            org        = shodan_result.get("organization") or "Unknown"
-            isp        = shodan_result.get("isp") or "Unknown"
-            country    = shodan_result.get("country") or "Unknown"
-            city       = shodan_result.get("city") or "Unknown"
-            cve_color  = "#f87171" if vuln_count else "#4ade80"
-
+        # Deal-killer alert banner
+        if n_dk:
             st.markdown(f"""
-            <div class="rf-shodan">
-              <div class="rf-section-label" style="margin-bottom:10px;">Shodan Snapshot</div>
-              <div class="rf-shodan-row">
-                <span class="rf-shodan-label">Org</span>
-                <span class="rf-shodan-value">{org}</span>
+            <div class="dk-alert">
+              <div style="font-size:1.5rem; flex-shrink:0;">⚠️</div>
+              <div class="dk-alert-body">
+                <div class="dk-alert-title">Deal-Killer Findings Detected</div>
+                <div class="dk-alert-sub">Immediate escalation required — these findings block deal close</div>
               </div>
-              <div class="rf-shodan-row">
-                <span class="rf-shodan-label">ISP</span>
-                <span class="rf-shodan-value">{isp}</span>
+              <div class="dk-alert-count">{n_dk}</div>
+            </div>""", unsafe_allow_html=True)
+
+        _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
+        if _asset_hosts_loaded:
+            st.markdown(f"""
+            <div class="inv-notice active">
+                <span>✓</span>
+                <span><strong>Asset Inventory Active</strong> &nbsp;—&nbsp;
+                {_asset_hosts_loaded} hosts classified · Data sensitivity factored into all scores</span>
+            </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown("""
+            <div class="inv-notice warn">
+                <span>⚠</span>
+                <span><strong>Data Sensitivity Unclassified</strong> &nbsp;—&nbsp;
+                All findings default to <code style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">UNKNOWN</code>.
+                Upload an asset inventory to unlock the most impactful deal-killer rules.</span>
+            </div>""", unsafe_allow_html=True)
+
+        # Charts + Intel panel
+        chart_col, shodan_col = st.columns([11, 9])
+
+        with chart_col:
+            st.markdown('<div class="rf-section-label">Risk Breakdown</div>', unsafe_allow_html=True)
+
+            # Donut — tier breakdown
+            labels, values, colors = [], [], []
+            for tier, count in [("Deal Killer", n_dk), ("Critical", n_crit),
+                                 ("Moderate", n_mod), ("Manageable", n_man)]:
+                if count:
+                    labels.append(tier); values.append(count)
+                    colors.append(TIER_COLOR[tier.lower().replace(" ", "_")])
+
+            if values:
+                fig = go.Figure(go.Pie(
+                    labels=labels, values=values, hole=0.70,
+                    marker=dict(colors=colors, line=dict(color="#030508", width=4)),
+                    textinfo="label+percent",
+                    textfont=dict(size=11, color="#5f7ca0", family="JetBrains Mono"),
+                    hovertemplate="<b>%{label}</b><br>%{value} findings (%{percent})<extra></extra>",
+                ))
+                fig.update_layout(
+                    showlegend=False,
+                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                    margin=dict(t=8, b=8, l=8, r=8), height=240,
+                    annotations=[dict(
+                        text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#243048'>total</span>",
+                        x=0.5, y=0.5, font_size=26, font_color="#dce8ff",
+                        font=dict(family="JetBrains Mono"), showarrow=False,
+                    )],
+                )
+                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+
+            # Horizontal bar — top findings by score
+            top_n = sorted(findings, key=lambda f: f.risk_score, reverse=True)[:8]
+            if top_n:
+                bar_labels = [f.title[:40] + "…" if len(f.title) > 40 else f.title for f in top_n]
+                bar_values = [f.risk_score for f in top_n]
+                bar_colors = [score_color(s) for s in bar_values]
+
+                fig2 = go.Figure(go.Bar(
+                    x=bar_values, y=bar_labels, orientation="h",
+                    marker=dict(color=bar_colors, line=dict(width=0), opacity=0.82),
+                    hovertemplate="<b>%{y}</b><br>Risk Score: %{x:.1f}<extra></extra>",
+                ))
+                fig2.update_layout(
+                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
+                    xaxis=dict(range=[0, 100], gridcolor="#0e1828", zeroline=False,
+                               tickfont=dict(color="#243048", size=10, family="JetBrains Mono"), title=""),
+                    yaxis=dict(autorange="reversed",
+                               tickfont=dict(color="#5f7ca0", size=10, family="Inter"), title=""),
+                    margin=dict(t=0, b=4, l=4, r=4), height=260,
+                )
+                st.markdown('<div class="rf-section-label">Top Findings by Risk Score</div>',
+                            unsafe_allow_html=True)
+                st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
+
+        with shodan_col:
+            # ── Target intelligence ───────────────────────────────────────
+            st.markdown('<div class="rf-section-label">Target Intelligence</div>', unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="rf-target-panel">
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Target</span>
+                <span class="rf-tp-value">{clean_target}</span>
               </div>
-              <div class="rf-shodan-row">
-                <span class="rf-shodan-label">Location</span>
-                <span class="rf-shodan-value">{city}, {country}</span>
-              </div>
-              <div class="rf-shodan-row">
-                <span class="rf-shodan-label">Open Ports</span>
-                <span class="rf-shodan-value" style="font-family:'Fira Code',monospace;font-size:0.78rem;">{ports_str}</span>
-              </div>
-              <div class="rf-shodan-row">
-                <span class="rf-shodan-label">CVEs</span>
-                <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'Fira Code',monospace;">{vuln_count}</span>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Resolved IP</span>
+                <span class="rf-tp-value">{resolved_ip}</span>
               </div>
             </div>
             """, unsafe_allow_html=True)
 
-            if shodan_result["vulns"]:
-                with st.expander(f"Associated CVEs  ({len(shodan_result['vulns'])})"):
-                    top_cves = shodan_result["vulns"][:12]
-                    rest     = shodan_result["vulns"][12:]
-                    st.markdown(
-                        "<div style='display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;'>"
-                        + "".join(f'<span class="badge badge-dk">{c}</span>' for c in top_cves)
-                        + "</div>", unsafe_allow_html=True)
-                    if rest:
-                        st.caption(f"+ {len(rest)} more CVEs not shown")
-        else:
-            st.warning(shodan_result.get("error", "Shodan enrichment unavailable."))
+            # ── Scanner pipeline ──────────────────────────────────────────
+            vulners_count   = st.session_state.get("vulners_count", 0)
+            vulners_active  = st.session_state.get("vulners_active", False)
+            openvas_count   = st.session_state.get("openvas_count", 0)
+            openvas_matched = st.session_state.get("openvas_matched", 0)
+            zap_count       = st.session_state.get("zap_count", 0)
+            asset_hosts     = st.session_state.get("asset_hosts", 0)
+            shodan_ok     = shodan_result.get("success", False)
+            shodan_source = st.session_state.get("shodan_source", "api")
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab: Findings
-# ══════════════════════════════════════════════════════════════════════════════
+            def _ps(dot_cls, name, status, status_cls=""):
+                return (f'<div class="rf-pipeline-step">'
+                        f'<span class="rf-dot {dot_cls} step-dot"></span>'
+                        f'<div class="step-name">{name}</div>'
+                        f'<div class="step-status {status_cls}">{status}</div>'
+                        f'</div>')
 
-with tab_findings:
-    if not findings:
-        st.info("No findings were detected.")
-    else:
-        rows = []
-        for f in findings:
-            rows.append({
-                "Title":       f.title,
-                "Host":        f.host or "—",
-                "Port":        f.port,
-                "Service":     f.service or "—",
-                "Scanner":     str(getattr(f.scanner_source, "value", f.scanner_source)).upper(),
-                "Risk Score":  f.risk_score,
-                "Deal Tier":   str(getattr(f.deal_tier, "value", f.deal_tier)),
-                "Exposure":    str(getattr(f.exposure, "value", f.exposure)),
-                "Evidence":    str(getattr(f.evidence_strength, "value", f.evidence_strength)),
-                "Description": f.description,
-                "Remediation": f.remediation,
-            })
+            arrow = '<span class="rf-pipeline-arrow">›</span>'
 
-        df = pd.DataFrame(rows).sort_values("Risk Score", ascending=False).reset_index(drop=True)
+            nmap_ps = _ps("ok", "Nmap", "done", "ok")
+            if vulners_count:
+                vuln_ps = _ps("ok",   "Vulners",  f"{vulners_count} CVEs",       "ok")
+            elif vulners_active:
+                vuln_ps = _ps("warn", "Vulners",  "0 CVEs",                       "warn")
+            else:
+                vuln_ps = _ps("off",  "Vulners",  "not installed",                "")
 
-        # Filters
-        st.markdown('<div class="rf-section-label">Filter Findings</div>', unsafe_allow_html=True)
-        fc1, fc2, fc3 = st.columns(3)
-        with fc1:
-            selected_tiers = st.multiselect(
-                "Deal Tier",
-                options=sorted(df["Deal Tier"].dropna().unique()),
-                default=sorted(df["Deal Tier"].dropna().unique()),
-            )
-        with fc2:
-            selected_exposure = st.multiselect(
-                "Exposure",
-                options=sorted(df["Exposure"].dropna().unique()),
-                default=sorted(df["Exposure"].dropna().unique()),
-            )
-        with fc3:
-            min_score = st.slider("Min Risk Score", 0, 100, 0)
+            if shodan_ok:
+                _sd_lbl = "ext JSON" if shodan_source == "external_json" else "live API"
+                shod_ps = _ps("ok",  "Shodan", _sd_lbl, "ok")
+            else:
+                shod_ps = _ps("err", "Shodan", "unavailable", "")
 
-        filtered_df = df[
-            df["Deal Tier"].isin(selected_tiers) &
-            df["Exposure"].isin(selected_exposure) &
-            (df["Risk Score"] >= min_score)
-        ].copy()
+            ov_ps   = _ps("ok"   if openvas_count else "off",
+                          "OpenVAS",
+                          f"{openvas_count} findings" if openvas_count else "not uploaded",
+                          "ok" if openvas_count else "")
+            zap_ps  = _ps("ok"   if zap_count else "off",
+                          "ZAP",
+                          f"{zap_count} findings" if zap_count else "not uploaded",
+                          "ok" if zap_count else "")
+            asset_ps = _ps("ok"  if asset_hosts else "warn",
+                           "Assets",
+                           f"{asset_hosts} hosts" if asset_hosts else "not uploaded",
+                           "ok" if asset_hosts else "warn")
 
-        st.caption(f"Showing {len(filtered_df)} of {len(df)} findings")
+            st.markdown(f"""
+            <div class="rf-pipeline-h">
+              <div class="rf-pipeline-header">Scanner Pipeline</div>
+              <div class="rf-pipeline-flow">
+                {nmap_ps}{arrow}{vuln_ps}{arrow}{shod_ps}{arrow}{ov_ps}{arrow}{zap_ps}{arrow}{asset_ps}
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
 
-        # Table
-        table_df = filtered_df[["Title", "Host", "Port", "Service", "Scanner", "Risk Score", "Deal Tier", "Exposure", "Evidence"]].copy()
-        table_df["Deal Tier"] = table_df["Deal Tier"].apply(lambda x: x.replace("_", " ").title())
-        table_df["Exposure"]  = table_df["Exposure"].apply(lambda x: x.replace("_", " ").title())
-        table_df["Evidence"]  = table_df["Evidence"].apply(lambda x: x.replace("_", " ").title())
-
-        st.dataframe(
-            table_df,
-            use_container_width=True,
-            hide_index=True,
-            column_config={
-                "Title":    st.column_config.TextColumn("Title", width="large"),
-                "Host":     st.column_config.TextColumn("Host", width="medium"),
-                "Port":     st.column_config.NumberColumn("Port", format="%d"),
-                "Service":  st.column_config.TextColumn("Service", width="small"),
-                "Scanner":  st.column_config.TextColumn("Scanner", width="small"),
-                "Risk Score": st.column_config.ProgressColumn(
-                    "Risk Score", min_value=0, max_value=100, format="%.1f"
-                ),
-                "Deal Tier": st.column_config.TextColumn("Deal Tier", width="medium"),
-                "Exposure":  st.column_config.TextColumn("Exposure", width="medium"),
-                "Evidence":  st.column_config.TextColumn("Evidence", width="medium"),
-            }
-        )
-
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
-
-        # Detail cards
-        st.markdown('<div class="rf-section-label" style="margin-top:12px;">Detailed Findings</div>',
-                    unsafe_allow_html=True)
-        show_details = st.checkbox("Expand finding cards", value=False)
-
-        TIER_CSS = {"deal killer": "dk", "critical": "crit", "moderate": "mod", "manageable": "man"}
-
-        if not filtered_df.empty and show_details:
-            for _, row in filtered_df.iterrows():
-                tier_val     = str(row["Deal Tier"]).lower().replace(" ", "_")
-                tier_display = str(row["Deal Tier"]).lower()
-                sev_cls      = TIER_CSS.get(tier_display, "")
-                sc           = score_color(row["Risk Score"])
-                tier_html    = tier_badge_html(tier_val)
-                exp_html     = exposure_badge_html(str(row["Exposure"]).lower().replace(" ", "_"))
-                evid_label   = format_label(row["Evidence"])
-                port_svc     = f'{row["Port"]} / {row["Service"]}' if row["Port"] else row["Service"]
+            # ── Shodan snapshot ───────────────────────────────────────────
+            if shodan_result.get("success"):
+                ports_str    = ", ".join(map(str, shodan_result.get("ports", []))) or "—"
+                vuln_count   = len(shodan_result.get("vulns", []))
+                org          = shodan_result.get("organization") or "Unknown"
+                isp          = shodan_result.get("isp") or "Unknown"
+                country      = shodan_result.get("country") or "Unknown"
+                city         = shodan_result.get("city") or "Unknown"
+                cve_color    = "#f87171" if vuln_count else "#4ade80"
+                source_label = (
+                    '<span style="font-size:0.58rem;font-family:\'JetBrains Mono\',monospace;'
+                    'color:#a78bfa;margin-left:8px;font-weight:700;letter-spacing:0.1em;">TARGET-PROVIDED</span>'
+                    if shodan_source == "external_json" else
+                    '<span style="font-size:0.58rem;font-family:\'JetBrains Mono\',monospace;'
+                    'color:#34d399;margin-left:8px;font-weight:700;letter-spacing:0.1em;">LIVE API</span>'
+                )
 
                 st.markdown(f"""
-                <div class="finding-card {sev_cls}">
-                  <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
-                    <div style="flex:1; min-width:0;">
-                      <h4>{row['Title']}</h4>
-                      <div class="meta">
-                        {tier_html}&nbsp;{exp_html}
-                        &nbsp;<span style="font-family:'Fira Code',monospace;font-size:0.72rem;
-                                          color:#364060;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
-                      </div>
-                      <hr class="fc-divider">
-                      <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 28px;">
-                        <div>
-                          <div class="field-label">Description</div>
-                          <div class="field-value">{row['Description']}</div>
-                        </div>
-                        <div>
-                          <div class="field-label">Remediation</div>
-                          <div class="field-value">{row['Remediation']}</div>
-                        </div>
-                      </div>
-                      <div style="display:flex; gap:24px; margin-top:4px;">
-                        <div>
-                          <span class="field-label">Evidence</span>&nbsp;
-                          <span style="font-family:'Fira Code',monospace;font-size:0.78rem;
-                                       color:#7a93b8;">{evid_label}</span>
-                        </div>
-                      </div>
-                    </div>
-                    <div class="score-pill">
-                      <span class="s-label">Risk</span>
-                      <div class="s-value" style="color:{sc}">{row['Risk Score']:.1f}</div>
-                    </div>
+                <div class="rf-shodan">
+                  <div class="rf-section-label" style="margin-bottom:10px;">Shodan Snapshot {source_label}</div>
+                  <div class="rf-shodan-row">
+                    <span class="rf-shodan-label">Org</span>
+                    <span class="rf-shodan-value">{org}</span>
+                  </div>
+                  <div class="rf-shodan-row">
+                    <span class="rf-shodan-label">ISP</span>
+                    <span class="rf-shodan-value">{isp}</span>
+                  </div>
+                  <div class="rf-shodan-row">
+                    <span class="rf-shodan-label">Location</span>
+                    <span class="rf-shodan-value">{city}, {country}</span>
+                  </div>
+                  <div class="rf-shodan-row">
+                    <span class="rf-shodan-label">Open Ports</span>
+                    <span class="rf-shodan-value" style="font-family:'JetBrains Mono',monospace;font-size:0.77rem;">{ports_str}</span>
+                  </div>
+                  <div class="rf-shodan-row">
+                    <span class="rf-shodan-label">CVEs</span>
+                    <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'JetBrains Mono',monospace;">{vuln_count}</span>
                   </div>
                 </div>
                 """, unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-# Tab: Export
-# ══════════════════════════════════════════════════════════════════════════════
+                if shodan_result["vulns"]:
+                    with st.expander(f"Associated CVEs  ({len(shodan_result['vulns'])})"):
+                        top_cves = shodan_result["vulns"][:12]
+                        rest     = shodan_result["vulns"][12:]
+                        st.markdown(
+                            "<div style='display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;'>"
+                            + "".join(f'<span class="badge badge-dk">{c}</span>' for c in top_cves)
+                            + "</div>", unsafe_allow_html=True)
+                        if rest:
+                            st.caption(f"+ {len(rest)} more CVEs not shown")
+            else:
+                st.warning(shodan_result.get("error", "Shodan enrichment unavailable."))
 
-with tab_export:
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Findings
+    # ══════════════════════════════════════════════════════════════════════════════
 
-    exp_col, _ = st.columns([2, 3])
-    with exp_col:
-        st.markdown('<div class="rf-section-label">Report Summary</div>', unsafe_allow_html=True)
+    with tab_findings:
+        if not findings:
+            st.info("No findings were detected.")
+        else:
+            rows = []
+            for f in findings:
+                rows.append({
+                    "Title":       f.title,
+                    "Host":        f.host or "—",
+                    "Port":        f.port,
+                    "Service":     f.service or "—",
+                    "Scanner":     str(getattr(f.scanner_source, "value", f.scanner_source)).upper(),
+                    "Risk Score":  f.risk_score,
+                    "Deal Tier":   str(getattr(f.deal_tier, "value", f.deal_tier)),
+                    "Exposure":    str(getattr(f.exposure, "value", f.exposure)),
+                    "Evidence":    str(getattr(f.evidence_strength, "value", f.evidence_strength)),
+                    "Description": f.description,
+                    "Remediation": f.remediation,
+                })
 
-        dk_color  = "#f87171" if n_dk   else "#4ade80"
-        crt_color = "#fb923c" if n_crit else "#364060"
+            df = pd.DataFrame(rows).sort_values("Risk Score", ascending=False).reset_index(drop=True)
 
-        st.markdown(f"""
-        <div class="rf-target-panel" style="margin-bottom:16px;">
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Target</span>
-            <span class="rf-tp-value">{clean_target}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">IP</span>
-            <span class="rf-tp-value">{resolved_ip}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Findings</span>
-            <span class="rf-tp-value" style="color:#c7d8f5;">{n_total}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Deal Killers</span>
-            <span class="rf-tp-value" style="color:{dk_color};font-weight:700;">{n_dk}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Critical</span>
-            <span class="rf-tp-value" style="color:{crt_color};font-weight:600;">{n_crit}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Moderate</span>
-            <span class="rf-tp-value" style="color:#364060;">{n_mod}</span>
-          </div>
-          <div class="rf-tp-row">
-            <span class="rf-tp-label">Manageable</span>
-            <span class="rf-tp-value" style="color:#364060;">{n_man}</span>
-          </div>
-        </div>
-        """, unsafe_allow_html=True)
+            # Apply preset tier filter from metric card click (Overview → Findings navigation)
+            if "tier_preset" in st.session_state:
+                _preset = st.session_state.pop("tier_preset")
+                if _preset in df["Deal Tier"].values:
+                    st.session_state["tier_filter_ms"] = [_preset]
 
-        st.markdown('<div class="rf-section-label">Download Reports</div>', unsafe_allow_html=True)
+            # Filters
+            st.markdown('<div class="rf-section-label">Filter Findings</div>', unsafe_allow_html=True)
+            fc1, fc2, fc3 = st.columns(3)
+            with fc1:
+                selected_tiers = st.multiselect(
+                    "Deal Tier",
+                    options=sorted(df["Deal Tier"].dropna().unique()),
+                    default=sorted(df["Deal Tier"].dropna().unique()),
+                    key="tier_filter_ms",
+                )
+            with fc2:
+                selected_exposure = st.multiselect(
+                    "Exposure",
+                    options=sorted(df["Exposure"].dropna().unique()),
+                    default=sorted(df["Exposure"].dropna().unique()),
+                )
+            with fc3:
+                min_score = st.slider("Min Risk Score", 0, 100, 0)
 
-        csv_file = export_findings_csv(findings)
-        with open(csv_file, "rb") as f:
-            st.download_button(
-                label="Download CSV Report",
-                data=f,
-                file_name=csv_file.split("\\")[-1].split("/")[-1],
-                mime="text/csv",
+            filtered_df = df[
+                df["Deal Tier"].isin(selected_tiers) &
+                df["Exposure"].isin(selected_exposure) &
+                (df["Risk Score"] >= min_score)
+            ].copy()
+
+            st.caption(f"Showing {len(filtered_df)} of {len(df)} findings")
+
+            # Table
+            table_df = filtered_df[["Title", "Host", "Port", "Service", "Scanner", "Risk Score", "Deal Tier", "Exposure", "Evidence"]].copy()
+            table_df["Deal Tier"] = table_df["Deal Tier"].apply(lambda x: x.replace("_", " ").title())
+            table_df["Exposure"]  = table_df["Exposure"].apply(lambda x: x.replace("_", " ").title())
+            table_df["Evidence"]  = table_df["Evidence"].apply(lambda x: x.replace("_", " ").title())
+
+            st.dataframe(
+                table_df,
                 use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Title":    st.column_config.TextColumn("Title", width="large"),
+                    "Host":     st.column_config.TextColumn("Host", width="medium"),
+                    "Port":     st.column_config.NumberColumn("Port", format="%d"),
+                    "Service":  st.column_config.TextColumn("Service", width="small"),
+                    "Scanner":  st.column_config.TextColumn("Scanner", width="small"),
+                    "Risk Score": st.column_config.ProgressColumn(
+                        "Risk Score", min_value=0, max_value=100, format="%.1f"
+                    ),
+                    "Deal Tier": st.column_config.TextColumn("Deal Tier", width="medium"),
+                    "Exposure":  st.column_config.TextColumn("Exposure", width="medium"),
+                    "Evidence":  st.column_config.TextColumn("Evidence", width="medium"),
+                }
             )
 
-        st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
 
-        pdf_file = generate_pdf_report(findings, clean_target, resolved_ip)
-        with open(pdf_file, "rb") as f:
-            st.download_button(
-                label="Download PDF Report",
-                data=f,
-                file_name=pdf_file.split("\\")[-1].split("/")[-1],
-                mime="application/pdf",
-                use_container_width=True,
-            )
+            # Detail cards
+            st.markdown('<div class="rf-section-label" style="margin-top:12px;">Detailed Findings</div>',
+                        unsafe_allow_html=True)
+            show_details = st.checkbox("Expand finding cards", value=False)
+
+            TIER_CSS = {"deal killer": "dk", "critical": "crit", "moderate": "mod", "manageable": "man"}
+
+            if not filtered_df.empty and show_details:
+                for _, row in filtered_df.iterrows():
+                    tier_val     = str(row["Deal Tier"]).lower().replace(" ", "_")
+                    tier_display = str(row["Deal Tier"]).lower()
+                    sev_cls      = TIER_CSS.get(tier_display, "")
+                    sc           = score_color(row["Risk Score"])
+                    tier_html    = tier_badge_html(tier_val)
+                    exp_html     = exposure_badge_html(str(row["Exposure"]).lower().replace(" ", "_"))
+                    evid_label   = format_label(row["Evidence"])
+                    port_svc     = f'{row["Port"]} / {row["Service"]}' if row["Port"] else row["Service"]
+
+                    st.markdown(f"""
+                    <div class="finding-card {sev_cls}">
+                      <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:16px;">
+                        <div style="flex:1; min-width:0;">
+                          <h4>{row['Title']}</h4>
+                          <div class="meta">
+                            {tier_html}&nbsp;{exp_html}
+                            &nbsp;<span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;
+                                              color:#243048;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
+                          </div>
+                          <hr class="fc-divider">
+                          <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 28px;">
+                            <div>
+                              <div class="field-label">Description</div>
+                              <div class="field-value">{row['Description']}</div>
+                            </div>
+                            <div>
+                              <div class="field-label">Remediation</div>
+                              <div class="field-value">{row['Remediation']}</div>
+                            </div>
+                          </div>
+                          <div style="display:flex; gap:24px; margin-top:4px;">
+                            <div>
+                              <span class="field-label">Evidence</span>&nbsp;
+                              <span style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;
+                                           color:#5f7ca0;">{evid_label}</span>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="score-pill">
+                          <span class="s-label">Risk</span>
+                          <div class="s-value" style="color:{sc}">{row['Risk Score']:.1f}</div>
+                        </div>
+                      </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Export
+    # ══════════════════════════════════════════════════════════════════════════════
+
+    with tab_export:
+
+        exp_col, _ = st.columns([2, 3])
+        with exp_col:
+            st.markdown('<div class="rf-section-label">Report Summary</div>', unsafe_allow_html=True)
+
+            dk_color  = "#f87171" if n_dk   else "#34d399"
+            crt_color = "#fb923c" if n_crit else "#243048"
+
+            st.markdown(f"""
+            <div class="rf-target-panel" style="margin-bottom:16px;">
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Target</span>
+                <span class="rf-tp-value">{clean_target}</span>
+              </div>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">IP</span>
+                <span class="rf-tp-value">{resolved_ip}</span>
+              </div>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Findings</span>
+                <span class="rf-tp-value" style="color:#c7d8f5;">{n_total}</span>
+              </div>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Deal Killers</span>
+                <span class="rf-tp-value" style="color:{dk_color};font-weight:700;">{n_dk}</span>
+              </div>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Critical</span>
+                <span class="rf-tp-value" style="color:{crt_color};font-weight:600;">{n_crit}</span>
+              </div>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Moderate</span>
+                <span class="rf-tp-value" style="color:#364060;">{n_mod}</span>
+              </div>
+              <div class="rf-tp-row">
+                <span class="rf-tp-label">Manageable</span>
+                <span class="rf-tp-value" style="color:#364060;">{n_man}</span>
+              </div>
+            </div>
+            """, unsafe_allow_html=True)
+
+            st.markdown('<div class="rf-section-label">Download Reports</div>', unsafe_allow_html=True)
+
+            csv_file = export_findings_csv(findings)
+            with open(csv_file, "rb") as f:
+                st.download_button(
+                    label="Download CSV Report",
+                    data=f,
+                    file_name=csv_file.split("\\")[-1].split("/")[-1],
+                    mime="text/csv",
+                    use_container_width=True,
+                )
+
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+            pdf_file = generate_pdf_report(findings, clean_target, resolved_ip)
+            with open(pdf_file, "rb") as f:
+                st.download_button(
+                    label="Download PDF Report",
+                    data=f,
+                    file_name=pdf_file.split("\\")[-1].split("/")[-1],
+                    mime="application/pdf",
+                    use_container_width=True,
+                )
+
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Privacy Policy
+    # ══════════════════════════════════════════════════════════════════════════════
+
+    # ── Metric-card → Findings tab navigation ────────────────────────────────────
+    # When a "View all ›" button on a metric card is clicked, _switch_to_findings is
+    # set to True. We inject a tiny JS snippet (in an invisible iframe) that clicks
+    # the Findings tab button inside the parent document. Streamlit renders all tab
+    # contents eagerly, so the pre-filtered multiselect is already in the DOM.
+
+    if st.session_state.get("_switch_to_findings"):
+        st.session_state["_switch_to_findings"] = False
+        import streamlit.components.v1 as _components
+        _components.html(
+            """<script>
+            (function () {
+                var parent = window.parent;
+                // Findings is the second tab (index 1)
+                var tabs = parent.document.querySelectorAll(
+                    '[data-testid="stTabs"] button[role="tab"]'
+                );
+                if (tabs && tabs.length > 1) {
+                    tabs[1].click();
+                }
+            })();
+            </script>""",
+            height=0,
+            scrolling=False,
+        )
+
+# ══════════════════════════════════════════════════════════════════════════════
+# Footer — Privacy Policy & Contact  (always visible, even before scanning)
+# ══════════════════════════════════════════════════════════════════════════════
+
+st.markdown(
+    "<hr style='border:none;border-top:1px solid #0d1828;margin:48px 0 0;'>",
+    unsafe_allow_html=True,
+)
+
+_fp_col, _fc_col, _copy_col = st.columns([4, 4, 4])
+
+with _fp_col:
+    with st.expander("\U0001f4c4  Privacy Policy"):
+        st.markdown(
+            """<div style="padding:6px 0 4px;">
+  <div style="font-size:1rem;font-weight:800;color:#dce8ff;
+              font-family:'Inter',sans-serif;margin-bottom:3px;">Privacy Policy</div>
+  <div style="font-size:0.65rem;color:#243048;font-family:'JetBrains Mono',monospace;
+              margin-bottom:16px;">Effective: May 2026 &middot; RedFlag v3</div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">01 &middot; Data We Process</div>
+    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+      RedFlag processes only data you explicitly provide: scan targets, uploaded files (OpenVAS, ZAP,
+      Shodan JSON, Asset Excel), and scan outputs stored locally in
+      <code style="font-family:'JetBrains Mono',monospace;color:#60a5fa;">data/results/</code>.
+      <strong style="color:#7a93b8;">No personal data</strong> is collected.
+    </div>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">02 &middot; How Data Is Processed</div>
+    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+      All processing is <strong style="color:#7a93b8;">local</strong>. Outbound API calls enrich
+      findings only &mdash; <strong style="color:#7a93b8;">Shodan</strong> (1 credit/scan),
+      <strong style="color:#7a93b8;">NVD/NIST</strong> (public CVSS),
+      <strong style="color:#7a93b8;">CISA KEV</strong> (public feed),
+      <strong style="color:#7a93b8;">Vulners</strong> (NSE exploit metadata).
+      Each request contains only the IP or CVE ID queried.
+    </div>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">03 &middot; Data Retention</div>
+    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+      No data is retained on remote servers. Scan files live only in your local
+      <code style="font-family:'JetBrains Mono',monospace;color:#60a5fa;">data/results/</code> folder.
+      In-session state clears on restart.
+    </div>
+  </div>
+
+  <div style="margin-bottom:14px;">
+    <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">04 &middot; Responsible Use</div>
+    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+      Use RedFlag only against systems you own or have
+      <strong style="color:#7a93b8;">explicit written authorisation</strong> to assess.
+      The developers accept no liability for misuse.
+    </div>
+  </div>
+
+  <div>
+    <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
+                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">05 &middot; Changes &amp; Contact</div>
+    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+      Material changes will be reflected in an updated effective date above.
+      Questions? Use the Contact panel.
+    </div>
+  </div>
+</div>""",
+            unsafe_allow_html=True,
+        )
+
+with _fc_col:
+    with st.expander("✉️  Contact"):
+        st.markdown(
+            """<div style="padding:6px 0 4px;">
+  <div style="font-size:1rem;font-weight:800;color:#dce8ff;
+              font-family:'Inter',sans-serif;margin-bottom:3px;">Get in Touch</div>
+  <div style="font-size:0.65rem;color:#243048;font-family:'JetBrains Mono',monospace;
+              margin-bottom:14px;">RedFlag &middot; M&amp;A Cybersecurity Intelligence</div>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;">
+    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
+                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+      <div style="font-size:1rem;margin-bottom:5px;">&#128737;&#65039;</div>
+      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+                  font-family:'Inter',sans-serif;margin-bottom:3px;">Security Questions</div>
+      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+        Methodology, scoring, M&amp;A interpretation.
+      </div>
+    </div>
+    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
+                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+      <div style="font-size:1rem;margin-bottom:5px;">&#129309;</div>
+      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+                  font-family:'Inter',sans-serif;margin-bottom:3px;">Partnerships</div>
+      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+        Enterprise, white-label, advisory.
+      </div>
+    </div>
+    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
+                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+      <div style="font-size:1rem;margin-bottom:5px;">&#128027;</div>
+      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+                  font-family:'Inter',sans-serif;margin-bottom:3px;">Bug Reports</div>
+      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+        Unexpected behaviour or feature ideas.
+      </div>
+    </div>
+    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
+                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+      <div style="font-size:1rem;margin-bottom:5px;">&#128203;</div>
+      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+                  font-family:'Inter',sans-serif;margin-bottom:3px;">Privacy Enquiries</div>
+      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+        Questions about how RedFlag handles data.
+      </div>
+    </div>
+  </div>
+
+  <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#100;&#105;&#116;&#121;&#97;&#97;&#118;&#101;&#108;&#48;&#48;&#55;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;"
+     style="display:block;text-align:center;
+            background:linear-gradient(160deg,#f43f5e,#9f1239);
+            color:#fff;text-decoration:none;font-family:'Inter',sans-serif;
+            font-weight:700;font-size:0.83rem;letter-spacing:0.05em;
+            padding:11px 20px;border-radius:10px;
+            box-shadow:0 4px 22px rgba(244,63,94,0.4);margin-bottom:14px;">
+    &#9993;&nbsp; Send Message
+  </a>
+
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+    <div style="font-size:0.76rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
+      <span style="color:#34d399;font-weight:700;">General enquiries</span><br>Within 2 business days
+    </div>
+    <div style="font-size:0.76rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
+      <span style="color:#fbbf24;font-weight:700;">Security / critical</span><br>Within 24 hours
+    </div>
+  </div>
+</div>""",
+            unsafe_allow_html=True,
+        )
+
+with _copy_col:
+    st.markdown(
+        "<div style='display:flex;align-items:center;justify-content:flex-end;"
+        "padding-top:18px;'>"
+        "<span style='font-size:0.6rem;font-family:\"JetBrains Mono\",monospace;"
+        "color:#182236;letter-spacing:0.1em;'>"
+        "&#169; 2026 RedFlag &nbsp;&middot;&nbsp; M&amp;A Cybersecurity Intelligence"
+        "</span></div>",
+        unsafe_allow_html=True,
+    )

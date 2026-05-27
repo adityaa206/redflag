@@ -86,6 +86,62 @@ def fetch_cvss_batch(cve_ids: list[str]) -> dict[str, float]:
     return results
 
 
+def parse_shodan_json(data: dict) -> dict:
+    """
+    Convert a raw Shodan host JSON (as returned by api.host() or exported via
+    the Shodan web interface / CLI) into the same normalised dict that
+    lookup_host() returns.
+
+    Accepts the full Shodan host object.  The 'vulns' field in the raw JSON is
+    either a list of CVE strings or a dict keyed by CVE ID — both forms are
+    handled.
+
+    Raises ValueError with a descriptive message if the data is not a
+    recognisable Shodan host record.
+    """
+    if not isinstance(data, dict):
+        raise ValueError("Shodan JSON must be a JSON object (dict), not a list or scalar.")
+
+    # Minimum check — Shodan host records always have an IP field
+    ip_str = data.get("ip_str") or data.get("ip")
+    if not ip_str:
+        raise ValueError(
+            "Could not find 'ip_str' in the uploaded file. "
+            "Please upload a Shodan host record (e.g. the output of 'shodan host <ip> --save' or api.host())."
+        )
+
+    # vulns can be a list ["CVE-XXXX-YYYY", ...] or a dict {"CVE-XXXX-YYYY": {...}, ...}
+    raw_vulns = data.get("vulns") or []
+    if isinstance(raw_vulns, dict):
+        vulns_list = list(raw_vulns.keys())
+    elif isinstance(raw_vulns, list):
+        vulns_list = raw_vulns
+    else:
+        vulns_list = []
+
+    # ports: Shodan may store them top-level or inside the 'data' banner list
+    ports = data.get("ports") or []
+    if not ports and "data" in data:
+        ports = sorted({int(svc.get("port", 0)) for svc in data["data"] if svc.get("port")})
+
+    return {
+        "success": True,
+        "ip":           ip_str,
+        "organization": data.get("org"),
+        "asn":          data.get("asn"),
+        "isp":          data.get("isp"),
+        "country":      data.get("country_name"),
+        "city":         data.get("city"),
+        "hostnames":    data.get("hostnames", []),
+        "domains":      data.get("domains", []),
+        "ports":        ports,
+        "os":           data.get("os"),
+        "vulns":        vulns_list,
+        "raw":          data,
+        "source":       "external_json",      # flag so the UI can label it correctly
+    }
+
+
 def lookup_host(ip_address):
     api_key = os.getenv("SHODAN_API_KEY")
 

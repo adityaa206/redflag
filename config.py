@@ -1,9 +1,25 @@
 # ── Triage scoring weights ─────────────────────────────────────────────────────
 # Must sum to 1.0
-WEIGHT_CVSS        = 0.35
+#
+# Aligned with SSVC (CISA / Carnegie Mellon Stakeholder-Specific Vulnerability
+# Categorisation) and EPSS (Exploit Prediction Scoring System) methodology.
+#
+# Rationale:
+#   Exploit Status  (0.30) — highest weight: active/public exploitation is the
+#       primary triage signal per CISA KEV guidance and EPSS research. A known-
+#       exploited vulnerability demands immediate action regardless of CVSS.
+#   Exposure        (0.25) — attack surface drives reachability; internet-facing
+#       assets face orders-of-magnitude more threat activity than internal ones.
+#       Mirrors CVSS Attack Vector dimension.
+#   CVSS Score      (0.25) — technical severity baseline; kept equal to exposure
+#       because a high CVSS on an unreachable service is lower priority than a
+#       moderate CVSS on an internet-facing one.
+#   Data Sensitivity(0.20) — business / regulatory impact layer; lower than the
+#       three technical factors but still material for deal-killer classification.
+WEIGHT_CVSS        = 0.25
 WEIGHT_EXPOSURE    = 0.25
-WEIGHT_SENSITIVITY = 0.25
-WEIGHT_EXPLOIT     = 0.15
+WEIGHT_SENSITIVITY = 0.20
+WEIGHT_EXPLOIT     = 0.30
 
 # ── Score-to-tier thresholds ───────────────────────────────────────────────────
 TIER_THRESHOLD_CRITICAL   = 75
