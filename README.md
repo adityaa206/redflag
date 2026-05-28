@@ -80,13 +80,7 @@ Deterministic narrative text generated from 25+ YAML-backed template blocks — 
 Same input always produces the same output. Covers executive summary, maturity gaps, cost rationale,
 per-finding context, and remediation priority guidance.
 
----
 
-## Screenshots
-
-> *(Add screenshots of the 5 tabs here — Overview, Findings, Maturity Assessment, Cost & Budget, Export)*
-
----
 
 ## Getting Started
 
