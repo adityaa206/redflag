@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from reports.generator import export_findings_csv
-from reports.pdf_report import generate_pdf_report
+from reports.pdf_report import generate_pdf_report, generate_cost_section
 from scanners.nmap_scan import run_nmap_scan, vulners_nse_available
 from analysis.parser import analyze_nmap_file
 from analysis.triage import triage_all
@@ -13,6 +13,11 @@ from scanners.openvas_parse import parse_openvas_xml, merge_openvas_with_nmap
 from scanners.vulners_parse import parse_vulners_from_nmap_xml, merge_vulners_with_nmap
 from scanners.zap_scan import parse_zap_xml, merge_zap_with_nmap
 from analysis.parsers.excel_assets import parse_asset_excel, apply_sensitivity_to_findings
+from analysis.maturity import run_assessment, get_all_domains, get_domain_questions, MaturityGapSeverity
+from analysis.standards_compare import compare_to_standard
+from cost.rollup import run_cost_pipeline
+from cost.schema import ScenarioType, ReviewFlag
+from narrative.engine import build_executive_summary, build_maturity_narrative, build_cost_narrative
 
 
 st.set_page_config(
@@ -832,8 +837,8 @@ if "findings" in st.session_state:
 
     # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-    tab_overview, tab_findings, tab_export = st.tabs(
-        ["  Overview  ", "  Findings  ", "  Export  "]
+    tab_overview, tab_findings, tab_maturity, tab_cost, tab_export = st.tabs(
+        ["  Overview  ", "  Findings  ", "  Maturity Assessment  ", "  Cost & Budget  ", "  Export  "]
     )
 
     # ══════════════════════════════════════════════════════════════════════════════
@@ -1223,6 +1228,362 @@ if "findings" in st.session_state:
                       </div>
                     </div>
                     """, unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Maturity Assessment
+    # ══════════════════════════════════════════════════════════════════════════════
+
+    with tab_maturity:
+
+        st.markdown('<div class="rf-section-label">Inside-Out Maturity Assessment</div>', unsafe_allow_html=True)
+        st.markdown(
+            "<div style='font-size:0.82rem;color:#5f7ca0;font-family:\"Inter\",sans-serif;"
+            "line-height:1.7;margin-bottom:20px;'>"
+            "Complete the questionnaire below to assess the target's internal security programme maturity. "
+            "Scores are compared against a corporate acquisition standard to identify gaps and deal-blockers. "
+            "All fields are optional — unanswered domains are excluded from scoring.</div>",
+            unsafe_allow_html=True,
+        )
+
+        # ── Questionnaire form ────────────────────────────────────────────────
+        all_domains = get_all_domains()
+        mat_answers: dict[str, int] = {}
+
+        with st.form("maturity_form"):
+            for domain_key, domain_label in all_domains:
+                questions = get_domain_questions(domain_key)
+                st.markdown(
+                    f"<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.15em;"
+                    f"text-transform:uppercase;color:#f43f5e;font-family:\"JetBrains Mono\",monospace;"
+                    f"margin:18px 0 6px;'>{domain_label}</div>",
+                    unsafe_allow_html=True,
+                )
+                for q in questions:
+                    options = q.get("options", [])
+                    if not options:
+                        continue
+                    # Build labelled options: "0 — <text>"
+                    option_labels = [f"{i} — {opt}" for i, opt in enumerate(options)]
+                    default_idx = st.session_state.get(f"mat_{q['id']}_idx", 0)
+                    sel = st.selectbox(
+                        label=q["text"],
+                        options=option_labels,
+                        index=default_idx,
+                        key=f"mat_form_{q['id']}",
+                    )
+                    # Extract level from "N — ..." prefix
+                    mat_answers[q["id"]] = int(sel.split(" — ")[0])
+
+            submitted = st.form_submit_button(
+                "Run Maturity Assessment",
+                use_container_width=True,
+            )
+
+        if submitted:
+            assessment = run_assessment(mat_answers, target=clean_target)
+            gap_report = compare_to_standard(assessment)
+            st.session_state["maturity_assessment"] = assessment
+            st.session_state["gap_report"]          = gap_report
+
+        # ── Results ───────────────────────────────────────────────────────────
+        assessment = st.session_state.get("maturity_assessment")
+        gap_report = st.session_state.get("gap_report")
+
+        if assessment:
+            # Overall score banner
+            overall = assessment.overall_score
+            ov_color = "#f43f5e" if assessment.is_deal_blocker else ("#fbbf24" if assessment.has_gaps else "#34d399")
+            ov_label = "DEAL-BLOCKER" if assessment.is_deal_blocker else ("GAPS PRESENT" if assessment.has_gaps else "ACCEPTABLE")
+
+            st.markdown(f"""
+            <div style="background:linear-gradient(160deg,#080d1c,#060a16);border:1px solid {ov_color}33;
+                        border-radius:14px;padding:20px 24px;margin-bottom:24px;
+                        display:flex;align-items:center;gap:24px;">
+              <div style="text-align:center;min-width:80px;">
+                <div style="font-size:3rem;font-weight:700;color:{ov_color};
+                            font-family:'JetBrains Mono',monospace;line-height:1;">{overall:.1f}<span style="font-size:1.2rem;color:#243048;">/5</span></div>
+                <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+                            color:{ov_color};font-family:'JetBrains Mono',monospace;margin-top:4px;">{ov_label}</div>
+              </div>
+              <div style="flex:1;">
+                <div style="font-size:0.9rem;font-weight:700;color:#dce8ff;
+                            font-family:'Inter',sans-serif;margin-bottom:6px;">Overall Maturity Score</div>
+                <div style="font-size:0.78rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.6;">
+                  {assessment.completion_pct:.0f}% of questions answered &nbsp;&middot;&nbsp;
+                  {len(assessment.domain_scores)} domains assessed
+                </div>
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+            # Domain score cards
+            st.markdown('<div class="rf-section-label">Domain Scores</div>', unsafe_allow_html=True)
+
+            _SEV_COLORS = {
+                "deal_blocker": ("#f43f5e", "DEAL-BLOCKER"),
+                "below_min":    ("#fbbf24", "BELOW MIN"),
+                "acceptable":   ("#60a5fa", "ACCEPTABLE"),
+                "at_target":    ("#34d399", "AT TARGET"),
+            }
+
+            domain_cols = st.columns(2)
+            for di, ds in enumerate(assessment.domain_scores):
+                sev_val   = str(ds.gap_severity.value if hasattr(ds.gap_severity, "value") else ds.gap_severity)
+                sev_color, sev_label = _SEV_COLORS.get(sev_val, ("#5f7ca0", "N/A"))
+                bar_pct = int(ds.score / 5 * 100)
+                with domain_cols[di % 2]:
+                    st.markdown(f"""
+                    <div style="background:linear-gradient(160deg,#080d1c,#060a16);
+                                border:1px solid #0e1828;border-radius:12px;
+                                padding:16px 18px;margin-bottom:12px;">
+                      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+                        <div style="font-size:0.8rem;font-weight:700;color:#c7d8f5;
+                                    font-family:'Inter',sans-serif;">{ds.label}</div>
+                        <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.14em;
+                                    text-transform:uppercase;color:{sev_color};
+                                    font-family:'JetBrains Mono',monospace;">{sev_label}</div>
+                      </div>
+                      <div style="display:flex;align-items:center;gap:12px;">
+                        <div style="flex:1;height:6px;background:#0d1828;border-radius:3px;">
+                          <div style="width:{bar_pct}%;height:6px;background:{sev_color};
+                                      border-radius:3px;transition:width 0.3s;"></div>
+                        </div>
+                        <div style="font-size:1.1rem;font-weight:700;color:{sev_color};
+                                    font-family:'JetBrains Mono',monospace;min-width:36px;
+                                    text-align:right;">{ds.score:.1f}</div>
+                      </div>
+                      <div style="margin-top:8px;display:flex;gap:16px;">
+                        <span style="font-size:0.7rem;color:#243048;font-family:'JetBrains Mono',monospace;">
+                          Min acceptable: <span style="color:#5f7ca0;">{ds.acceptable_min}</span>
+                        </span>
+                        <span style="font-size:0.7rem;color:#243048;font-family:'JetBrains Mono',monospace;">
+                          Target: <span style="color:#5f7ca0;">{ds.recommended}</span>
+                        </span>
+                        <span style="font-size:0.7rem;color:#243048;font-family:'JetBrains Mono',monospace;">
+                          Answered: <span style="color:#5f7ca0;">{ds.answered}/{ds.total_questions}</span>
+                        </span>
+                      </div>
+                    </div>""", unsafe_allow_html=True)
+
+            # Gap narrative
+            if gap_report and gap_report.has_any_gaps:
+                st.markdown('<div class="rf-section-label">Gap Analysis</div>', unsafe_allow_html=True)
+                mat_narrative = build_maturity_narrative(assessment)
+                if mat_narrative:
+                    st.markdown(
+                        f"<div style='font-size:0.85rem;color:#c7d8f5;font-family:\"Inter\",sans-serif;"
+                        f"line-height:1.75;padding:16px;background:#060a16;border-radius:10px;"
+                        f"border-left:3px solid #fbbf24;margin-bottom:16px;'>{mat_narrative}</div>",
+                        unsafe_allow_html=True,
+                    )
+
+                for gap in gap_report.deal_blocker_gaps + gap_report.below_min_gaps:
+                    st.markdown(f"""
+                    <div style="background:#060a16;border:1px solid #f43f5e33;border-radius:10px;
+                                border-left:3px solid #f43f5e;padding:14px 18px;margin-bottom:10px;">
+                      <div style="font-size:0.82rem;font-weight:700;color:#f43f5e;
+                                  font-family:'Inter',sans-serif;margin-bottom:4px;">
+                        {gap.label} — Score {gap.current_score:.1f} (need {gap.acceptable_min})
+                      </div>
+                      <div style="font-size:0.78rem;color:#5f7ca0;font-family:'Inter',sans-serif;
+                                  line-height:1.65;">{gap.rationale}</div>
+                    </div>""", unsafe_allow_html=True)
+        else:
+            st.markdown(
+                "<div style='padding:40px;text-align:center;color:#243048;"
+                "font-family:\"JetBrains Mono\",monospace;font-size:0.78rem;'>"
+                "Complete the questionnaire above and click Run Maturity Assessment to see results.</div>",
+                unsafe_allow_html=True,
+            )
+
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Cost & Budget
+    # ══════════════════════════════════════════════════════════════════════════════
+
+    with tab_cost:
+
+        st.markdown('<div class="rf-section-label">Remediation Cost & Budget</div>', unsafe_allow_html=True)
+        st.markdown(
+            "<div style='font-size:0.82rem;color:#5f7ca0;font-family:\"Inter\",sans-serif;"
+            "line-height:1.7;margin-bottom:20px;'>"
+            "Cost estimates are generated from scanner findings and maturity gaps using industry benchmark "
+            "pricing.  All figures are shown as low / base / high scenarios.  CapEx and OpEx are separated. "
+            "Flagged items require human review before export.</div>",
+            unsafe_allow_html=True,
+        )
+
+        # ── Generate cost estimate ─────────────────────────────────────────────
+        gap_report_for_cost = st.session_state.get("gap_report")
+
+        include_gaps = st.checkbox(
+            "Include maturity gap remediation costs",
+            value=bool(gap_report_for_cost),
+            disabled=not bool(gap_report_for_cost),
+            help="Requires a completed Maturity Assessment.",
+        )
+
+        if st.button("Generate Cost Estimate", use_container_width=False):
+            with st.spinner("Building cost model…"):
+                rollup = run_cost_pipeline(
+                    findings=findings,
+                    gap_report=gap_report_for_cost if include_gaps else None,
+                    target=clean_target,
+                    include_maturity_gaps=include_gaps,
+                )
+                st.session_state["cost_rollup"] = rollup
+
+        rollup = st.session_state.get("cost_rollup")
+
+        if rollup:
+            # ── Cost narrative ─────────────────────────────────────────────────
+            cost_narrative = build_cost_narrative(rollup)
+            if cost_narrative:
+                st.markdown(
+                    f"<div style='font-size:0.85rem;color:#c7d8f5;font-family:\"Inter\",sans-serif;"
+                    f"line-height:1.75;padding:16px;background:#060a16;border-radius:10px;"
+                    f"border-left:3px solid #60a5fa;margin-bottom:20px;'>{cost_narrative}</div>",
+                    unsafe_allow_html=True,
+                )
+
+            # ── Scenario summary cards ─────────────────────────────────────────
+            st.markdown('<div class="rf-section-label">Cost Scenarios</div>', unsafe_allow_html=True)
+            sc_low  = next((s for s in rollup.scenarios if str(s.scenario_type) == "low"),  None)
+            sc_base = next((s for s in rollup.scenarios if str(s.scenario_type) == "base"), None)
+            sc_high = next((s for s in rollup.scenarios if str(s.scenario_type) == "high"), None)
+
+            sc_col1, sc_col2, sc_col3 = st.columns(3)
+            for sc_col, sc, sc_label, sc_color in [
+                (sc_col1, sc_low,  "Low Scenario",  "#34d399"),
+                (sc_col2, sc_base, "Base Scenario", "#60a5fa"),
+                (sc_col3, sc_high, "High Scenario", "#f43f5e"),
+            ]:
+                with sc_col:
+                    if sc:
+                        st.markdown(f"""
+                        <div style="background:linear-gradient(160deg,#080d1c,#060a16);
+                                    border:1px solid #0e1828;border-radius:14px;padding:20px 16px;">
+                          <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.18em;
+                                      text-transform:uppercase;color:#243048;
+                                      font-family:'JetBrains Mono',monospace;margin-bottom:10px;">{sc_label}</div>
+                          <div style="font-size:2.2rem;font-weight:700;color:{sc_color};
+                                      font-family:'JetBrains Mono',monospace;line-height:1;">
+                            ${sc.total_usd:,.0f}
+                          </div>
+                          <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
+                            <div style="font-size:0.72rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
+                              <span style="color:#fbbf24;font-weight:700;">CapEx</span><br>
+                              ${sc.capex_usd:,.0f}
+                            </div>
+                            <div style="font-size:0.72rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
+                              <span style="color:#34d399;font-weight:700;">OpEx</span><br>
+                              ${sc.opex_usd:,.0f}
+                            </div>
+                          </div>
+                        </div>""", unsafe_allow_html=True)
+
+            st.markdown("<div style='height:16px;'></div>", unsafe_allow_html=True)
+
+            # ── Review gate ────────────────────────────────────────────────────
+            if rollup.has_flagged_items:
+                flagged_items = [i for i in rollup.line_items if i.needs_review]
+                st.markdown(f"""
+                <div style="background:#0a0610;border:1px solid #f43f5e44;border-radius:12px;
+                            border-left:3px solid #f43f5e;padding:16px 20px;margin-bottom:16px;">
+                  <div style="font-size:0.82rem;font-weight:700;color:#f43f5e;
+                              font-family:'Inter',sans-serif;margin-bottom:6px;">
+                    ⚠  {len(flagged_items)} Item(s) Require Human Review Before Export
+                  </div>
+                  <div style="font-size:0.78rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.65;">
+                    The highlighted items below have high cost variance, zero estimates, or are linked to
+                    deal-killer findings.  Review and acknowledge before downloading the cost report.
+                  </div>
+                </div>""", unsafe_allow_html=True)
+
+                acknowledge = st.checkbox(
+                    "I have reviewed all flagged items and acknowledge the estimates are reasonable.",
+                    key="cost_review_ack",
+                )
+                if acknowledge:
+                    rollup.review_acknowledged = True
+                    st.session_state["cost_rollup"] = rollup
+
+            # ── Line items table ───────────────────────────────────────────────
+            st.markdown('<div class="rf-section-label">Remediation Line Items</div>', unsafe_allow_html=True)
+
+            import pandas as _pd_cost
+            cost_rows = []
+            for item in rollup.line_items:
+                cat  = str(getattr(item.category,   "value", item.category)).replace("_", " ").title()
+                ce   = str(getattr(item.capex_opex, "value", item.capex_opex)).upper()
+                conf = str(getattr(item.confidence, "value", item.confidence)).upper()
+                flags = "; ".join(str(getattr(f, "value", f)) for f in item.review_flags) or "-"
+                cost_rows.append({
+                    "Title":       item.title,
+                    "Category":    cat,
+                    "CapEx/OpEx":  ce,
+                    "Low ($)":     int(item.cost.low),
+                    "Base ($)":    int(item.cost.base),
+                    "High ($)":    int(item.cost.high),
+                    "Confidence":  conf,
+                    "Findings":    len(item.finding_ids),
+                    "Flags":       flags,
+                })
+
+            cost_df = _pd_cost.DataFrame(cost_rows)
+            st.dataframe(
+                cost_df,
+                use_container_width=True,
+                hide_index=True,
+                column_config={
+                    "Low ($)":  st.column_config.NumberColumn(format="$%d"),
+                    "Base ($)": st.column_config.NumberColumn(format="$%d"),
+                    "High ($)": st.column_config.NumberColumn(format="$%d"),
+                },
+            )
+
+            # ── Export cost report ─────────────────────────────────────────────
+            st.markdown('<div class="rf-section-label" style="margin-top:20px;">Export Cost Report</div>', unsafe_allow_html=True)
+
+            if rollup.export_blocked:
+                st.warning("Acknowledge all flagged items above to unlock export.")
+            else:
+                from cost.exporters import export_rollup_csv, export_rollup_xlsx
+
+                exp_c1, exp_c2 = st.columns(2)
+                with exp_c1:
+                    try:
+                        csv_bytes = export_rollup_csv(rollup)
+                        st.download_button(
+                            label="Download Cost Report (CSV)",
+                            data=csv_bytes,
+                            file_name=f"redflag_cost_{clean_target.replace('.', '_')}.csv",
+                            mime="text/csv",
+                            use_container_width=True,
+                        )
+                    except Exception as e_csv:
+                        st.error(f"CSV export failed: {e_csv}")
+
+                with exp_c2:
+                    try:
+                        xlsx_bytes = export_rollup_xlsx(rollup)
+                        st.download_button(
+                            label="Download Cost Report (XLSX)",
+                            data=xlsx_bytes,
+                            file_name=f"redflag_cost_{clean_target.replace('.', '_')}.xlsx",
+                            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                            use_container_width=True,
+                        )
+                    except ImportError:
+                        st.info("Install openpyxl for XLSX export: `pip install openpyxl`")
+                    except Exception as e_xlsx:
+                        st.error(f"XLSX export failed: {e_xlsx}")
+
+        else:
+            st.markdown(
+                "<div style='padding:40px;text-align:center;color:#243048;"
+                "font-family:\"JetBrains Mono\",monospace;font-size:0.78rem;'>"
+                "Click Generate Cost Estimate to build the remediation budget.</div>",
+                unsafe_allow_html=True,
+            )
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Tab: Export

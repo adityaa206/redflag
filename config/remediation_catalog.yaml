@@ -1,0 +1,326 @@
+# config/remediation_catalog.yaml
+# Maps scanner finding characteristics to cost line items.
+#
+# Each entry key is matched against finding data using the priority order:
+#   1. cve_id (exact match)
+#   2. service  (matches finding.service field)
+#   3. category (matches deal_tier or a tag computed from finding)
+#   4. default  (fallback when nothing else matches)
+#
+# Cost fields reference pricing_benchmarks.yaml keys or use inline USD values.
+#   labour_role: key from pricing_benchmarks.labour_rates
+#   labour_hours_key: key from pricing_benchmarks.effort_hours
+#   tool_key: key from pricing_benchmarks.tool_costs (optional add-on)
+#   capex_opex: capex | opex | mixed
+#   category: RemediationCategory enum value
+#
+# Expression fields (low/base/high) use simpleeval with these variables:
+#   labour_low, labour_base, labour_high   (hourly rate for the role)
+#   hours_low,  hours_base,  hours_high    (effort hours)
+
+# ── CVE-specific overrides ────────────────────────────────────────────────────
+cve_overrides:
+  # EternalBlue / WannaCry-era
+  CVE-2017-0144:
+    title: "Patch MS17-010 (EternalBlue / WannaCry)"
+    description: "Critical SMB RCE used by WannaCry and NotPetya ransomware campaigns."
+    category: patching
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_single_system
+    confidence: high
+    notes: "MS17-010 patch is available for all affected Windows versions."
+
+  CVE-2021-44228:
+    title: "Remediate Log4Shell (CVE-2021-44228)"
+    description: "Critical Log4j2 RCE. Requires identifying all affected JVM applications and updating Log4j."
+    category: patching
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_fleet_100_systems
+    confidence: medium
+    notes: "Complex due to transitive dependency usage. Scope discovery adds effort."
+
+  CVE-2023-44487:
+    title: "Mitigate HTTP/2 Rapid Reset (CVE-2023-44487)"
+    description: "HTTP/2 DoS vulnerability. Requires web server updates and WAF rule deployment."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_single_system
+    confidence: high
+
+  CVE-2021-34527:
+    title: "Patch PrintNightmare (CVE-2021-34527)"
+    description: "Windows Print Spooler RCE. Disable Print Spooler on DCs; apply MS patch."
+    category: patching
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_single_system
+    confidence: high
+
+  CVE-2022-30190:
+    title: "Patch Follina MSDT (CVE-2022-30190)"
+    description: "Windows Support Diagnostic Tool RCE via Office documents."
+    category: patching
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_single_system
+    confidence: high
+
+# ── Service/port-based catalog entries ───────────────────────────────────────
+service_entries:
+
+  ftp:
+    title: "Secure or replace exposed FTP service"
+    description: "Disable anonymous FTP, enforce strong auth, migrate to SFTP/SCP, or restrict behind VPN."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: medium
+
+  telnet:
+    title: "Disable Telnet and migrate to SSH"
+    description: "Telnet transmits credentials in cleartext. Replace with SSH and enforce key-based auth."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: high
+
+  rdp:
+    title: "Restrict RDP behind VPN and enforce MFA"
+    description: "RDP directly exposed to the internet is a primary ransomware entry vector."
+    category: configuration
+    capex_opex: mixed
+    labour_role: security_engineer
+    labour_hours_key: mfa_rollout_100_users
+    add_tool_key: mfa_per_user
+    confidence: medium
+
+  smb:
+    title: "Remove SMB internet exposure and enforce signing"
+    description: "SMB on the internet enables NTLM relay and lateral movement. Block at perimeter and enforce SMB signing."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: firewall_rule_cleanup
+    confidence: high
+
+  vnc:
+    title: "Secure or disable VNC internet exposure"
+    description: "VNC without authentication or encryption is trivially exploitable. Require VPN access."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: high
+
+  redis:
+    title: "Secure Redis — bind to internal interface and require auth"
+    description: "Unauthenticated Redis is frequently exploited for data theft and cryptomining."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: high
+
+  elasticsearch:
+    title: "Secure Elasticsearch — require authentication and restrict access"
+    description: "Unauthenticated Elasticsearch exposes all indexed data to the internet."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: high
+
+  mongodb:
+    title: "Secure MongoDB — restrict access and require authentication"
+    description: "Unauthenticated MongoDB exposed to the internet risks full database exfiltration."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: high
+
+  docker:
+    title: "Restrict Docker daemon API exposure"
+    description: "An exposed Docker API grants root-equivalent access to the host. Immediately restrict to localhost only."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: high
+
+  http:
+    title: "Harden exposed HTTP service"
+    description: "Review authentication, enforce HTTPS, add security headers, validate public access necessity."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_single_system
+    confidence: low
+
+  https:
+    title: "Review and harden HTTPS service"
+    description: "Validate TLS configuration, certificate management, and access controls."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: patch_single_system
+    confidence: low
+
+  ssh:
+    title: "Harden SSH configuration"
+    description: "Disable root login, enforce key-based auth, restrict source IPs, update to current version."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: medium
+
+  smtp:
+    title: "Harden SMTP service and relay configuration"
+    description: "Verify relay restrictions, enforce TLS, implement SPF/DKIM/DMARC."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours_key: disable_legacy_protocol
+    confidence: medium
+
+# ── Tier/category-based fallback entries ─────────────────────────────────────
+tier_entries:
+
+  deal_killer:
+    title: "Emergency remediation — deal-killer finding"
+    description: "Immediate remediation required before deal close. Scope to be confirmed by security engineering."
+    category: patching
+    capex_opex: mixed
+    labour_role: security_engineer
+    labour_hours:
+      low: 20
+      base: 60
+      high: 120
+    confidence: low
+    review_flag: deal_killer_item
+
+  critical:
+    title: "Critical finding remediation"
+    description: "High-priority remediation to be completed within 30 days post-close."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours:
+      low: 8
+      base: 24
+      high: 48
+    confidence: low
+
+  moderate:
+    title: "Moderate finding remediation"
+    description: "Standard remediation included in 90-day post-close security roadmap."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours:
+      low: 4
+      base: 12
+      high: 24
+    confidence: low
+
+  manageable:
+    title: "Manageable finding remediation"
+    description: "Low-priority remediation for 6-month security improvement programme."
+    category: configuration
+    capex_opex: opex
+    labour_role: security_engineer
+    labour_hours:
+      low: 2
+      base: 6
+      high: 12
+    confidence: low
+
+# ── Maturity gap remediation entries ─────────────────────────────────────────
+maturity_entries:
+
+  identity_access_gap:
+    title: "Identity & Access Management uplift"
+    description: "Implement MFA, least-privilege, and centralised directory to reach acceptable maturity level."
+    category: tooling
+    capex_opex: mixed
+    labour_role: security_engineer
+    labour_hours_key: mfa_rollout_100_users
+    add_tool_key: mfa_per_user
+    confidence: medium
+
+  network_security_gap:
+    title: "Network security and segmentation uplift"
+    description: "Implement network segmentation, firewall rule cleanup, and IDS/IPS."
+    category: architecture
+    capex_opex: capex
+    labour_role: security_architect
+    labour_hours_key: network_segmentation
+    confidence: medium
+
+  endpoint_security_gap:
+    title: "Endpoint security uplift"
+    description: "Deploy EDR solution and establish a managed patching programme."
+    category: tooling
+    capex_opex: mixed
+    labour_role: security_engineer
+    labour_hours: {low: 20, base: 60, high: 120}
+    add_tool_key: edr_per_endpoint
+    confidence: medium
+
+  application_security_gap:
+    title: "Application security programme establishment"
+    description: "Introduce SAST/SCA tooling in CI/CD and schedule initial penetration testing."
+    category: tooling
+    capex_opex: mixed
+    labour_role: devops_engineer
+    labour_hours: {low: 16, base: 40, high: 80}
+    add_tool_key: pen_test_web_app
+    confidence: low
+
+  data_protection_gap:
+    title: "Data protection and encryption uplift"
+    description: "Enforce TLS 1.2+, implement data classification, establish backup testing."
+    category: data_protection
+    capex_opex: mixed
+    labour_role: security_engineer
+    labour_hours: {low: 16, base: 48, high: 100}
+    confidence: medium
+
+  incident_response_gap:
+    title: "Incident response programme establishment"
+    description: "Develop IR plan, deploy SIEM basics, and establish an IR retainer."
+    category: incident_response
+    capex_opex: mixed
+    labour_role: grc_analyst
+    labour_hours_key: ir_plan_development
+    add_tool_key: ir_retainer
+    confidence: medium
+
+  third_party_risk_gap:
+    title: "Third-party risk management programme"
+    description: "Create vendor inventory, implement security questionnaire process, and adopt SCA tooling."
+    category: process
+    capex_opex: opex
+    labour_role: grc_analyst
+    labour_hours: {low: 16, base: 40, high: 80}
+    confidence: low
+
+# ── Default fallback ──────────────────────────────────────────────────────────
+default:
+  title: "Generic security remediation"
+  description: "Remediation effort for finding — manual scoping required."
+  category: configuration
+  capex_opex: opex
+  labour_role: security_engineer
+  labour_hours:
+    low: 4
+    base: 16
+    high: 40
+  confidence: low
+  review_flag: manual_required

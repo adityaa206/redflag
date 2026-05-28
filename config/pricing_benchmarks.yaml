@@ -1,0 +1,204 @@
+# config/pricing_benchmarks.yaml
+# Industry benchmark pricing used by the cost estimation engine.
+# All rates are in USD.  Updated May 2026.
+#
+# Sources: SANS Survey 2025, Gartner Security Market Forecast 2025,
+#          RSA Conference vendor pricing surveys, internal advisory data.
+
+# ── Labour rates (USD per hour) ───────────────────────────────────────────────
+labour_rates:
+  security_engineer:
+    low:  85      # Junior / in-house
+    base: 150     # Mid-level / contractor
+    high: 250     # Senior / top-tier consultant
+    description: "Patch deployment, configuration hardening, tooling setup"
+
+  security_architect:
+    low:  120
+    base: 200
+    high: 350
+    description: "Network redesign, zero-trust planning, security programme design"
+
+  penetration_tester:
+    low:  120
+    base: 175
+    high: 300
+    description: "Manual application and network penetration testing"
+
+  devops_engineer:
+    low:  90
+    base: 140
+    high: 220
+    description: "CI/CD pipeline security integration, secrets management"
+
+  grc_analyst:
+    low:  70
+    base: 110
+    high: 180
+    description: "Policy, compliance, vendor risk management"
+
+  incident_responder:
+    low:  150
+    base: 250
+    high: 400
+    description: "Active IR engagement, forensics, containment"
+
+  soc_analyst_tier1:
+    low:  55
+    base: 80
+    high: 120
+    description: "Alert monitoring, initial triage"
+
+  soc_analyst_tier2:
+    low:  80
+    base: 130
+    high: 200
+    description: "Investigation, containment, escalation"
+
+# ── Tool / licence costs (USD per year unless noted) ─────────────────────────
+tool_costs:
+  edr_per_endpoint:
+    low:  30      # SMB pricing, 1-year
+    base: 60
+    high: 120     # Enterprise pricing with MDR add-on
+    unit: "per endpoint per year"
+
+  siem_annual:
+    low:  15000   # Cloud SIEM, small org
+    base: 50000   # Mid-market SIEM
+    high: 200000  # Enterprise SIEM + SOAR
+    unit: "per year"
+
+  mfa_per_user:
+    low:  3
+    base: 6
+    high: 15
+    unit: "per user per month"
+
+  pam_solution:
+    low:  10000
+    base: 40000
+    high: 150000
+    unit: "per year"
+
+  secrets_manager:
+    low:  2000
+    base: 8000
+    high: 30000
+    unit: "per year"
+
+  vulnerability_scanner:
+    low:  5000
+    base: 20000
+    high: 80000
+    unit: "per year"
+
+  web_app_firewall:
+    low:  3000
+    base: 12000
+    high: 50000
+    unit: "per year"
+
+  dlp_solution:
+    low:  8000
+    base: 30000
+    high: 100000
+    unit: "per year"
+
+  ir_retainer:
+    low:  15000
+    base: 35000
+    high: 80000
+    unit: "per year"
+
+  pen_test_web_app:
+    low:  5000
+    base: 12000
+    high: 30000
+    unit: "per engagement"
+
+  pen_test_network:
+    low:  8000
+    base: 18000
+    high: 40000
+    unit: "per engagement"
+
+  compliance_audit:
+    low:  10000
+    base: 25000
+    high: 60000
+    unit: "per engagement"
+
+# ── Effort estimates (hours) for common remediation tasks ─────────────────────
+effort_hours:
+  patch_single_system:
+    low:  1
+    base: 3
+    high: 8
+    description: "Patch + test + document a single OS or application"
+
+  patch_fleet_100_systems:
+    low:  20
+    base: 60
+    high: 120
+    description: "Mass patching campaign across ~100 systems"
+
+  firewall_rule_cleanup:
+    low:  8
+    base: 24
+    high: 60
+    description: "Review, document, and clean stale firewall rules"
+
+  network_segmentation:
+    low:  40
+    base: 120
+    high: 300
+    description: "Design and implement basic network segmentation"
+
+  mfa_rollout_100_users:
+    low:  8
+    base: 20
+    high: 40
+    description: "Deploy MFA to ~100 users including training"
+
+  disable_legacy_protocol:
+    low:  2
+    base: 8
+    high: 20
+    description: "Disable Telnet / SMBv1 / TLS 1.0 etc. and validate"
+
+  credential_rotation:
+    low:  4
+    base: 12
+    high: 30
+    description: "Rotate privileged account passwords and API keys"
+
+  siem_basic_deploy:
+    low:  40
+    base: 120
+    high: 240
+    description: "Basic SIEM deployment and initial rule configuration"
+
+  ir_plan_development:
+    low:  16
+    base: 40
+    high: 80
+    description: "Draft, review, and socialise an IR plan"
+
+  tabletop_exercise:
+    low:  8
+    base: 16
+    high: 32
+    description: "Facilitated tabletop IR exercise"
+
+  secrets_manager_migration:
+    low:  20
+    base: 60
+    high: 160
+    description: "Migrate hardcoded secrets to a vault solution"
+
+  appsec_pentest_remediation:
+    low:  8
+    base: 24
+    high: 60
+    description: "Remediate findings from a web application pen test"

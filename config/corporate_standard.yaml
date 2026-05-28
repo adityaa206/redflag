@@ -1,0 +1,81 @@
+# config/corporate_standard.yaml
+# Minimum acceptable maturity levels per domain for M&A target assessment.
+#
+# These benchmarks represent the minimum level an acquirer would expect a
+# mature, investment-grade company to have achieved.  Scores below the
+# threshold trigger a gap finding in the Maturity Assessment tab.
+#
+# Levels are on the same 0-5 scale as the questionnaire answers.
+#
+# acceptable_min  : deal acceptable with improvement plan agreed
+# recommended     : target for post-acquisition 12-month roadmap
+# deal_blocker    : score at or below this triggers a deal-killer flag
+
+domains:
+  identity_access:
+    acceptable_min: 2
+    recommended: 4
+    deal_blocker: 1
+    rationale: >
+      An organisation without basic MFA and least-privilege controls presents
+      unacceptable credential-compromise and lateral-movement risk.  At Level 1
+      or below, the acquirer inherits near-certain breach exposure.
+
+  network_security:
+    acceptable_min: 2
+    recommended: 4
+    deal_blocker: 1
+    rationale: >
+      Flat networks with no segmentation allow any initial compromise to spread
+      unimpeded.  At Level 1 or below, containment of a breach is nearly
+      impossible without full network redesign.
+
+  endpoint_security:
+    acceptable_min: 2
+    recommended: 4
+    deal_blocker: 1
+    rationale: >
+      Without EDR and a defined patching process, endpoints represent an
+      uncontrolled attack surface.  Known-exploited vulnerabilities in CISA KEV
+      often persist for months in organisations below Level 2.
+
+  application_security:
+    acceptable_min: 2
+    recommended: 3
+    deal_blocker: 1
+    rationale: >
+      Applications without any security testing are likely carrying high-
+      severity vulnerabilities.  Custom software is a common acquisition-risk
+      vector and requires at minimum ad-hoc code review before close.
+
+  data_protection:
+    acceptable_min: 2
+    recommended: 4
+    deal_blocker: 1
+    rationale: >
+      Unencrypted sensitive data and absent classification policy creates
+      immediate regulatory exposure (GDPR, CCPA, HIPAA).  Acquirers inherit
+      liability for data breaches that occurred before close.
+
+  incident_response:
+    acceptable_min: 2
+    recommended: 3
+    deal_blocker: 0
+    rationale: >
+      Absence of an IR plan is a gap but not immediately a deal-blocker if
+      other controls are adequate.  Post-acquisition IR programme is a standard
+      integration deliverable.
+
+  third_party_risk:
+    acceptable_min: 2
+    recommended: 3
+    deal_blocker: 1
+    rationale: >
+      Unmanaged vendor access is a primary breach vector.  An organisation with
+      no vendor inventory cannot account for where sensitive data flows or who
+      has privileged access to their systems.
+
+# Overall deal-blocker threshold:
+# If the weighted-average maturity score across all domains is below this
+# value, the overall assessment is flagged as a deal-blocker.
+overall_deal_blocker_threshold: 1.5

@@ -1,0 +1,209 @@
+# config/narrative_blocks.yaml
+# Deterministic narrative template blocks for the report builder.
+#
+# Each block has:
+#   id      : unique slug
+#   when    : condition dict — all keys must match the finding/assessment context
+#   text    : narrative text (supports {variable} substitution)
+#   priority: lower = evaluated first; first match wins per section
+
+# ── Executive summary blocks ──────────────────────────────────────────────────
+executive_summary:
+
+  - id: ex_deal_killer_present
+    priority: 1
+    when: {has_deal_killers: true}
+    text: >
+      This assessment identified {deal_killer_count} deal-killer finding(s) that
+      present unacceptable risk to the proposed acquisition of {target}.
+      These findings require immediate remediation or contractual mitigation before
+      deal close.  The most critical issue is: {top_deal_killer_title}.
+
+  - id: ex_critical_only
+    priority: 2
+    when: {has_deal_killers: false, has_critical: true}
+    text: >
+      The assessment of {target} identified no deal-blocking findings; however,
+      {critical_count} critical finding(s) require remediation within 30 days of
+      close to prevent material breach risk.  The acquirer should obtain a remediation
+      commitment and timeline as a condition of deal completion.
+
+  - id: ex_moderate_only
+    priority: 3
+    when: {has_deal_killers: false, has_critical: false, has_moderate: true}
+    text: >
+      The assessment of {target} identified no critical or deal-blocking findings.
+      {moderate_count} moderate finding(s) should be addressed within 90 days of
+      close as part of the standard security integration programme.
+
+  - id: ex_clean
+    priority: 4
+    when: {has_deal_killers: false, has_critical: false, has_moderate: false}
+    text: >
+      The assessment of {target} did not identify any significant security findings
+      requiring deal-level attention.  The {total_count} manageable finding(s) detected
+      are standard operational hygiene items suitable for inclusion in the post-close
+      security improvement roadmap.
+
+# ── Maturity assessment blocks ────────────────────────────────────────────────
+maturity_summary:
+
+  - id: mat_critical_gaps
+    priority: 1
+    when: {has_maturity_deal_blockers: true}
+    text: >
+      The maturity assessment identified {maturity_blocker_count} domain(s) below the
+      deal-blocker threshold: {maturity_blocker_domains}.
+      These represent fundamental control gaps that the acquirer would inherit and are
+      unlikely to be resolved within the standard post-close integration timeline.
+      Independent of technical vulnerability findings, these gaps increase the
+      probability of a material breach event.
+
+  - id: mat_below_acceptable
+    priority: 2
+    when: {has_maturity_deal_blockers: false, has_maturity_gaps: true}
+    text: >
+      The maturity assessment identified {maturity_gap_count} domain(s) below the
+      acceptable minimum threshold: {maturity_gap_domains}.
+      These gaps should be addressed within a 12-month post-close security uplift
+      programme.  Budget and resource estimates are provided in the Cost & Budget section.
+
+  - id: mat_acceptable
+    priority: 3
+    when: {has_maturity_deal_blockers: false, has_maturity_gaps: false}
+    text: >
+      All assessed security domains met or exceeded the acceptable minimum maturity
+      threshold.  Recommended improvements to reach the target maturity level are
+      outlined in the domain detail below and included in the post-close roadmap
+      cost estimates.
+
+# ── Cost summary blocks ───────────────────────────────────────────────────────
+cost_summary:
+
+  - id: cost_high_remediation
+    priority: 1
+    when: {base_cost_above_1m: true}
+    text: >
+      Total estimated remediation cost ranges from ${cost_low} to ${cost_high}
+      (base: ${cost_base}).  This is a material remediation liability that should
+      be reflected in deal pricing or addressed via an escrow arrangement.
+      The acquirer is strongly advised to obtain binding remediation commitments
+      or a price adjustment.
+
+  - id: cost_significant
+    priority: 2
+    when: {base_cost_above_250k: true, base_cost_above_1m: false}
+    text: >
+      Total estimated remediation cost ranges from ${cost_low} to ${cost_high}
+      (base: ${cost_base}).  This is a significant integration cost that should
+      be factored into the acquisition business case.  Key cost drivers are
+      {top_cost_category}.
+
+  - id: cost_moderate
+    priority: 3
+    when: {base_cost_above_50k: true, base_cost_above_250k: false}
+    text: >
+      Total estimated remediation cost ranges from ${cost_low} to ${cost_high}
+      (base: ${cost_base}).  These costs are within the range typical for
+      post-acquisition security integration.  The majority ({capex_pct}% capex,
+      {opex_pct}% opex) is classified as {dominant_cost_type} expenditure.
+
+  - id: cost_low
+    priority: 4
+    when: {base_cost_above_50k: false}
+    text: >
+      Total estimated remediation cost ranges from ${cost_low} to ${cost_high}
+      (base: ${cost_base}).  This is a relatively modest remediation liability
+      that can be absorbed within the standard post-close integration budget.
+
+# ── Finding-level narrative blocks ────────────────────────────────────────────
+finding_detail:
+
+  - id: fd_active_exploitation
+    priority: 1
+    when: {exploit_status: active_exploitation}
+    text: >
+      This finding involves a vulnerability confirmed as actively exploited in
+      the wild (CISA Known Exploited Vulnerability catalogue).  The window between
+      public exploit availability and organisational compromise is typically less
+      than 24 hours for internet-facing systems.  Immediate action is required
+      regardless of other deal considerations.
+
+  - id: fd_public_exploit_internet
+    priority: 2
+    when: {exploit_status: public_exploit, exposure: internet_facing}
+    text: >
+      A public exploit exists for this vulnerability on an internet-facing service.
+      This combination — reachable from the internet with a working exploit — places
+      this finding in the highest-priority remediation tier.
+
+  - id: fd_kev_not_internet
+    priority: 3
+    when: {exploit_status: active_exploitation, exposure: internal}
+    text: >
+      Although this vulnerability is known-exploited in the wild, it appears to be
+      on an internally-scoped service.  The risk is materially reduced if network
+      segmentation is confirmed to be effective; however, insider threat and lateral
+      movement scenarios must be considered.
+
+  - id: fd_high_cvss_internet
+    priority: 4
+    when: {cvss_above_8: true, exposure: internet_facing}
+    text: >
+      This is a high-severity vulnerability (CVSS {cvss_score}) on an
+      internet-facing service.  Even without a confirmed public exploit,
+      the combination of high technical severity and external reachability
+      warrants priority remediation.
+
+  - id: fd_crown_jewel_risk
+    priority: 5
+    when: {data_sensitivity: crown_jewel}
+    text: >
+      This finding affects an asset classified as crown-jewel data.
+      Any compromise of this asset represents a material breach of the target's
+      most sensitive intellectual property or competitive advantage.
+
+  - id: fd_regulated_data
+    priority: 6
+    when: {data_sensitivity: regulated}
+    text: >
+      This finding affects an asset holding regulated data.
+      A breach would trigger notification obligations under applicable regulations
+      (GDPR, CCPA, HIPAA, etc.) and expose the acquirer to regulatory fines
+      and reputational damage.
+
+# ── Remediation guidance blocks ───────────────────────────────────────────────
+remediation_priority:
+
+  - id: rem_immediate
+    priority: 1
+    when: {deal_tier: deal_killer}
+    text: >
+      **Priority: Immediate (pre-close)**
+      This finding must be remediated or formally mitigated before deal close.
+      Acceptable mitigation includes: complete patch/fix, compensating control
+      with documented acceptance, or price adjustment with escrow.
+
+  - id: rem_30_day
+    priority: 2
+    when: {deal_tier: critical}
+    text: >
+      **Priority: 30 days post-close**
+      Obtain a contractual commitment from the target for remediation within 30 days
+      of close.  Track as a Day-1 security integration deliverable.
+
+  - id: rem_90_day
+    priority: 3
+    when: {deal_tier: moderate}
+    text: >
+      **Priority: 90 days post-close**
+      Include in the 90-day security integration roadmap.
+      Assign a named owner and milestone in the integration project plan.
+
+  - id: rem_roadmap
+    priority: 4
+    when: {deal_tier: manageable}
+    text: >
+      **Priority: 6-month roadmap**
+      Add to the post-close security improvement backlog.
+      Address as part of normal security operations cadence.

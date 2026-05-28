@@ -1,0 +1,293 @@
+# config/maturity_questions.yaml
+# Inside-Out Maturity Assessment questionnaire.
+#
+# Each domain contains a list of questions.  Each question has:
+#   id        : unique slug (used as session-state key)
+#   text      : question shown to user
+#   weight    : relative weight within domain (default 1.0)
+#   options   : 0–5 answer options (index = maturity level)
+#
+# Domain maturity level = weighted average of answered question levels (0-5).
+
+domains:
+
+  identity_access:
+    label: "Identity & Access Management"
+    description: "Controls over who can access what, with what privileges."
+    questions:
+      - id: iam_mfa
+        text: "Is multi-factor authentication (MFA) enforced for all privileged and remote access?"
+        weight: 2.0
+        options:
+          - "No MFA in place"
+          - "MFA available but optional"
+          - "MFA required for admin accounts only"
+          - "MFA required for all remote access"
+          - "MFA enforced everywhere with phishing-resistant methods (FIDO2/hardware)"
+          - "Continuous authentication with risk-based step-up enforced"
+
+      - id: iam_least_priv
+        text: "How is the principle of least privilege applied to user and service accounts?"
+        weight: 1.5
+        options:
+          - "No least-privilege policy; most users have admin rights"
+          - "Ad-hoc restrictions; no formal process"
+          - "Policy exists but not consistently applied"
+          - "Least privilege applied to most accounts; periodic reviews"
+          - "Automated entitlement reviews; just-in-time access for privileged roles"
+          - "Zero-trust model; all access is time-limited and needs-based with automated deprovisioning"
+
+      - id: iam_sso
+        text: "Is Single Sign-On (SSO) centralised and integrated with a directory service?"
+        weight: 1.0
+        options:
+          - "No central identity provider; credentials managed per application"
+          - "Partial SSO adoption; many apps still use local credentials"
+          - "SSO in place for most internal apps"
+          - "SSO covers all internal apps; MFA integrated"
+          - "SSO + MFA for all internal and third-party SaaS apps"
+          - "Federated identity with continuous risk evaluation and conditional access"
+
+      - id: iam_offboarding
+        text: "How quickly are accounts deprovisioned when employees leave?"
+        weight: 1.0
+        options:
+          - "No formal process; accounts may persist indefinitely"
+          - "Manual process, often delayed weeks"
+          - "Accounts disabled within 24–48 hours (manual)"
+          - "Automated deprovisioning triggered by HR system within 1 hour"
+          - "Automated deprovisioning within minutes; access revocation logged and audited"
+          - "Real-time deprovisioning with automated audit trail and exception alerting"
+
+  network_security:
+    label: "Network Security"
+    description: "Controls to prevent, detect, and limit network-layer attacks."
+    questions:
+      - id: net_segmentation
+        text: "How is the network segmented to contain breaches?"
+        weight: 2.0
+        options:
+          - "Flat network; all systems on same subnet"
+          - "Basic VLAN segmentation; limited enforcement"
+          - "Segmentation between major zones (DMZ, internal, prod)"
+          - "Micro-segmentation for critical assets; firewall rules reviewed"
+          - "Zero-trust network access (ZTNA); east-west traffic filtered"
+          - "Software-defined perimeter; all lateral movement requires re-authentication"
+
+      - id: net_firewall
+        text: "How are firewall rules managed and reviewed?"
+        weight: 1.5
+        options:
+          - "No firewall or default allow-all rules"
+          - "Firewall in place but rules unreviewed and overly permissive"
+          - "Annual review; known stale rules present"
+          - "Quarterly review; change management process for new rules"
+          - "Automated rule analysis; unused rules auto-expired"
+          - "Continuous automated compliance checking against baseline policy"
+
+      - id: net_ids
+        text: "Is intrusion detection/prevention (IDS/IPS) deployed?"
+        weight: 1.0
+        options:
+          - "No IDS/IPS in place"
+          - "Basic IDS on perimeter only; limited tuning"
+          - "IDS/IPS on perimeter and DMZ; alerts reviewed weekly"
+          - "IDS/IPS across all zones; alerts reviewed daily with defined response procedures"
+          - "IDS/IPS integrated with SIEM; automated blocking and escalation"
+          - "ML-based anomaly detection; automated response playbooks active"
+
+      - id: net_exposure
+        text: "How is internet-facing attack surface managed?"
+        weight: 1.5
+        options:
+          - "No inventory of internet-facing services"
+          - "Partial inventory; no formal review process"
+          - "Inventory maintained; annual attack surface review"
+          - "Continuous asset discovery; quarterly attack surface reduction review"
+          - "Automated external attack surface management (EASM) tooling"
+          - "Continuous automated EASM with real-time alerting on new exposures"
+
+  endpoint_security:
+    label: "Endpoint Security"
+    description: "Protection of desktops, laptops, servers, and mobile devices."
+    questions:
+      - id: ep_edr
+        text: "Is Endpoint Detection & Response (EDR) deployed across all endpoints?"
+        weight: 2.0
+        options:
+          - "No EDR; traditional AV only or nothing"
+          - "Traditional AV on most endpoints; EDR absent"
+          - "EDR piloted on some endpoints"
+          - "EDR deployed on >80% of endpoints; alerts reviewed"
+          - "EDR on 100% of managed endpoints; integrated with SIEM"
+          - "XDR platform; AI-assisted threat hunting; full endpoint telemetry"
+
+      - id: ep_patching
+        text: "How quickly are critical OS and software patches applied?"
+        weight: 2.0
+        options:
+          - "No formal patching process; patches applied ad hoc or never"
+          - "Patches applied manually, often months after release"
+          - "Monthly patch cycles; some critical patches expedited"
+          - "Critical patches within 14 days; routine patches monthly"
+          - "Critical patches within 72 hours; automated deployment"
+          - "Critical patches within 24 hours; vulnerability-SLA enforced with automated remediation"
+
+      - id: ep_encryption
+        text: "Is full-disk encryption enforced on all endpoints?"
+        weight: 1.0
+        options:
+          - "No disk encryption"
+          - "Encryption on some laptops; desktops and servers unencrypted"
+          - "Encryption on all laptops; servers not consistently covered"
+          - "Full-disk encryption on all endpoints; key management in place"
+          - "Encryption enforced via MDM/GPO; compliance monitored and reported"
+          - "Encryption verified continuously; non-compliant devices auto-quarantined"
+
+  application_security:
+    label: "Application Security"
+    description: "Security practices embedded in the software development lifecycle."
+    questions:
+      - id: appsec_sast
+        text: "Is static application security testing (SAST) integrated into the CI/CD pipeline?"
+        weight: 1.5
+        options:
+          - "No automated security testing in development"
+          - "Ad-hoc manual code reviews; no automated tools"
+          - "SAST tooling available but not mandatory"
+          - "SAST required in CI/CD; critical findings block deployments"
+          - "SAST + SCA (dependency scanning); findings tracked and SLA-governed"
+          - "Full DevSecOps; SAST, DAST, SCA, secrets scanning all automated and enforced"
+
+      - id: appsec_pentest
+        text: "How frequently are applications penetration tested?"
+        weight: 1.5
+        options:
+          - "Never penetration tested"
+          - "Pen-tested once, findings not fully remediated"
+          - "Annual pen test; findings tracked"
+          - "Annual pen test + remediation validation; critical findings SLA-governed"
+          - "Semi-annual pen test + bug bounty program"
+          - "Continuous penetration testing (automated + manual); red team exercises annually"
+
+      - id: appsec_secrets
+        text: "How are secrets (API keys, credentials) managed in code and infrastructure?"
+        weight: 1.5
+        options:
+          - "Secrets hardcoded in source code and config files"
+          - "Secrets in environment variables; no scanning for leaks"
+          - "Secrets manager partially adopted; some hardcoding still present"
+          - "All secrets in vault (HashiCorp Vault, AWS Secrets Manager, etc.)"
+          - "Secrets vault + automated scanning of repos for leaks + rotation policies"
+          - "Dynamic secrets with automatic rotation; no long-lived credentials; full audit trail"
+
+  data_protection:
+    label: "Data Protection"
+    description: "Controls to protect data at rest, in transit, and during processing."
+    questions:
+      - id: data_encrypt_transit
+        text: "Is all sensitive data encrypted in transit?"
+        weight: 2.0
+        options:
+          - "No encryption; plaintext protocols in use (HTTP, FTP, Telnet)"
+          - "TLS in use for some external services; internal traffic unencrypted"
+          - "TLS on all external services; internal services partially encrypted"
+          - "TLS 1.2+ enforced everywhere; certificate management in place"
+          - "TLS 1.3 enforced; mTLS for service-to-service; cert rotation automated"
+          - "Full mTLS with certificate pinning and automated rotation across all services"
+
+      - id: data_classify
+        text: "Is a data classification scheme implemented and enforced?"
+        weight: 1.5
+        options:
+          - "No data classification policy"
+          - "Policy exists on paper; not implemented in practice"
+          - "Classification applied to new data; legacy data not classified"
+          - "All data classified; DLP controls for regulated/sensitive categories"
+          - "Automated classification tooling; DLP policies enforced at egress"
+          - "Real-time classification with AI assistance; automated access controls tied to classification"
+
+      - id: data_backup
+        text: "How are backups managed and tested?"
+        weight: 1.5
+        options:
+          - "No regular backups or backups not verified"
+          - "Backups taken but restoration never tested"
+          - "Regular backups; restoration tested annually"
+          - "Backups tested quarterly; offsite/immutable copies maintained"
+          - "Daily immutable offsite backups; restoration tested monthly; RTO/RPO defined"
+          - "Continuous replication + immutable backups; automated restoration tests; sub-hour RTO validated"
+
+  incident_response:
+    label: "Incident Response"
+    description: "Readiness to detect, contain, and recover from security incidents."
+    questions:
+      - id: ir_plan
+        text: "Is a documented and tested incident response plan in place?"
+        weight: 2.0
+        options:
+          - "No incident response plan"
+          - "Basic plan exists; never tested"
+          - "Plan documented and tested annually via tabletop"
+          - "Plan tested quarterly; roles and responsibilities clear; external IR retainer in place"
+          - "Regular tabletop and red team exercises; post-incident reviews drive improvements"
+          - "Continuous IR simulation program; automated playbooks for common incident types"
+
+      - id: ir_siem
+        text: "Is a SIEM or centralised log management system in place?"
+        weight: 1.5
+        options:
+          - "No centralised logging"
+          - "Logs collected ad hoc; no centralised analysis"
+          - "SIEM deployed; basic correlation rules active"
+          - "SIEM with tuned alerts; 24x7 monitoring by internal SOC or MSSP"
+          - "SIEM + SOAR; automated playbooks for common alerts; mean time to detect < 4 hours"
+          - "Full XDR platform; AI-assisted anomaly detection; MTTD < 1 hour"
+
+      - id: ir_comms
+        text: "Are communication plans in place for breach notification to regulators and customers?"
+        weight: 1.0
+        options:
+          - "No breach communication plan"
+          - "Plan exists on paper; legal/PR not engaged"
+          - "Communication templates drafted; legal reviewed"
+          - "Communication plan tested; notification timelines mapped to GDPR/CCPA obligations"
+          - "Automated notification workflows; regulatory filing templates ready; legal on retainer"
+          - "Fully automated regulatory notification system; breach drill tested within last 6 months"
+
+  third_party_risk:
+    label: "Third-Party & Supply Chain Risk"
+    description: "Management of risk from vendors, suppliers, and third-party software."
+    questions:
+      - id: tpr_inventory
+        text: "Is a complete inventory of third-party vendors and their data access maintained?"
+        weight: 2.0
+        options:
+          - "No vendor inventory"
+          - "Informal list; no data access classification"
+          - "Inventory maintained; critical vendors identified"
+          - "Full vendor inventory with data access tiers; annual review"
+          - "Continuous vendor monitoring; risk scores maintained; contract clauses enforced"
+          - "Real-time vendor risk platform; automated contractual compliance verification"
+
+      - id: tpr_assessment
+        text: "Are third-party security assessments (questionnaires, audits) conducted?"
+        weight: 1.5
+        options:
+          - "No vendor security assessments"
+          - "Assessments requested but not completed consistently"
+          - "Annual questionnaires for critical vendors"
+          - "Annual questionnaires + spot audits; SOC 2 / ISO 27001 reports reviewed"
+          - "Continuous third-party risk monitoring platform; real-time alerts on vendor breaches"
+          - "Contractual right-to-audit exercised; continuous monitoring; vendor SLAs enforced"
+
+      - id: tpr_sca
+        text: "Is open-source/third-party software component risk managed?"
+        weight: 1.5
+        options:
+          - "No software composition analysis (SCA)"
+          - "Ad-hoc manual checks for obvious OSS licenses"
+          - "SCA tooling used occasionally; findings reviewed manually"
+          - "SCA integrated in CI/CD; CVE alerts for dependencies tracked"
+          - "SCA in CI/CD with policy gates; SBOM generated for all releases"
+          - "Full SBOM lifecycle management; automated CVE remediation; supply chain attestation"
