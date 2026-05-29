@@ -1,0 +1,319 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mock OWASP ZAP 2.14 XML report for testing RedFlag.
+  Upload this file in the ZAP XML upload field on the Findings tab.
+  Target: https://192.168.1.20:443  (web application)
+-->
+<OWASPZAPReport version="2.14.0"
+                generated="Tue, 28 May 2026 11:00:00">
+
+  <site host="192.168.1.20" name="https://192.168.1.20" port="443" ssl="true">
+
+    <alerts>
+
+      <!-- ── Alert 1: SQL Injection (High / riskcode 3) ──────────────────── -->
+      <alertitem>
+        <pluginid>40018</pluginid>
+        <alert>SQL Injection</alert>
+        <name>SQL Injection</name>
+        <riskcode>3</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>High (Medium)</riskdesc>
+        <desc>SQL injection may be possible. The page was accessed using
+a specially-crafted request which resulted in a database error response.
+An attacker may be able to manipulate queries to access, modify, or delete
+data in the backend database.</desc>
+        <solution>Do not trust client side input, even if there is client side
+validation in place. In general, type check all data on the server side
+and use parameterised queries when database access is required.
+Use the ESAPI Database Encoder when constructing queries.</solution>
+        <otherinfo>The query was: ' OR '1'='1
+Backend error: MySQL syntax error near [...]</otherinfo>
+        <reference>https://cheatsheetseries.owasp.org/cheatsheets/SQL_Injection_Prevention_Cheat_Sheet.html</reference>
+        <cweid>89</cweid>
+        <wascid>19</wascid>
+        <count>3</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/login</uri>
+            <method>POST</method>
+            <param>username</param>
+            <attack>' OR '1'='1</attack>
+            <evidence>MySQL syntax error</evidence>
+          </instance>
+          <instance>
+            <uri>https://192.168.1.20/search</uri>
+            <method>GET</method>
+            <param>q</param>
+            <attack>' UNION SELECT 1,2,3--</attack>
+            <evidence>MySQL syntax error</evidence>
+          </instance>
+          <instance>
+            <uri>https://192.168.1.20/api/products</uri>
+            <method>GET</method>
+            <param>id</param>
+            <attack>1' AND '1'='1</attack>
+            <evidence>MySQL syntax error</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+      <!-- ── Alert 2: Cross-Site Scripting (High / riskcode 3) ───────────── -->
+      <alertitem>
+        <pluginid>40012</pluginid>
+        <alert>Cross Site Scripting (Reflected)</alert>
+        <name>Cross Site Scripting (Reflected)</name>
+        <riskcode>3</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>High (Medium)</riskdesc>
+        <desc>Cross-site Scripting (XSS) is an attack technique that involves
+echoing attacker-supplied code into a user's browser instance. A browser
+instance can be a standard web browser client, or a browser object embedded
+in a software product such as the browser within WinAmp, an RSS reader, or
+an email client.</desc>
+        <solution>Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur
+or provides constructs that make this weakness easier to avoid.
+Examples of libraries and frameworks that make it easier to generate properly
+encoded output include Microsoft's Anti-XSS library, the OWASP ESAPI Encoding
+module, and Apache Wicket.</solution>
+        <otherinfo>Reflected XSS confirmed in 'name' parameter</otherinfo>
+        <reference>https://cheatsheetseries.owasp.org/cheatsheets/Cross_Site_Scripting_Prevention_Cheat_Sheet.html</reference>
+        <cweid>79</cweid>
+        <wascid>8</wascid>
+        <count>2</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/profile</uri>
+            <method>GET</method>
+            <param>name</param>
+            <attack>&lt;script&gt;alert(1)&lt;/script&gt;</attack>
+            <evidence>&lt;script&gt;alert(1)&lt;/script&gt;</evidence>
+          </instance>
+          <instance>
+            <uri>https://192.168.1.20/search</uri>
+            <method>GET</method>
+            <param>q</param>
+            <attack>&lt;img src=x onerror=alert(1)&gt;</attack>
+            <evidence>&lt;img src=x onerror=alert(1)&gt;</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+      <!-- ── Alert 3: IDOR / Broken Access Control (High / riskcode 3) ───── -->
+      <alertitem>
+        <pluginid>10096</pluginid>
+        <alert>Insecure Direct Object Reference</alert>
+        <name>Insecure Direct Object Reference</name>
+        <riskcode>3</riskcode>
+        <confidence>1</confidence>
+        <riskdesc>High (Low)</riskdesc>
+        <desc>An Insecure Direct Object Reference (IDOR) was found. The application
+exposes a direct reference to an internal implementation object, such as a
+database key. An attacker may be able to access objects belonging to other
+users by manipulating these references.</desc>
+        <solution>Use per-user indirect references or access control checks.
+Validate that the user has access to the object before returning its data.
+Implement a centralised access control mechanism and enforce it consistently.</solution>
+        <otherinfo>Numeric user ID parameter in /api/user/{id} — access to other user records confirmed</otherinfo>
+        <reference>https://owasp.org/www-project-top-ten/2017/A5_2017-Broken_Access_Control</reference>
+        <cweid>639</cweid>
+        <wascid>2</wascid>
+        <count>1</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/api/user/1001</uri>
+            <method>GET</method>
+            <param>id</param>
+            <attack>1001</attack>
+            <evidence>{"id":1001,"email":"other@example.com","role":"admin"}</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+      <!-- ── Alert 4: Missing CSRF Token (Medium / riskcode 2) ────────────── -->
+      <alertitem>
+        <pluginid>20012</pluginid>
+        <alert>Anti-CSRF Tokens Check</alert>
+        <name>Absence of Anti-CSRF Tokens</name>
+        <riskcode>2</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>Medium (Medium)</riskdesc>
+        <desc>No Anti-CSRF tokens were found in a HTML submission form. A cross-site
+request forgery is an attack that involves forcing a victim to send an HTTP
+request to a target destination without their knowledge or intent in order to
+perform an action as the victim.</desc>
+        <solution>Phase: Architecture and Design
+Use a vetted library or framework that does not allow this weakness to occur
+or provides constructs that make this weakness easier to avoid.
+For example, use anti-CSRF packages such as the OWASP CSRFGuard.
+Phase: Implementation
+Ensure that your application is free of cross-site scripting issues, because
+most CSRF defenses can be bypassed using attacker-controlled script.</solution>
+        <reference>https://cheatsheetseries.owasp.org/cheatsheets/Cross-Site_Request_Forgery_Prevention_Cheat_Sheet.html</reference>
+        <cweid>352</cweid>
+        <wascid>9</wascid>
+        <count>4</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/account/password-change</uri>
+            <method>POST</method>
+            <param/>
+            <attack/>
+            <evidence>No CSRF token found in form</evidence>
+          </instance>
+          <instance>
+            <uri>https://192.168.1.20/account/email-change</uri>
+            <method>POST</method>
+            <param/>
+            <attack/>
+            <evidence>No CSRF token found in form</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+      <!-- ── Alert 5: Directory Listing Enabled (Medium / riskcode 2) ──────── -->
+      <alertitem>
+        <pluginid>10033</pluginid>
+        <alert>Directory Browsing</alert>
+        <name>Directory Browsing</name>
+        <riskcode>2</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>Medium (Medium)</riskdesc>
+        <desc>It is possible to view a listing of the directory contents.
+Directory listings may reveal hidden scripts, include files, backup source
+files, etc. which can be accessed to read the source code of scripts,
+discover application functionality and leakage of sensitive information.</desc>
+        <solution>Disable directory browsing for the web server.
+For Apache, set Options -Indexes in the httpd.conf file.
+For Nginx, remove 'autoindex on' directive.
+Ensure that no sensitive files are stored in web-accessible directories.</solution>
+        <cweid>548</cweid>
+        <wascid>16</wascid>
+        <count>2</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/uploads/</uri>
+            <method>GET</method>
+            <param/>
+            <attack/>
+            <evidence>Index of /uploads</evidence>
+          </instance>
+          <instance>
+            <uri>https://192.168.1.20/backups/</uri>
+            <method>GET</method>
+            <param/>
+            <attack/>
+            <evidence>Index of /backups</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+      <!-- ── Alert 6: Cookie Without Secure Flag (Low / riskcode 1) ─────── -->
+      <alertitem>
+        <pluginid>10011</pluginid>
+        <alert>Cookie Without Secure Flag</alert>
+        <name>Cookie Without Secure Flag</name>
+        <riskcode>1</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>Low (Medium)</riskdesc>
+        <desc>A cookie has been set without the secure flag, which means that the
+cookie can be accessed via unencrypted connections. The following cookies
+do not have the Secure flag set: session, _auth_token</desc>
+        <solution>Whenever a cookie contains sensitive information or is a session
+token, then it should always be passed using an encrypted channel.
+Ensure that the Secure flag is set for cookies containing such sensitive
+information.</solution>
+        <cweid>614</cweid>
+        <wascid>13</wascid>
+        <count>2</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/login</uri>
+            <method>POST</method>
+            <param>session</param>
+            <attack/>
+            <evidence>Set-Cookie: session=abc123; HttpOnly</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+      <!-- ── Alert 7: Outdated Library Version (Medium / riskcode 2) ──────── -->
+      <alertitem>
+        <pluginid>10031</pluginid>
+        <alert>Vulnerable JavaScript Library</alert>
+        <name>Vulnerable JavaScript Library Detected</name>
+        <riskcode>2</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>Medium (Medium)</riskdesc>
+        <desc>The identified library jQuery version 1.12.4 contains known security
+vulnerabilities. CVE-2020-11022 and CVE-2020-11023 affect jQuery versions
+prior to 3.5.0 and allow XSS via certain HTML passed to DOM manipulation methods.</desc>
+        <solution>Update to a recent version of jQuery (3.6.x or later).
+Monitor the NVD for new CVEs affecting third-party libraries used by the application.
+Consider using a software composition analysis (SCA) tool to track vulnerable dependencies.</solution>
+        <otherinfo>Evidence: jquery-1.12.4.min.js found in page source</otherinfo>
+        <cweid>1035</cweid>
+        <wascid>13</wascid>
+        <count>1</count>
+        <instances>
+          <instance>
+            <uri>https://192.168.1.20/static/js/jquery-1.12.4.min.js</uri>
+            <method>GET</method>
+            <param/>
+            <attack/>
+            <evidence>jquery-1.12.4.min.js</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+    </alerts>
+
+  </site>
+
+  <!-- ── Second site: HTTP on port 8080 ─────────────────────────────────── -->
+  <site host="192.168.1.30" name="http://192.168.1.30" port="8080" ssl="false">
+
+    <alerts>
+
+      <!-- ── Alert 8: Authentication Bypass (High) ────────────────────────── -->
+      <alertitem>
+        <pluginid>10202</pluginid>
+        <alert>Broken Authentication</alert>
+        <name>Authentication Bypass — Debug Endpoint Exposed</name>
+        <riskcode>3</riskcode>
+        <confidence>2</confidence>
+        <riskdesc>High (Medium)</riskdesc>
+        <desc>A debug/actuator endpoint is accessible without authentication.
+The /actuator/env endpoint exposes environment variables including database
+credentials and API keys. The /actuator/heapdump endpoint allows downloading
+the full JVM heap, which may contain sensitive data in memory.</desc>
+        <solution>Disable or restrict access to Spring Boot Actuator endpoints in production.
+Set management.endpoints.web.exposure.include to only include necessary endpoints.
+Require authentication for all management endpoints.</solution>
+        <cweid>287</cweid>
+        <wascid>1</wascid>
+        <count>2</count>
+        <instances>
+          <instance>
+            <uri>http://192.168.1.30:8080/actuator/env</uri>
+            <method>GET</method>
+            <param/>
+            <attack/>
+            <evidence>{"activeProfiles":["prod"],"propertySources":[...],"DB_PASSWORD":"prod_secret_123"}</evidence>
+          </instance>
+          <instance>
+            <uri>http://192.168.1.30:8080/actuator/heapdump</uri>
+            <method>GET</method>
+            <param/>
+            <attack/>
+            <evidence>Binary heap dump returned without authentication</evidence>
+          </instance>
+        </instances>
+      </alertitem>
+
+    </alerts>
+
+  </site>
+
+</OWASPZAPReport>

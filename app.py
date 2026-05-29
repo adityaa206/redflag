@@ -32,29 +32,68 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* ══════════════════════════════════════════════════════════════
-   REDFLAG  —  Design System v3
-   Fonts  : JetBrains Mono (data/mono) + Inter (body)
-   Palette: Deep void · Signal red · Threat amber · Safe emerald
+   REDFLAG  —  Design System v4
+   Fonts  : JetBrains Mono + Inter
+   Palette: Deep navy · Signal red · Electric blue
 ══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
 
 /* ── Base ── */
-[data-testid="stAppViewContainer"] { background: #030508 !important; }
-[data-testid="stHeader"]           { background: transparent !important; }
-[data-testid="stMainBlockContainer"] { padding-top: 0 !important; }
+[data-testid="stAppViewContainer"] { background: #080c14 !important; }
+[data-testid="stHeader"]           { display: none !important; }
+[data-testid="stMainBlockContainer"] { padding-top: 0 !important; max-width: 100% !important; }
+[data-testid="stAppViewBlockContainer"] { padding: 0 2rem !important; }
 html, body, [class*="css"],
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] li,
 .stCheckbox label, .stSlider label, .stMultiSelect label,
 .stCaption, .stAlert p, button { font-family: 'Inter', -apple-system, sans-serif !important; }
 
+/* ── TOP NAVBAR ── */
+.rf-topnav {
+    display: flex; align-items: center; padding: 0 24px;
+    height: 56px; background: #0a0f1c;
+    border-bottom: 1px solid #141d2e;
+    margin: 0 -2rem 20px; gap: 0;
+    position: sticky; top: 0; z-index: 999;
+}
+.rf-brand {
+    display: flex; align-items: center; gap: 10px; margin-right: 36px; text-decoration: none;
+}
+.rf-brand-icon {
+    width: 30px; height: 30px; background: linear-gradient(135deg, #e6394a 0%, #9f1239 100%);
+    border-radius: 7px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.7rem; color: white; font-weight: 900;
+    box-shadow: 0 2px 14px rgba(230,57,74,0.45);
+}
+.rf-brand-name {
+    font-size: 1.2rem; font-weight: 800; color: #e8f0ff;
+    letter-spacing: -0.03em; font-family: 'Inter', sans-serif; line-height: 1;
+}
+.rf-nav { display: flex; align-items: center; gap: 2px; flex: 1; }
+.rf-nav-link {
+    padding: 7px 15px; border-radius: 8px; font-size: 0.84rem; font-weight: 500;
+    color: #3a5070; cursor: default; transition: color 0.15s ease;
+    display: inline-flex; align-items: center; gap: 5px;
+    font-family: 'Inter', sans-serif; border: none; background: none;
+}
+.rf-nav-link:hover { color: #6a87a8; }
+.rf-nav-link.active {
+    color: #c8daf5; position: relative;
+}
+.rf-nav-link.active::after {
+    content: ''; position: absolute; bottom: -1px; left: 15px; right: 15px;
+    height: 2px; background: #3d7fff; border-radius: 1px;
+}
+.rf-nav-right { display: flex; align-items: center; gap: 10px; }
+
 /* ── METRIC CARDS ── */
 .rf-metric {
-    background: linear-gradient(160deg, #080d1c 0%, #060a16 100%);
-    border: 1px solid #0e1828;
+    background: #0f1623;
+    border: 1px solid #1a2640;
     border-radius: 14px;
-    padding: 20px 16px 22px;
+    padding: 18px 16px 20px;
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -68,310 +107,252 @@ html, body, [class*="css"],
     height: 2px;
     border-radius: 14px 14px 0 0;
 }
-.rf-metric:hover { transform: translateY(-4px); }
+.rf-metric:hover { transform: translateY(-3px); }
 .rf-metric .label {
-    font-size: 0.58rem;
-    font-weight: 700;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #263550;
-    margin-bottom: 12px;
+    font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em;
+    text-transform: uppercase; color: #2d4060; margin-bottom: 10px;
     font-family: 'JetBrains Mono', monospace;
 }
 .rf-metric .value {
-    font-size: 2.9rem;
-    font-weight: 700;
-    line-height: 1;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: -0.03em;
+    font-size: 2.6rem; font-weight: 700; line-height: 1;
+    font-family: 'JetBrains Mono', monospace; letter-spacing: -0.03em;
 }
-.rf-metric.red::before    { background: linear-gradient(90deg, #f43f5e, #9f1239); }
-.rf-metric.red .value     { color: #f43f5e; }
-.rf-metric.red:hover      { box-shadow: 0 12px 44px rgba(244,63,94,0.25), 0 0 0 1px rgba(244,63,94,0.12); border-color: rgba(244,63,94,0.2); }
-.rf-metric.orange::before { background: linear-gradient(90deg, #fb923c, #c2410c); }
-.rf-metric.orange .value  { color: #fb923c; }
-.rf-metric.orange:hover   { box-shadow: 0 12px 44px rgba(251,146,60,0.22), 0 0 0 1px rgba(251,146,60,0.12); border-color: rgba(251,146,60,0.2); }
-.rf-metric.yellow::before { background: linear-gradient(90deg, #fbbf24, #b45309); }
-.rf-metric.yellow .value  { color: #fbbf24; }
-.rf-metric.yellow:hover   { box-shadow: 0 12px 44px rgba(251,191,36,0.18), 0 0 0 1px rgba(251,191,36,0.1); border-color: rgba(251,191,36,0.18); }
-.rf-metric.green::before  { background: linear-gradient(90deg, #34d399, #065f46); }
-.rf-metric.green .value   { color: #34d399; }
-.rf-metric.green:hover    { box-shadow: 0 12px 44px rgba(52,211,153,0.2), 0 0 0 1px rgba(52,211,153,0.1); border-color: rgba(52,211,153,0.18); }
-.rf-metric.blue::before   { background: linear-gradient(90deg, #60a5fa, #1d4ed8); }
-.rf-metric.blue .value    { color: #93b8f8; }
-.rf-metric.blue:hover     { box-shadow: 0 12px 44px rgba(96,165,250,0.2), 0 0 0 1px rgba(96,165,250,0.12); border-color: rgba(96,165,250,0.18); }
+.rf-metric.red::before    { background: linear-gradient(90deg, #e6394a, #9f1239); }
+.rf-metric.red .value     { color: #e6394a; }
+.rf-metric.red:hover      { box-shadow: 0 8px 32px rgba(230,57,74,0.2); border-color: rgba(230,57,74,0.2); }
+.rf-metric.orange::before { background: linear-gradient(90deg, #f97316, #c2410c); }
+.rf-metric.orange .value  { color: #f97316; }
+.rf-metric.orange:hover   { box-shadow: 0 8px 32px rgba(249,115,22,0.18); border-color: rgba(249,115,22,0.2); }
+.rf-metric.yellow::before { background: linear-gradient(90deg, #f59e0b, #b45309); }
+.rf-metric.yellow .value  { color: #f59e0b; }
+.rf-metric.yellow:hover   { box-shadow: 0 8px 32px rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.18); }
+.rf-metric.green::before  { background: linear-gradient(90deg, #10b981, #065f46); }
+.rf-metric.green .value   { color: #10b981; }
+.rf-metric.green:hover    { box-shadow: 0 8px 32px rgba(16,185,129,0.16); border-color: rgba(16,185,129,0.18); }
+.rf-metric.blue::before   { background: linear-gradient(90deg, #3d7fff, #1d4ed8); }
+.rf-metric.blue .value    { color: #6fa3ff; }
+.rf-metric.blue:hover     { box-shadow: 0 8px 32px rgba(61,127,255,0.18); border-color: rgba(61,127,255,0.18); }
 
 /* ── SECTION LABEL ── */
 .rf-section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.57rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #243048;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    margin-top: 4px;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #2d4060;
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 12px; margin-top: 4px;
 }
 .rf-section-label::after {
-    content: '';
-    flex: 1;
-    height: 1px;
-    background: linear-gradient(90deg, #0d1a30 0%, transparent 100%);
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(90deg, #141d2e 0%, transparent 100%);
 }
 
 /* ── BADGES ── */
 .badge {
-    display: inline-flex;
-    align-items: center;
-    padding: 3px 9px;
-    border-radius: 4px;
-    font-size: 0.59rem;
-    font-weight: 700;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 5px;
+    font-size: 0.59rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
     font-family: 'JetBrains Mono', monospace;
 }
-.badge-dk   { background: rgba(244,63,94,0.12);  color: #f87171; border: 1px solid rgba(244,63,94,0.3); }
-.badge-crit { background: rgba(251,146,60,0.12); color: #fb923c; border: 1px solid rgba(251,146,60,0.3); }
-.badge-mod  { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
-.badge-man  { background: rgba(52,211,153,0.1);  color: #34d399; border: 1px solid rgba(52,211,153,0.25); }
+.badge-dk   { background: rgba(230,57,74,0.12);  color: #f87171; border: 1px solid rgba(230,57,74,0.3); }
+.badge-crit { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
+.badge-mod  { background: rgba(245,158,11,0.1);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
+.badge-man  { background: rgba(16,185,129,0.1);  color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
 .badge-unk  { background: rgba(107,114,128,0.08);color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
-.badge-inet { background: rgba(96,165,250,0.1);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+.badge-inet { background: rgba(61,127,255,0.1);  color: #6fa3ff; border: 1px solid rgba(61,127,255,0.3); }
 .badge-part { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
-.badge-int  { background: rgba(52,211,153,0.08); color: #34d399; border: 1px solid rgba(52,211,153,0.22); }
+.badge-int  { background: rgba(16,185,129,0.08); color: #10b981; border: 1px solid rgba(16,185,129,0.22); }
 .badge-ukn  { background: rgba(107,114,128,0.08);color: #6b7280; border: 1px solid rgba(55,65,81,0.22); }
 
 /* ── FINDING CARDS ── */
 @keyframes pulse-dk {
-    0%,100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.3), 0 4px 28px rgba(244,63,94,0.08); }
-    50%      { box-shadow: 0 0 0 5px rgba(244,63,94,0), 0 4px 28px rgba(244,63,94,0.18); }
+    0%,100% { box-shadow: 0 0 0 0 rgba(230,57,74,0.25); }
+    50%      { box-shadow: 0 0 0 4px rgba(230,57,74,0); }
 }
 .finding-card {
-    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
-    border: 1px solid #0e1828;
-    border-left: 3px solid #0e1828;
+    background: #0f1623;
+    border: 1px solid #1a2640;
+    border-left: 3px solid #1a2640;
     border-radius: 12px;
-    padding: 18px 22px;
+    padding: 16px 20px;
     margin-bottom: 8px;
-    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
-    position: relative;
+    transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.finding-card:hover { background: linear-gradient(145deg, #0c1220 0%, #09101c 100%); }
-.finding-card.dk   { border-left-color: #f43f5e; animation: pulse-dk 3s ease-in-out infinite; }
-.finding-card.crit { border-left-color: #fb923c; }
-.finding-card.mod  { border-left-color: #fbbf24; }
-.finding-card.man  { border-left-color: #34d399; }
-.finding-card.dk:hover   { border-color: rgba(244,63,94,0.28);  box-shadow: 0 6px 40px rgba(244,63,94,0.14); }
-.finding-card.crit:hover { border-color: rgba(251,146,60,0.28); box-shadow: 0 6px 40px rgba(251,146,60,0.12); }
-.finding-card.mod:hover  { border-color: rgba(251,191,36,0.25); box-shadow: 0 4px 28px rgba(251,191,36,0.08); }
-.finding-card.man:hover  { border-color: rgba(52,211,153,0.22); box-shadow: 0 4px 28px rgba(52,211,153,0.08); }
+.finding-card:hover { background: #131a27; }
+.finding-card.dk   { border-left-color: #e6394a; animation: pulse-dk 3s ease-in-out infinite; }
+.finding-card.crit { border-left-color: #f97316; }
+.finding-card.mod  { border-left-color: #f59e0b; }
+.finding-card.man  { border-left-color: #10b981; }
+.finding-card.dk:hover   { border-color: rgba(230,57,74,0.25);  box-shadow: 0 4px 24px rgba(230,57,74,0.12); }
+.finding-card.crit:hover { border-color: rgba(249,115,22,0.25); box-shadow: 0 4px 24px rgba(249,115,22,0.10); }
+.finding-card.mod:hover  { border-color: rgba(245,158,11,0.22); box-shadow: 0 4px 20px rgba(245,158,11,0.07); }
+.finding-card.man:hover  { border-color: rgba(16,185,129,0.2);  box-shadow: 0 4px 20px rgba(16,185,129,0.07); }
 .finding-card h4 {
-    color: #dce8ff;
-    font-size: 0.96rem;
-    font-weight: 600;
-    margin: 0 0 8px 0;
-    font-family: 'Inter', sans-serif;
-    line-height: 1.45;
-    letter-spacing: -0.01em;
+    color: #c8daf5; font-size: 0.94rem; font-weight: 600;
+    margin: 0 0 7px; font-family: 'Inter', sans-serif;
+    line-height: 1.45; letter-spacing: -0.01em;
 }
 .finding-card .meta {
-    color: #374e6e;
-    font-size: 0.78rem;
-    margin-bottom: 14px;
-    display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
-    align-items: center;
+    color: #3a5070; font-size: 0.76rem; margin-bottom: 12px;
+    display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
-.finding-card .fc-divider { border: none; border-top: 1px solid #0e1828; margin: 12px 0; }
+.finding-card .fc-divider { border: none; border-top: 1px solid #141d2e; margin: 11px 0; }
 .finding-card .field-label {
-    color: #243048;
-    font-size: 0.57rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    margin-bottom: 4px;
-    font-family: 'JetBrains Mono', monospace;
+    color: #2d4060; font-size: 0.57rem; font-weight: 700;
+    text-transform: uppercase; letter-spacing: 0.15em;
+    margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;
 }
-.finding-card .field-value { color: #5f7ca0; font-size: 0.84rem; margin-bottom: 12px; line-height: 1.65; }
+.finding-card .field-value { color: #4a6080; font-size: 0.83rem; margin-bottom: 10px; line-height: 1.65; }
 .finding-card .score-pill {
-    background: #050810;
-    border: 1px solid #0e1828;
-    border-radius: 10px;
-    padding: 14px 16px;
-    text-align: center;
-    min-width: 76px;
-    flex-shrink: 0;
+    background: #0a0f1c; border: 1px solid #1a2640; border-radius: 10px;
+    padding: 12px 14px; text-align: center; min-width: 70px; flex-shrink: 0;
 }
 .finding-card .score-pill .s-label {
-    color: #243048;
-    font-size: 0.56rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.15em;
-    font-family: 'JetBrains Mono', monospace;
-    display: block;
-    margin-bottom: 5px;
+    color: #2d4060; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace;
+    display: block; margin-bottom: 4px;
 }
 .finding-card .score-pill .s-value {
-    font-size: 1.9rem;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-    line-height: 1;
-    letter-spacing: -0.03em;
+    font-size: 1.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    line-height: 1; letter-spacing: -0.03em;
+}
+
+/* ── MINI FINDING CARDS (Overview right panel) ── */
+.fmc {
+    background: #0f1623; border: 1px solid #1a2640; border-left: 3px solid #1a2640;
+    border-radius: 10px; padding: 12px 16px; margin-bottom: 6px;
+    display: flex; align-items: flex-start; gap: 12px;
+    transition: background 0.15s ease;
+}
+.fmc:hover { background: #131a27; }
+.fmc.dk   { border-left-color: #e6394a; }
+.fmc.crit { border-left-color: #f97316; }
+.fmc.mod  { border-left-color: #f59e0b; }
+.fmc.man  { border-left-color: #10b981; }
+.fmc-icon {
+    width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.8rem; background: #141d2e;
+}
+.fmc-icon.dk   { background: rgba(230,57,74,0.1); }
+.fmc-icon.crit { background: rgba(249,115,22,0.1); }
+.fmc-icon.mod  { background: rgba(245,158,11,0.08); }
+.fmc-icon.man  { background: rgba(16,185,129,0.08); }
+.fmc-body { flex: 1; min-width: 0; }
+.fmc-title {
+    font-size: 0.83rem; font-weight: 600; color: #c8daf5;
+    font-family: 'Inter', sans-serif; margin-bottom: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.fmc-desc {
+    font-size: 0.74rem; color: #3a5070; font-family: 'Inter', sans-serif;
+    line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical; overflow: hidden;
+}
+.fmc-meta {
+    display: flex; align-items: center; gap: 6px; margin-top: 4px;
+}
+.fmc-port {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: #2d4060;
+}
+.fmc-score {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    margin-left: auto;
 }
 
 /* ── STATUS DOTS ── */
 .rf-dot {
-    display: inline-block;
-    width: 7px; height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    margin-top: 2px;
+    display: inline-block; width: 8px; height: 8px;
+    border-radius: 50%; flex-shrink: 0;
 }
-@keyframes warn-blink { 0%,100%{opacity:1} 50%{opacity:0.25} }
-.rf-dot.ok   { background: #34d399; box-shadow: 0 0 8px rgba(52,211,153,0.9); }
-.rf-dot.warn { background: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.9); animation: warn-blink 2s infinite; }
-.rf-dot.err  { background: #f43f5e; box-shadow: 0 0 8px rgba(244,63,94,0.9); }
-.rf-dot.off  { background: #182236; }
+@keyframes warn-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+.rf-dot.ok   { background: #10b981; box-shadow: 0 0 7px rgba(16,185,129,0.9); }
+.rf-dot.warn { background: #f59e0b; box-shadow: 0 0 7px rgba(245,158,11,0.9); animation: warn-blink 2s infinite; }
+.rf-dot.err  { background: #e6394a; box-shadow: 0 0 7px rgba(230,57,74,0.9); }
+.rf-dot.off  { background: #1e2d45; }
 
-/* ── SCANNER PIPELINE (horizontal flow) ── */
+/* ── SCANNER PIPELINE ── */
 .rf-pipeline-h {
-    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
-    border: 1px solid #0e1828;
-    border-radius: 12px;
-    padding: 14px 16px 12px;
-    margin-bottom: 10px;
+    background: #0f1623; border: 1px solid #1a2640;
+    border-radius: 14px; padding: 16px 20px 14px; margin-bottom: 12px;
 }
 .rf-pipeline-header {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.56rem;
-    font-weight: 700;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: #243048;
-    margin-bottom: 12px;
-    padding-bottom: 8px;
-    border-bottom: 1px solid #0e1828;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #2d4060;
+    margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #141d2e;
+    display: flex; align-items: center; gap: 8px;
 }
 .rf-pipeline-flow {
-    display: flex;
-    align-items: flex-start;
-    gap: 0;
-    flex-wrap: wrap;
-    row-gap: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: relative; gap: 0;
+}
+.rf-pipeline-flow::before {
+    content: ''; position: absolute; top: 11px; left: 28px; right: 28px;
+    height: 1px; background: linear-gradient(90deg, #1e2d45, #2a3f60 50%, #1e2d45);
+    z-index: 0;
 }
 .rf-pipeline-step {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 12px;
-    border-radius: 8px;
-    transition: background 0.15s ease;
-    min-width: 64px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    padding: 0 8px; z-index: 1; background: #0f1623; min-width: 60px;
     cursor: default;
 }
-.rf-pipeline-step:hover { background: rgba(255,255,255,0.025); }
-.rf-pipeline-step .step-dot { margin-bottom: 2px; }
+.rf-pipeline-step .step-dot { margin-bottom: 0; }
 .rf-pipeline-step .step-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.67rem;
-    font-weight: 600;
-    color: #5f7ca0;
-    white-space: nowrap;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.67rem; font-weight: 600;
+    color: #4a6080; white-space: nowrap;
 }
 .rf-pipeline-step .step-status {
-    font-size: 0.62rem;
-    color: #243048;
-    font-family: 'Inter', sans-serif;
-    white-space: nowrap;
-    text-align: center;
+    font-size: 0.6rem; color: #2d4060; font-family: 'Inter', sans-serif;
+    white-space: nowrap; text-align: center;
 }
-.rf-pipeline-step .step-status.ok   { color: #34d399; }
-.rf-pipeline-step .step-status.warn { color: #fbbf24; }
+.rf-pipeline-step .step-status.ok   { color: #10b981; }
+.rf-pipeline-step .step-status.warn { color: #f59e0b; }
 .rf-pipeline-arrow {
-    color: #182236;
-    font-size: 0.85rem;
-    margin: 0 1px;
-    padding-top: 16px;
-    flex-shrink: 0;
+    color: #1e2d45; font-size: 0.8rem; padding-top: 14px; flex-shrink: 0;
 }
 
-/* ── TARGET PANEL ── */
+/* ── TARGET / INFO PANEL ── */
 .rf-target-panel {
-    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
-    border: 1px solid #0e1828;
-    border-radius: 12px;
-    padding: 14px 16px 8px;
-    margin-bottom: 10px;
+    background: #0f1623; border: 1px solid #1a2640;
+    border-radius: 12px; padding: 14px 16px 8px; margin-bottom: 10px;
 }
 .rf-tp-row {
-    display: grid;
-    grid-template-columns: 86px 1fr;
-    align-items: baseline;
-    margin-bottom: 9px;
-    gap: 8px;
+    display: grid; grid-template-columns: 86px 1fr;
+    align-items: baseline; margin-bottom: 9px; gap: 8px;
 }
 .rf-tp-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.57rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #243048;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase; color: #2d4060;
 }
 .rf-tp-value {
-    font-size: 0.83rem;
-    color: #dce8ff;
-    font-family: 'JetBrains Mono', monospace;
-    word-break: break-all;
+    font-size: 0.83rem; color: #c8daf5;
+    font-family: 'JetBrains Mono', monospace; word-break: break-all;
 }
 
 /* ── SHODAN SNAPSHOT ── */
 .rf-shodan {
-    background: linear-gradient(145deg, #080d1c 0%, #060a16 100%);
-    border: 1px solid #0e1828;
-    border-left: 3px solid #2563eb;
-    border-radius: 12px;
-    padding: 14px 16px 8px;
+    background: #0c1422; border: 1px solid #1e3050;
+    border-left: 3px solid #3d7fff; border-radius: 12px; padding: 14px 16px 8px;
 }
 .rf-shodan-row {
-    display: grid;
-    grid-template-columns: 90px 1fr;
-    align-items: baseline;
-    margin-bottom: 9px;
-    gap: 8px;
+    display: grid; grid-template-columns: 90px 1fr;
+    align-items: baseline; margin-bottom: 9px; gap: 8px;
 }
 .rf-shodan-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 0.57rem;
-    font-weight: 700;
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
-    color: #243048;
+    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase; color: #2d4060;
 }
-.rf-shodan-value { font-size: 0.83rem; color: #5f7ca0; font-family: 'Inter', sans-serif; }
+.rf-shodan-value { font-size: 0.83rem; color: #7a91b3; font-family: 'Inter', sans-serif; }
 
 /* ── DEAL-KILLER ALERT BANNER ── */
 .dk-alert {
-    background: linear-gradient(135deg, rgba(244,63,94,0.07) 0%, rgba(159,18,57,0.04) 100%);
-    border: 1px solid rgba(244,63,94,0.22);
-    border-left: 4px solid #f43f5e;
-    border-radius: 10px;
-    padding: 13px 18px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 14px;
+    background: linear-gradient(135deg, rgba(230,57,74,0.07), rgba(159,18,57,0.04));
+    border: 1px solid rgba(230,57,74,0.2);
+    border-left: 4px solid #e6394a;
+    border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;
+    display: flex; align-items: center; gap: 14px;
 }
 .dk-alert-body { flex: 1; }
-.dk-alert-title { font-size: 0.84rem; font-weight: 700; color: #f43f5e; font-family: 'Inter', sans-serif; margin-bottom: 2px; }
-.dk-alert-sub   { font-size: 0.77rem; color: rgba(244,63,94,0.65); font-family: 'Inter', sans-serif; }
-.dk-alert-count { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: #f43f5e; line-height: 1; flex-shrink: 0; }
+.dk-alert-title { font-size: 0.84rem; font-weight: 700; color: #e6394a; font-family: 'Inter', sans-serif; margin-bottom: 2px; }
+.dk-alert-sub   { font-size: 0.77rem; color: rgba(230,57,74,0.6); font-family: 'Inter', sans-serif; }
+.dk-alert-count { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: #e6394a; line-height: 1; flex-shrink: 0; }
 
 /* ── ASSET INVENTORY NOTICE ── */
 .inv-notice {
@@ -379,54 +360,44 @@ html, body, [class*="css"],
     font-size: 0.82rem; font-family: 'Inter', sans-serif;
     display: flex; align-items: center; gap: 10px;
 }
-.inv-notice.active { background: rgba(52,211,153,0.05); border: 1px solid rgba(52,211,153,0.2); border-left: 3px solid #34d399; color: #34d399; }
-.inv-notice.warn   { background: rgba(251,191,36,0.04);  border: 1px solid rgba(251,191,36,0.18); border-left: 3px solid #fbbf24; color: #fbbf24; }
+.inv-notice.active { background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2); border-left: 3px solid #10b981; color: #10b981; }
+.inv-notice.warn   { background: rgba(245,158,11,0.04);  border: 1px solid rgba(245,158,11,0.18); border-left: 3px solid #f59e0b; color: #f59e0b; }
 
 /* ── DIVIDERS ── */
-.rf-divider { border: none; border-top: 1px solid #0e1828; margin: 14px 0; }
+.rf-divider { border: none; border-top: 1px solid #141d2e; margin: 14px 0; }
 
 /* ── SCAN INPUT ── */
 [data-testid="stTextInput"] input {
-    background: #070b16 !important;
-    border: 1px solid #0f1d35 !important;
-    border-radius: 10px !important;
-    color: #dce8ff !important;
-    font-size: 0.92rem !important;
-    font-family: 'JetBrains Mono', monospace !important;
-    letter-spacing: 0.02em !important;
-    padding: 10px 14px !important;
+    background: #0f1623 !important; border: 1px solid #1e2d45 !important;
+    border-radius: 12px !important; color: #e8f0ff !important;
+    font-size: 0.93rem !important; font-family: 'Inter', sans-serif !important;
+    padding: 13px 18px !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 [data-testid="stTextInput"] input:focus {
-    border-color: #f43f5e !important;
-    box-shadow: 0 0 0 3px rgba(244,63,94,0.1), 0 0 30px rgba(244,63,94,0.06) !important;
+    border-color: #3d7fff !important;
+    box-shadow: 0 0 0 3px rgba(61,127,255,0.15) !important;
 }
-[data-testid="stTextInput"] input::placeholder { color: #182236 !important; }
+[data-testid="stTextInput"] input::placeholder { color: #2d4060 !important; }
 [data-testid="stTextInput"] label {
-    color: #243048 !important;
-    font-size: 0.57rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.18em !important;
-    text-transform: uppercase !important;
+    color: #2d4060 !important; font-size: 0.57rem !important; font-weight: 700 !important;
+    letter-spacing: 0.18em !important; text-transform: uppercase !important;
     font-family: 'JetBrains Mono', monospace !important;
 }
 
 /* ── PRIMARY BUTTON ── */
 [data-testid="stButton"] > button[kind="primary"],
 [data-testid="stBaseButton-primary"] {
-    background: linear-gradient(160deg, #f43f5e 0%, #9f1239 100%) !important;
-    border: 1px solid rgba(244,63,94,0.4) !important;
-    border-radius: 10px !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.06em !important;
-    font-size: 0.86rem !important;
-    box-shadow: 0 4px 24px rgba(244,63,94,0.38), inset 0 1px 0 rgba(255,255,255,0.08) !important;
+    background: linear-gradient(135deg, #3d7fff 0%, #1d4ed8 100%) !important;
+    border: 1px solid rgba(61,127,255,0.4) !important;
+    border-radius: 10px !important; font-family: 'Inter', sans-serif !important;
+    font-weight: 700 !important; font-size: 0.86rem !important; color: white !important;
+    box-shadow: 0 4px 20px rgba(61,127,255,0.35) !important;
     transition: box-shadow 0.15s ease, transform 0.12s ease !important;
 }
 [data-testid="stButton"] > button[kind="primary"]:hover,
 [data-testid="stBaseButton-primary"]:hover {
-    box-shadow: 0 6px 36px rgba(244,63,94,0.6), inset 0 1px 0 rgba(255,255,255,0.1) !important;
+    box-shadow: 0 6px 28px rgba(61,127,255,0.55) !important;
     transform: translateY(-1px) !important;
 }
 [data-testid="stButton"] > button[kind="primary"]:active,
@@ -434,124 +405,188 @@ html, body, [class*="css"],
 
 /* ── DOWNLOAD BUTTONS ── */
 [data-testid="stDownloadButton"] > button {
-    background: #070b16 !important;
-    border: 1px solid #0f1d35 !important;
-    border-radius: 10px !important;
-    color: #5f7ca0 !important;
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 500 !important;
+    background: #0f1623 !important; border: 1px solid #1e2d45 !important;
+    border-radius: 10px !important; color: #4a6080 !important;
+    font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
     transition: all 0.15s ease !important;
 }
 [data-testid="stDownloadButton"] > button:hover {
-    border-color: #2563eb !important;
-    color: #60a5fa !important;
-    box-shadow: 0 2px 22px rgba(37,99,235,0.22) !important;
+    border-color: #3d7fff !important; color: #6fa3ff !important;
+    box-shadow: 0 2px 18px rgba(61,127,255,0.2) !important;
 }
 
 /* ── TABS ── */
 [data-testid="stTabs"] [role="tablist"] {
-    border-bottom: 1px solid #0e1828 !important;
-    gap: 0 !important;
-    background: transparent !important;
+    border-bottom: 1px solid #141d2e !important;
+    gap: 0 !important; background: transparent !important;
 }
 [data-testid="stTabs"] button[role="tab"] {
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 600 !important;
-    font-size: 0.83rem !important;
-    color: #243048 !important;
-    letter-spacing: 0.04em !important;
-    padding: 11px 28px !important;
+    font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
+    font-size: 0.84rem !important; color: #3a5070 !important;
+    letter-spacing: 0.02em !important; padding: 12px 24px !important;
     border-bottom: 2px solid transparent !important;
     transition: color 0.15s ease !important;
-    background: transparent !important;
-    border-radius: 0 !important;
+    background: transparent !important; border-radius: 0 !important;
 }
 [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    color: #dce8ff !important;
-    border-bottom-color: #f43f5e !important;
+    color: #e8f0ff !important; border-bottom-color: #3d7fff !important;
 }
-[data-testid="stTabs"] button[role="tab"]:hover { color: #5f7ca0 !important; }
+[data-testid="stTabs"] button[role="tab"]:hover { color: #7a91b3 !important; }
 
 /* ── EXPANDERS ── */
 [data-testid="stExpander"] details {
-    background: #070b16 !important;
-    border: 1px solid #0e1828 !important;
-    border-radius: 10px !important;
+    background: #0f1623 !important; border: 1px solid #1e2d45 !important;
+    border-radius: 12px !important; transition: border-color 0.15s ease !important;
+}
+[data-testid="stExpander"] details:hover {
+    border-color: #2a3f60 !important;
+}
+[data-testid="stExpander"] details[open] {
+    border-color: #3d7fff44 !important;
 }
 [data-testid="stExpander"] summary {
-    font-family: 'Inter', sans-serif !important;
-    font-weight: 500 !important;
-    font-size: 0.83rem !important;
-    color: #5f7ca0 !important;
-    padding: 12px 16px !important;
+    font-family: 'Inter', sans-serif !important; font-weight: 600 !important;
+    font-size: 0.84rem !important; color: #7a91b3 !important; padding: 14px 18px !important;
 }
-[data-testid="stExpander"] summary:hover { color: #dce8ff !important; }
-[data-testid="stExpander"] details > div { padding: 4px 16px 14px !important; }
+[data-testid="stExpander"] summary:hover { color: #c8daf5 !important; }
+[data-testid="stExpander"] details > div { padding: 2px 18px 16px !important; }
+[data-testid="stExpander"] [data-testid="stCaptionContainer"] p {
+    color: #2d4060 !important; font-family: 'Inter', sans-serif !important;
+    font-size: 0.75rem !important; letter-spacing: 0 !important;
+}
+
+/* ── FILE UPLOADER ── */
+[data-testid="stFileUploader"] section {
+    background: #080c14 !important; border: 1px dashed #1e2d45 !important;
+    border-radius: 10px !important;
+}
+[data-testid="stFileUploader"] section:hover {
+    border-color: #3d7fff !important;
+}
+[data-testid="stFileUploaderDropzoneInstructions"] {
+    color: #2d4060 !important; font-family: 'Inter', sans-serif !important;
+    font-size: 0.78rem !important;
+}
+
+/* ── SCAN HERO INPUT (override for the borderless look) ── */
+.scan-hero [data-testid="stTextInput"] input {
+    background: #080c14 !important;
+    border: 1px solid #253555 !important;
+    border-radius: 10px !important;
+    font-size: 1rem !important;
+    padding: 14px 20px !important;
+    height: 50px !important;
+}
+.scan-hero [data-testid="stTextInput"] input:focus {
+    border-color: #3d7fff !important;
+    box-shadow: 0 0 0 3px rgba(61,127,255,0.12) !important;
+}
 
 /* ── MULTISELECT ── */
 [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
-    background: #070b16 !important;
-    border-color: #0e1828 !important;
-    border-radius: 8px !important;
+    background: #0f1623 !important; border-color: #1e2d45 !important;
+    border-radius: 10px !important;
 }
 
 /* ── CHECKBOX ── */
 [data-testid="stCheckbox"] label {
-    font-size: 0.85rem !important;
-    color: #5f7ca0 !important;
+    font-size: 0.85rem !important; color: #4a6080 !important;
     font-family: 'Inter', sans-serif !important;
 }
 
 /* ── CAPTION ── */
 [data-testid="stCaptionContainer"] p {
     font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.71rem !important;
-    color: #243048 !important;
-    letter-spacing: 0.02em !important;
+    font-size: 0.71rem !important; color: #2d4060 !important; letter-spacing: 0.02em !important;
 }
 
 /* ── ALERTS ── */
 [data-testid="stAlertContainer"] { border-radius: 10px !important; }
 
-/* ── METRIC CARD — clickable view buttons ──
-   Target secondary buttons inside ANY 5-column horizontal block.
-   The metric row is the only 5-col layout in the app, so this is specific enough.
-   Uses CSS :has() — supported in all modern browsers (Chrome 105+, FF 121+, Safari 15.4+).
-── */
+/* ── METRIC CARD — clickable view buttons ── */
+/* ghost "View all ›" links under each metric card (5-col row) */
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondary"] button,
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondaryFormSubmit"] button {
     background:     transparent !important;
-    border:         none        !important;
-    box-shadow:     none        !important;
-    color:          #1e2d48     !important;
-    font-size:      0.53rem     !important;
+    border:         none !important;
+    box-shadow:     none !important;
+    color:          #253555 !important;
+    font-size:      0.6rem !important;
     font-family:    'JetBrains Mono', monospace !important;
-    font-weight:    700         !important;
-    letter-spacing: 0.16em      !important;
-    text-transform: uppercase   !important;
-    padding:        3px 0 2px   !important;
-    margin-top:     -4px        !important;
-    width:          100%        !important;
-    transition:     color 0.15s ease, transform 0.1s ease !important;
+    font-weight:    700 !important;
+    letter-spacing: 0.14em !important;
+    text-transform: uppercase !important;
+    padding:        6px 0 4px !important;
+    margin-top:     0 !important;
+    width:          100% !important;
+    min-height:     0 !important;
+    height:         auto !important;
+    transition:     color 0.15s ease !important;
 }
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondary"] button:hover {
-    color:      #5f7ca0     !important;
-    background: transparent !important;
-    box-shadow: none        !important;
-    transform:  none        !important;
+    color: #6fa3ff !important; background: transparent !important;
+    box-shadow: none !important; transform: none !important;
 }
-/* Accent the first column (mc1 = Total Findings) — not clickable, no button */
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     > div:first-child [data-testid="stBaseButton-secondary"] { display: none; }
 
+/* ── ENGINE PILLS (navbar right) ── */
+.rf-engine-pills {
+    display: flex; gap: 4px; align-items: center; margin-right: 16px;
+}
+.rf-epill {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    color: #2d4060; background: #0f1623; border: 1px solid #1a2640;
+    border-radius: 5px; padding: 4px 9px;
+    transition: color 0.15s ease, border-color 0.15s ease;
+}
+.rf-epill:hover { color: #4a6080; border-color: #253555; }
+.rf-status-dot-wrap {
+    display: flex; align-items: center; gap: 6px;
+    padding: 5px 12px; background: rgba(16,185,129,0.06);
+    border: 1px solid rgba(16,185,129,0.15); border-radius: 20px;
+}
+
+/* ── SCAN HERO ── */
+.rf-scan-hero {
+    position: relative; overflow: hidden;
+    background: linear-gradient(135deg, #0c1526 0%, #090e1c 60%, #080c14 100%);
+    border: 1px solid #1a2640; border-radius: 18px;
+    padding: 24px 28px 12px; margin-bottom: 18px;
+}
+.rf-hero-svg {
+    position: absolute; right: 0; top: 0; bottom: 0;
+    height: 100%; width: 42%; opacity: 0.9;
+    pointer-events: none;
+}
+.rf-hero-glow {
+    position: absolute; border-radius: 50%;
+    pointer-events: none; filter: blur(60px);
+}
+.rf-hero-glow-blue {
+    width: 280px; height: 180px;
+    background: radial-gradient(circle, rgba(61,127,255,0.12) 0%, transparent 70%);
+    right: 10%; top: -30px;
+}
+.rf-hero-glow-red {
+    width: 200px; height: 160px;
+    background: radial-gradient(circle, rgba(230,57,74,0.08) 0%, transparent 70%);
+    right: 30%; bottom: -20px;
+}
+.rf-hero-content {
+    position: relative; z-index: 2;
+    max-width: 62%;
+}
+
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #030508; }
-::-webkit-scrollbar-thumb { background: #0e1828; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #182236; }
+::-webkit-scrollbar-track { background: #080c14; }
+::-webkit-scrollbar-thumb { background: #1a2640; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #253555; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -559,10 +594,10 @@ html, body, [class*="css"],
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 TIER_COLOR = {
-    "deal_killer": "#f43f5e",
-    "critical":    "#fb923c",
-    "moderate":    "#fbbf24",
-    "manageable":  "#34d399",
+    "deal_killer": "#e6394a",
+    "critical":    "#f97316",
+    "moderate":    "#f59e0b",
+    "manageable":  "#10b981",
     "unscored":    "#6b7280",
 }
 
@@ -585,10 +620,10 @@ def metric_card(label, value, color_class):
     </div>"""
 
 def score_color(score):
-    if score >= 75: return "#f43f5e"
-    if score >= 50: return "#fb923c"
-    if score >= 25: return "#fbbf24"
-    return "#34d399"
+    if score >= 75: return "#e6394a"
+    if score >= 50: return "#f97316"
+    if score >= 25: return "#f59e0b"
+    return "#10b981"
 
 def format_label(value):
     if value is None: return "—"
@@ -598,103 +633,156 @@ def format_label(value):
 # ── Header ────────────────────────────────────────────────────────────────────
 
 st.markdown("""
-<div style="display:flex; align-items:center; justify-content:space-between;
-            padding:22px 0 16px; border-bottom:1px solid #0e1828; margin-bottom:22px;">
+<div class="rf-topnav">
+  <!-- Brand -->
+  <div class="rf-brand">
+    <div class="rf-brand-icon">▶</div>
+    <span class="rf-brand-name">RedFlag</span>
+  </div>
 
-  <!-- Left: logo + wordmark -->
-  <div style="display:flex; align-items:center; gap:16px;">
-    <div style="width:46px; height:46px; flex-shrink:0;
-                background:linear-gradient(140deg,#f43f5e 0%,#9f1239 100%);
-                border-radius:13px; display:flex; align-items:center; justify-content:center;
-                font-size:1.4rem;
-                box-shadow:0 4px 28px rgba(244,63,94,0.5), 0 0 0 1px rgba(244,63,94,0.25);">🚩</div>
-    <div>
-      <div style="font-size:1.65rem; font-weight:800; color:#dce8ff; letter-spacing:-0.04em;
-                  font-family:'Inter',sans-serif; line-height:1.05;">RedFlag</div>
-      <div style="font-size:0.57rem; font-weight:700; letter-spacing:0.18em; text-transform:uppercase;
-                  color:#243048; font-family:'JetBrains Mono',monospace; margin-top:3px;">
-        M&amp;A Cybersecurity Intelligence Platform
-      </div>
+  <!-- Nav links -->
+  <nav class="rf-nav">
+    <span class="rf-nav-link active">&#9679; Scan</span>
+    <span class="rf-nav-link">&#128196; Reports</span>
+    <span class="rf-nav-link">&#128193; Inventories</span>
+    <span class="rf-nav-link">&#9881; Settings</span>
+  </nav>
+
+  <!-- Right: engine status pills -->
+  <div class="rf-nav-right">
+    <div class="rf-engine-pills">
+      <span class="rf-epill">Nmap</span>
+      <span class="rf-epill">Vulners</span>
+      <span class="rf-epill">Shodan</span>
+      <span class="rf-epill">OpenVAS</span>
+      <span class="rf-epill">ZAP</span>
+    </div>
+    <div class="rf-status-dot-wrap">
+      <span class="rf-dot ok" style="width:7px;height:7px;"></span>
+      <span style="font-size:0.62rem;font-family:'JetBrains Mono',monospace;color:#10b981;
+                   font-weight:600;letter-spacing:0.06em;">All systems operational</span>
     </div>
   </div>
-
-  <!-- Right: engine chips -->
-  <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
-                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
-                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Nmap</span>
-    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
-                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
-                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Vulners</span>
-    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
-                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
-                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">Shodan</span>
-    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
-                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
-                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">OpenVAS</span>
-    <span style="background:#080d1c; border:1px solid #0e1828; border-radius:6px;
-                 padding:5px 11px; font-size:0.59rem; font-weight:700; letter-spacing:0.12em;
-                 color:#243048; font-family:'JetBrains Mono',monospace; text-transform:uppercase;">ZAP</span>
-  </div>
-
 </div>
 """, unsafe_allow_html=True)
 
 # ── Scan controls ─────────────────────────────────────────────────────────────
 
-scan_col1, scan_col2, scan_col3 = st.columns([5, 1, 1])
+# Scan hero area — network SVG background
+st.markdown("""
+<div class="rf-scan-hero">
+
+  <!-- Decorative SVG network graph (right side) -->
+  <svg class="rf-hero-svg" viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg"
+       fill="none" aria-hidden="true">
+    <!-- Connection lines -->
+    <line x1="60"  y1="40"  x2="160" y2="80"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="60"  y1="40"  x2="200" y2="20"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="160" y1="80"  x2="280" y2="50"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="160" y1="80"  x2="240" y2="130" stroke="#1e3050" stroke-width="1"/>
+    <line x1="200" y1="20"  x2="280" y2="50"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="280" y1="50"  x2="380" y2="30"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="280" y1="50"  x2="360" y2="100" stroke="#1e3050" stroke-width="1"/>
+    <line x1="240" y1="130" x2="360" y2="100" stroke="#1e3050" stroke-width="1"/>
+    <line x1="380" y1="30"  x2="450" y2="70"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="360" y1="100" x2="450" y2="70"  stroke="#1e3050" stroke-width="1"/>
+    <line x1="160" y1="80"  x2="200" y2="20"  stroke="#253555" stroke-width="0.5"/>
+    <line x1="60"  y1="40"  x2="100" y2="120" stroke="#1a2640" stroke-width="1"/>
+    <line x1="100" y1="120" x2="240" y2="130" stroke="#1a2640" stroke-width="1"/>
+    <!-- Highlighted path (blue) -->
+    <line x1="60"  y1="40"  x2="160" y2="80"  stroke="#3d7fff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+    <line x1="160" y1="80"  x2="280" y2="50"  stroke="#3d7fff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+    <line x1="280" y1="50"  x2="380" y2="30"  stroke="#3d7fff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
+    <!-- Red threat path -->
+    <line x1="240" y1="130" x2="360" y2="100" stroke="#e6394a" stroke-width="1" opacity="0.35"/>
+    <!-- Nodes — outer ring -->
+    <circle cx="60"  cy="40"  r="5"   fill="#0f1623" stroke="#2a3f60" stroke-width="1.5"/>
+    <circle cx="200" cy="20"  r="4"   fill="#0f1623" stroke="#1e3050" stroke-width="1"/>
+    <circle cx="100" cy="120" r="3.5" fill="#0f1623" stroke="#1e3050" stroke-width="1"/>
+    <circle cx="380" cy="30"  r="4"   fill="#0f1623" stroke="#1e3050" stroke-width="1"/>
+    <circle cx="450" cy="70"  r="5"   fill="#0f1623" stroke="#2a3f60" stroke-width="1.5"/>
+    <!-- Nodes — inner -->
+    <circle cx="160" cy="80"  r="7"   fill="#0f1623" stroke="#3d7fff" stroke-width="1.5"/>
+    <circle cx="280" cy="50"  r="7"   fill="#0f1623" stroke="#3d7fff" stroke-width="1.5"/>
+    <!-- Threat node (red) -->
+    <circle cx="240" cy="130" r="6"   fill="#120a0e"  stroke="#e6394a" stroke-width="1.5"/>
+    <circle cx="360" cy="100" r="5"   fill="#120a0e"  stroke="#e6394a" stroke-width="1"/>
+    <!-- Glow on primary nodes -->
+    <circle cx="160" cy="80"  r="14"  fill="#3d7fff" opacity="0.05"/>
+    <circle cx="280" cy="50"  r="14"  fill="#3d7fff" opacity="0.05"/>
+    <circle cx="240" cy="130" r="12"  fill="#e6394a" opacity="0.07"/>
+    <!-- Node dots (inner fill) -->
+    <circle cx="60"  cy="40"  r="2"   fill="#3d7fff" opacity="0.7"/>
+    <circle cx="160" cy="80"  r="3"   fill="#3d7fff"/>
+    <circle cx="280" cy="50"  r="3"   fill="#3d7fff"/>
+    <circle cx="450" cy="70"  r="2"   fill="#4a6080"/>
+    <circle cx="200" cy="20"  r="1.5" fill="#4a6080"/>
+    <circle cx="380" cy="30"  r="1.5" fill="#4a6080"/>
+    <circle cx="100" cy="120" r="1.5" fill="#4a6080"/>
+    <circle cx="240" cy="130" r="2.5" fill="#e6394a"/>
+    <circle cx="360" cy="100" r="2"   fill="#e6394a" opacity="0.8"/>
+  </svg>
+
+  <!-- Glow blobs -->
+  <div class="rf-hero-glow rf-hero-glow-blue"></div>
+  <div class="rf-hero-glow rf-hero-glow-red"></div>
+
+  <!-- Content -->
+  <div class="rf-hero-content">
+    <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
+                color:#2d4060;font-family:'JetBrains Mono',monospace;margin-bottom:12px;">
+      M&amp;A Cybersecurity Intelligence &nbsp;·&nbsp; Scan Target
+    </div>
+""", unsafe_allow_html=True)
+
+scan_col1, scan_col2, scan_col3 = st.columns([6, 2, 1])
 with scan_col1:
     target = st.text_input(
-        ">_ Scan Target",
+        "TARGET_LABEL",
         value="scanme.nmap.org",
-        placeholder="IP address, hostname, or subnet  —  e.g.  192.168.1.0/24  ·  scanme.nmap.org",
+        placeholder="Target Domain or IP... (e.g., scanme.nmap.org)",
+        label_visibility="collapsed",
     )
 with scan_col2:
-    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-    run_scan = st.button("Run Scan", use_container_width=True, type="primary")
+    run_scan = st.button("Run Comprehensive Scan", use_container_width=True, type="primary")
 with scan_col3:
-    st.markdown("<div style='height:28px'></div>", unsafe_allow_html=True)
-    fast_mode = st.checkbox("Fast Scan", value=False,
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+    fast_mode = st.checkbox("Fast Scan Mode", value=False,
                             help="Top 200 ports · version-intensity 3 · ~2x faster. May miss uncommon ports.")
 
-st.markdown('<div class="rf-section-label" style="margin-top:4px;">Optional Intelligence Sources</div>',
-            unsafe_allow_html=True)
+st.markdown("</div></div>", unsafe_allow_html=True)
+
+# Upload section — styled cards instead of plain expanders
+st.markdown("""
+<div style="font-size:0.56rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;
+            color:#2d4060;font-family:'JetBrains Mono',monospace;margin:16px 0 10px;
+            display:flex;align-items:center;gap:10px;">
+  Optional Intelligence Sources
+  <div style="flex:1;height:1px;background:linear-gradient(90deg,#141d2e,transparent);"></div>
+</div>
+""", unsafe_allow_html=True)
 upload_col1, upload_col2, upload_col3, upload_col4 = st.columns(4)
 
 with upload_col1:
-    with st.expander("Shodan JSON (Target-provided)"):
-        st.caption(
-            "Upload a Shodan host JSON exported by the target company instead of running a live API scan. "
-            "If uploaded, this replaces the automatic Shodan lookup — no API credit is consumed."
-        )
-        st.markdown(
-            "<span style='color:#364060;font-size:0.75rem;font-family:Fira Code,monospace;'>"
-            "Export via: <code style='font-family:Fira Code,monospace'>shodan host &lt;ip&gt; --save</code>"
-            " or Shodan web UI → Download JSON</span>",
-            unsafe_allow_html=True,
-        )
+    with st.expander("🔍  Shodan JSON"):
+        st.caption("Target-provided Shodan export — replaces live API, 0 credits consumed.")
         shodan_json_file = st.file_uploader(
             "Shodan JSON", type=["json"], label_visibility="collapsed", key="shodan_json_upload"
         )
 
 with upload_col2:
-    with st.expander("OpenVAS XML"):
-        st.caption("Upload OpenVAS / Greenbone XML to merge verified CVE findings with CONFIRMED evidence strength.")
+    with st.expander("🛡  OpenVAS XML"):
+        st.caption("Merge verified CVE findings with CONFIRMED evidence strength.")
         openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed", key="ov_upload")
 
 with upload_col3:
-    with st.expander("OWASP ZAP XML"):
-        st.caption("Upload OWASP ZAP XML to merge web application layer findings into the risk model.")
+    with st.expander("🕷  OWASP ZAP XML"):
+        st.caption("Merge web application layer findings into the risk model.")
         zap_file = st.file_uploader("ZAP XML", type=["xml"], label_visibility="collapsed", key="zap_upload")
 
 with upload_col4:
-    with st.expander("Asset Inventory Excel"):
-        st.caption("Map host IPs to sensitivity tiers (Crown Jewel / Regulated / Sensitive). Unlocks the most impactful deal-killer rules.")
-        st.markdown(
-            "<span style='color:#364060;font-size:0.75rem;font-family:Fira Code,monospace;'>"
-            "Required columns: IP &nbsp;·&nbsp; Sensitivity</span>",
-            unsafe_allow_html=True,
-        )
+    with st.expander("📋  Asset Inventory"):
+        st.caption("Map host IPs to Crown Jewel / Regulated / Sensitive tiers. Unlocks deal-killer rules.")
         asset_file = st.file_uploader("Asset Inventory Excel", type=["xlsx", "xls"], label_visibility="collapsed", key="asset_upload")
 
 # ── Scan execution ────────────────────────────────────────────────────────────
@@ -847,7 +935,7 @@ if "findings" in st.session_state:
 
     with tab_overview:
 
-        # Metric cards — mc2–mc5 are clickable; clicking navigates to a pre-filtered Findings tab
+        # ── Metric cards row (5 cols) ─────────────────────────────────────────
         mc1, mc2, mc3, mc4, mc5 = st.columns(5)
         with mc1:
             st.markdown(metric_card("Total Findings", n_total, "blue"), unsafe_allow_html=True)
@@ -872,13 +960,13 @@ if "findings" in st.session_state:
                 st.session_state["tier_preset"]         = "manageable"
                 st.session_state["_switch_to_findings"] = True
 
-        st.markdown("<div style='height:12px'></div>", unsafe_allow_html=True)
+        st.markdown("<div style='height:10px'></div>", unsafe_allow_html=True)
 
-        # Deal-killer alert banner
+        # ── Deal-killer alert banner ──────────────────────────────────────────
         if n_dk:
             st.markdown(f"""
             <div class="dk-alert">
-              <div style="font-size:1.5rem; flex-shrink:0;">⚠️</div>
+              <div style="font-size:1.4rem;flex-shrink:0;">⚠️</div>
               <div class="dk-alert-body">
                 <div class="dk-alert-title">Deal-Killer Findings Detected</div>
                 <div class="dk-alert-sub">Immediate escalation required — these findings block deal close</div>
@@ -899,17 +987,17 @@ if "findings" in st.session_state:
             <div class="inv-notice warn">
                 <span>⚠</span>
                 <span><strong>Data Sensitivity Unclassified</strong> &nbsp;—&nbsp;
-                All findings default to <code style="font-family:'JetBrains Mono',monospace;font-size:0.78rem;">UNKNOWN</code>.
+                All findings default to <code style="font-family:'JetBrains Mono',monospace;font-size:0.77rem;">UNKNOWN</code>.
                 Upload an asset inventory to unlock the most impactful deal-killer rules.</span>
             </div>""", unsafe_allow_html=True)
 
-        # Charts + Intel panel
-        chart_col, shodan_col = st.columns([11, 9])
+        # ── Two-panel layout: left (chart+summaries) / right (scanner+findings) ──
+        left_col, right_col = st.columns([5, 7])
 
-        with chart_col:
+        with left_col:
             st.markdown('<div class="rf-section-label">Risk Breakdown</div>', unsafe_allow_html=True)
 
-            # Donut — tier breakdown
+            # Donut chart
             labels, values, colors = [], [], []
             for tier, count in [("Deal Killer", n_dk), ("Critical", n_crit),
                                  ("Moderate", n_mod), ("Manageable", n_man)]:
@@ -919,64 +1007,86 @@ if "findings" in st.session_state:
 
             if values:
                 fig = go.Figure(go.Pie(
-                    labels=labels, values=values, hole=0.70,
-                    marker=dict(colors=colors, line=dict(color="#030508", width=4)),
+                    labels=labels, values=values, hole=0.72,
+                    marker=dict(colors=colors, line=dict(color="#080c14", width=3)),
                     textinfo="label+percent",
-                    textfont=dict(size=11, color="#5f7ca0", family="JetBrains Mono"),
+                    textfont=dict(size=10, color="#4a6080", family="JetBrains Mono"),
                     hovertemplate="<b>%{label}</b><br>%{value} findings (%{percent})<extra></extra>",
                 ))
                 fig.update_layout(
-                    showlegend=False,
+                    showlegend=True,
+                    legend=dict(
+                        font=dict(color="#4a6080", size=11, family="Inter"),
+                        bgcolor="rgba(0,0,0,0)", x=0.5, xanchor="center", y=-0.05,
+                        orientation="h",
+                    ),
                     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                    margin=dict(t=8, b=8, l=8, r=8), height=240,
+                    margin=dict(t=8, b=32, l=8, r=8), height=260,
                     annotations=[dict(
-                        text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#243048'>total</span>",
-                        x=0.5, y=0.5, font_size=26, font_color="#dce8ff",
+                        text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#2d4060'>total</span>",
+                        x=0.5, y=0.5, font_size=28, font_color="#c8daf5",
                         font=dict(family="JetBrains Mono"), showarrow=False,
                     )],
                 )
                 st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
 
-            # Horizontal bar — top findings by score
-            top_n = sorted(findings, key=lambda f: f.risk_score, reverse=True)[:8]
-            if top_n:
-                bar_labels = [f.title[:40] + "…" if len(f.title) > 40 else f.title for f in top_n]
-                bar_values = [f.risk_score for f in top_n]
-                bar_colors = [score_color(s) for s in bar_values]
+            # Risk Profile Summary (collapsible)
+            avg_score = sum(f.risk_score for f in findings) / len(findings) if findings else 0
+            top_exposure = max(
+                set(str(getattr(f.exposure, "value", f.exposure)) for f in findings),
+                key=lambda e: {"internet_facing": 3, "partner": 2, "internal": 1}.get(e, 0),
+                default="unknown"
+            )
+            with st.expander("Risk Profile Summary", expanded=False):
+                st.markdown(f"""
+                <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
+                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:9px;padding:12px;">
+                      <div style="font-size:0.56rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                                  color:#2d4060;font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Avg Risk Score</div>
+                      <div style="font-size:1.5rem;font-weight:700;color:{score_color(avg_score)};
+                                  font-family:'JetBrains Mono',monospace;">{avg_score:.1f}</div>
+                    </div>
+                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:9px;padding:12px;">
+                      <div style="font-size:0.56rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
+                                  color:#2d4060;font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Max Exposure</div>
+                      <div style="font-size:0.82rem;font-weight:600;color:#c8daf5;
+                                  font-family:'JetBrains Mono',monospace;margin-top:4px;">{top_exposure.replace("_"," ").upper()}</div>
+                    </div>
+                  </div>
+                  <div style="color:#3a5070;font-size:0.79rem;line-height:1.7;">
+                    {n_dk} deal-killer · {n_crit} critical · {n_mod} moderate · {n_man} manageable across {n_total} total findings.
+                  </div>
+                </div>""", unsafe_allow_html=True)
 
-                fig2 = go.Figure(go.Bar(
-                    x=bar_values, y=bar_labels, orientation="h",
-                    marker=dict(color=bar_colors, line=dict(width=0), opacity=0.82),
-                    hovertemplate="<b>%{y}</b><br>Risk Score: %{x:.1f}<extra></extra>",
-                ))
-                fig2.update_layout(
-                    paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
-                    xaxis=dict(range=[0, 100], gridcolor="#0e1828", zeroline=False,
-                               tickfont=dict(color="#243048", size=10, family="JetBrains Mono"), title=""),
-                    yaxis=dict(autorange="reversed",
-                               tickfont=dict(color="#5f7ca0", size=10, family="Inter"), title=""),
-                    margin=dict(t=0, b=4, l=4, r=4), height=260,
-                )
-                st.markdown('<div class="rf-section-label">Top Findings by Risk Score</div>',
-                            unsafe_allow_html=True)
-                st.plotly_chart(fig2, use_container_width=True, config={"displayModeBar": False})
+            # Deployment Status (collapsible)
+            _ov_count  = st.session_state.get("openvas_count", 0)
+            _zap_c     = st.session_state.get("zap_count", 0)
+            _vul_c     = st.session_state.get("vulners_count", 0)
+            _asset_c   = st.session_state.get("asset_hosts", 0)
+            _scanners_active = sum([1, bool(_vul_c), bool(st.session_state.get("shodan_result", {}).get("success")),
+                                    bool(_ov_count), bool(_zap_c)])
+            _posture   = "High Risk" if n_dk else ("Elevated" if n_crit >= 3 else ("Moderate" if n_mod >= 3 else "Low Risk"))
+            _posture_c = "#e6394a" if n_dk else ("#f97316" if n_crit >= 3 else ("#f59e0b" if n_mod >= 3 else "#10b981"))
 
-        with shodan_col:
-            # ── Target intelligence ───────────────────────────────────────
-            st.markdown('<div class="rf-section-label">Target Intelligence</div>', unsafe_allow_html=True)
-            st.markdown(f"""
-            <div class="rf-target-panel">
-              <div class="rf-tp-row">
-                <span class="rf-tp-label">Target</span>
-                <span class="rf-tp-value">{clean_target}</span>
-              </div>
-              <div class="rf-tp-row">
-                <span class="rf-tp-label">Resolved IP</span>
-                <span class="rf-tp-value">{resolved_ip}</span>
-              </div>
-            </div>
-            """, unsafe_allow_html=True)
+            with st.expander("Deployment Status", expanded=False):
+                st.markdown(f"""
+                <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;
+                              margin-bottom:10px;padding:10px 14px;
+                              background:#080c14;border:1px solid #141d2e;border-radius:9px;">
+                    <span style="font-size:0.78rem;color:#3a5070;font-family:'Inter',sans-serif;">Overall Posture</span>
+                    <span style="font-size:0.86rem;font-weight:700;color:{_posture_c};
+                                 font-family:'JetBrains Mono',monospace;">{_posture}</span>
+                  </div>
+                  <div style="color:#2d4060;font-size:0.76rem;line-height:1.8;">
+                    <span style="color:#10b981;">●</span> {_scanners_active} of 5 scanners active &nbsp;·&nbsp;
+                    <span style="color:{'#10b981' if _asset_c else '#f59e0b'};">●</span>
+                    Asset inventory {'loaded' if _asset_c else 'not uploaded'}
+                  </div>
+                </div>""", unsafe_allow_html=True)
 
+        with right_col:
             # ── Scanner pipeline ──────────────────────────────────────────
             vulners_count   = st.session_state.get("vulners_count", 0)
             vulners_active  = st.session_state.get("vulners_active", False)
@@ -994,15 +1104,13 @@ if "findings" in st.session_state:
                         f'<div class="step-status {status_cls}">{status}</div>'
                         f'</div>')
 
-            arrow = '<span class="rf-pipeline-arrow">›</span>'
-
             nmap_ps = _ps("ok", "Nmap", "done", "ok")
             if vulners_count:
-                vuln_ps = _ps("ok",   "Vulners",  f"{vulners_count} CVEs",       "ok")
+                vuln_ps = _ps("ok",   "Vulners", f"{vulners_count} CVEs", "ok")
             elif vulners_active:
-                vuln_ps = _ps("warn", "Vulners",  "0 CVEs",                       "warn")
+                vuln_ps = _ps("warn", "Vulners", "0 CVEs", "warn")
             else:
-                vuln_ps = _ps("off",  "Vulners",  "not installed",                "")
+                vuln_ps = _ps("off",  "Vulners", "not installed", "")
 
             if shodan_ok:
                 _sd_lbl = "ext JSON" if shodan_source == "external_json" else "live API"
@@ -1018,75 +1126,123 @@ if "findings" in st.session_state:
                           "ZAP",
                           f"{zap_count} findings" if zap_count else "not uploaded",
                           "ok" if zap_count else "")
-            asset_ps = _ps("ok"  if asset_hosts else "warn",
-                           "Assets",
-                           f"{asset_hosts} hosts" if asset_hosts else "not uploaded",
-                           "ok" if asset_hosts else "warn")
+
+            # Target intel + source chip
+            source_chip = (
+                '<span style="font-size:0.55rem;font-family:\'JetBrains Mono\',monospace;'
+                'color:#a78bfa;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);'
+                'border-radius:4px;padding:2px 7px;font-weight:700;letter-spacing:0.1em;">TARGET-PROVIDED</span>'
+                if shodan_source == "external_json" else
+                '<span style="font-size:0.55rem;font-family:\'JetBrains Mono\',monospace;'
+                'color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);'
+                'border-radius:4px;padding:2px 7px;font-weight:700;letter-spacing:0.1em;">LIVE API</span>'
+            )
 
             st.markdown(f"""
-            <div class="rf-pipeline-h">
-              <div class="rf-pipeline-header">Scanner Pipeline</div>
+            <div class="rf-pipeline-h" style="margin-bottom:14px;">
+              <div class="rf-pipeline-header">
+                Scanner Status
+                <span style="margin-left:auto;font-size:0.6rem;color:#2d4060;">
+                  {clean_target} &nbsp;·&nbsp; {resolved_ip}
+                </span>
+              </div>
               <div class="rf-pipeline-flow">
-                {nmap_ps}{arrow}{vuln_ps}{arrow}{shod_ps}{arrow}{ov_ps}{arrow}{zap_ps}{arrow}{asset_ps}
+                {nmap_ps}{vuln_ps}{shod_ps}{ov_ps}{zap_ps}
               </div>
             </div>
             """, unsafe_allow_html=True)
 
-            # ── Shodan snapshot ───────────────────────────────────────────
+            # ── Shodan snapshot (inline card) ─────────────────────────────
             if shodan_result.get("success"):
-                ports_str    = ", ".join(map(str, shodan_result.get("ports", []))) or "—"
-                vuln_count   = len(shodan_result.get("vulns", []))
-                org          = shodan_result.get("organization") or "Unknown"
-                isp          = shodan_result.get("isp") or "Unknown"
-                country      = shodan_result.get("country") or "Unknown"
-                city         = shodan_result.get("city") or "Unknown"
-                cve_color    = "#f87171" if vuln_count else "#4ade80"
-                source_label = (
-                    '<span style="font-size:0.58rem;font-family:\'JetBrains Mono\',monospace;'
-                    'color:#a78bfa;margin-left:8px;font-weight:700;letter-spacing:0.1em;">TARGET-PROVIDED</span>'
-                    if shodan_source == "external_json" else
-                    '<span style="font-size:0.58rem;font-family:\'JetBrains Mono\',monospace;'
-                    'color:#34d399;margin-left:8px;font-weight:700;letter-spacing:0.1em;">LIVE API</span>'
-                )
+                ports_str  = ", ".join(map(str, shodan_result.get("ports", []))) or "—"
+                vuln_count = len(shodan_result.get("vulns", []))
+                org        = shodan_result.get("organization") or "Unknown"
+                isp        = shodan_result.get("isp") or "Unknown"
+                country    = shodan_result.get("country") or "Unknown"
+                city       = shodan_result.get("city") or "Unknown"
+                cve_color  = "#e6394a" if vuln_count else "#10b981"
 
                 st.markdown(f"""
-                <div class="rf-shodan">
-                  <div class="rf-section-label" style="margin-bottom:10px;">Shodan Snapshot {source_label}</div>
-                  <div class="rf-shodan-row">
-                    <span class="rf-shodan-label">Org</span>
-                    <span class="rf-shodan-value">{org}</span>
+                <div class="rf-shodan" style="margin-bottom:14px;">
+                  <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+                              letter-spacing:0.18em;text-transform:uppercase;color:#3d7fff;
+                              margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+                    SHODAN SNAPSHOT {source_chip}
                   </div>
-                  <div class="rf-shodan-row">
-                    <span class="rf-shodan-label">ISP</span>
-                    <span class="rf-shodan-value">{isp}</span>
+                  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 0;">
+                    <div class="rf-shodan-row" style="margin-bottom:6px;">
+                      <span class="rf-shodan-label">Org</span>
+                      <span class="rf-shodan-value">{org}</span>
+                    </div>
+                    <div class="rf-shodan-row" style="margin-bottom:6px;">
+                      <span class="rf-shodan-label">ISP</span>
+                      <span class="rf-shodan-value">{isp}</span>
+                    </div>
+                    <div class="rf-shodan-row" style="margin-bottom:6px;">
+                      <span class="rf-shodan-label">Location</span>
+                      <span class="rf-shodan-value">{city}, {country}</span>
+                    </div>
+                    <div class="rf-shodan-row" style="margin-bottom:6px;">
+                      <span class="rf-shodan-label">Open Ports</span>
+                      <span class="rf-shodan-value" style="font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:#6fa3ff;">{ports_str}</span>
+                    </div>
+                    <div class="rf-shodan-row">
+                      <span class="rf-shodan-label">CVEs</span>
+                      <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'JetBrains Mono',monospace;">{vuln_count}</span>
+                    </div>
                   </div>
-                  <div class="rf-shodan-row">
-                    <span class="rf-shodan-label">Location</span>
-                    <span class="rf-shodan-value">{city}, {country}</span>
-                  </div>
-                  <div class="rf-shodan-row">
-                    <span class="rf-shodan-label">Open Ports</span>
-                    <span class="rf-shodan-value" style="font-family:'JetBrains Mono',monospace;font-size:0.77rem;">{ports_str}</span>
-                  </div>
-                  <div class="rf-shodan-row">
-                    <span class="rf-shodan-label">CVEs</span>
-                    <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'JetBrains Mono',monospace;">{vuln_count}</span>
+                  {('<div style="margin-top:10px;border-top:1px solid #1e3050;padding-top:10px;">'
+                    + '<div style="font-size:0.56rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;'
+                    + 'color:#2d4060;font-family:\'JetBrains Mono\',monospace;margin-bottom:6px;">CVE Lists</div>'
+                    + "<div style='display:flex;flex-wrap:wrap;gap:5px;'>"
+                    + "".join(f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;color:#4a6080;'
+                              f'background:#080c14;border:1px solid #1e2d45;border-radius:4px;padding:2px 8px;">{c}</span>'
+                              for c in shodan_result["vulns"][:8])
+                    + (f'<span style="font-size:0.62rem;color:#2d4060;padding:2px 8px;">+{len(shodan_result["vulns"])-8} more</span>'
+                       if len(shodan_result["vulns"]) > 8 else "")
+                    + "</div></div>") if shodan_result.get("vulns") else ""}
+                </div>
+                """, unsafe_allow_html=True)
+            else:
+                st.warning(shodan_result.get("error", "Shodan enrichment unavailable."))
+
+            # ── Mini findings list ────────────────────────────────────────
+            st.markdown('<div class="rf-section-label">Top Findings</div>', unsafe_allow_html=True)
+
+            TIER_CSS_MAP = {"deal_killer": "dk", "critical": "crit", "moderate": "mod", "manageable": "man"}
+            TIER_ICONS   = {"deal_killer": "⚡", "critical": "🔴", "moderate": "🟡", "manageable": "🟢"}
+
+            for f in findings[:6]:
+                t_val  = str(getattr(f.deal_tier, "value", f.deal_tier))
+                t_cls  = TIER_CSS_MAP.get(t_val, "")
+                t_icon = TIER_ICONS.get(t_val, "●")
+                sc     = score_color(f.risk_score)
+                port_label = f":{f.port}" if f.port else ""
+                svc_label  = f.service or ""
+                desc_short = (f.description[:80] + "…") if len(f.description) > 80 else f.description
+
+                st.markdown(f"""
+                <div class="fmc {t_cls}">
+                  <div class="fmc-icon {t_cls}">{t_icon}</div>
+                  <div class="fmc-body">
+                    <div class="fmc-title">{f.title}</div>
+                    <div class="fmc-meta">
+                      <span class="badge badge-{t_cls}">{t_val.replace('_',' ')}</span>
+                      <span class="fmc-port">{port_label} {svc_label}</span>
+                      <span class="fmc-score" style="color:{sc};">{f.risk_score:.0f}</span>
+                    </div>
+                    <div class="fmc-desc">{desc_short}</div>
                   </div>
                 </div>
                 """, unsafe_allow_html=True)
 
-                if shodan_result["vulns"]:
-                    with st.expander(f"Associated CVEs  ({len(shodan_result['vulns'])})"):
-                        top_cves = shodan_result["vulns"][:12]
-                        rest     = shodan_result["vulns"][12:]
-                        st.markdown(
-                            "<div style='display:flex;flex-wrap:wrap;gap:6px;padding:4px 0;'>"
-                            + "".join(f'<span class="badge badge-dk">{c}</span>' for c in top_cves)
-                            + "</div>", unsafe_allow_html=True)
-                        if rest:
-                            st.caption(f"+ {len(rest)} more CVEs not shown")
-            else:
-                st.warning(shodan_result.get("error", "Shodan enrichment unavailable."))
+            if len(findings) > 6:
+                st.markdown(
+                    f"<div style='text-align:center;padding:8px;font-size:0.72rem;"
+                    f"color:#2d4060;font-family:\"JetBrains Mono\",monospace;'>"
+                    f"+ {len(findings)-6} more findings — see Findings tab</div>",
+                    unsafe_allow_html=True,
+                )
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Tab: Findings
@@ -1200,7 +1356,7 @@ if "findings" in st.session_state:
                           <div class="meta">
                             {tier_html}&nbsp;{exp_html}
                             &nbsp;<span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;
-                                              color:#243048;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
+                                              color:#2d4060;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
                           </div>
                           <hr class="fc-divider">
                           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 28px;">
@@ -1217,7 +1373,7 @@ if "findings" in st.session_state:
                             <div>
                               <span class="field-label">Evidence</span>&nbsp;
                               <span style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;
-                                           color:#5f7ca0;">{evid_label}</span>
+                                           color:#4a6080;">{evid_label}</span>
                             </div>
                           </div>
                         </div>
@@ -1237,7 +1393,7 @@ if "findings" in st.session_state:
 
         st.markdown('<div class="rf-section-label">Inside-Out Maturity Assessment</div>', unsafe_allow_html=True)
         st.markdown(
-            "<div style='font-size:0.82rem;color:#5f7ca0;font-family:\"Inter\",sans-serif;"
+            "<div style='font-size:0.82rem;color:#4a6080;font-family:\"Inter\",sans-serif;"
             "line-height:1.7;margin-bottom:20px;'>"
             "Complete the questionnaire below to assess the target's internal security programme maturity. "
             "Scores are compared against a corporate acquisition standard to identify gaps and deal-blockers. "
@@ -1254,7 +1410,7 @@ if "findings" in st.session_state:
                 questions = get_domain_questions(domain_key)
                 st.markdown(
                     f"<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.15em;"
-                    f"text-transform:uppercase;color:#f43f5e;font-family:\"JetBrains Mono\",monospace;"
+                    f"text-transform:uppercase;color:#e6394a;font-family:\"JetBrains Mono\",monospace;"
                     f"margin:18px 0 6px;'>{domain_label}</div>",
                     unsafe_allow_html=True,
                 )
@@ -1292,23 +1448,23 @@ if "findings" in st.session_state:
         if assessment:
             # Overall score banner
             overall = assessment.overall_score
-            ov_color = "#f43f5e" if assessment.is_deal_blocker else ("#fbbf24" if assessment.has_gaps else "#34d399")
+            ov_color = "#e6394a" if assessment.is_deal_blocker else ("#f59e0b" if assessment.has_gaps else "#10b981")
             ov_label = "DEAL-BLOCKER" if assessment.is_deal_blocker else ("GAPS PRESENT" if assessment.has_gaps else "ACCEPTABLE")
 
             st.markdown(f"""
-            <div style="background:linear-gradient(160deg,#080d1c,#060a16);border:1px solid {ov_color}33;
+            <div style="background:linear-gradient(160deg,#0f1623,#0a0f1c);border:1px solid {ov_color}33;
                         border-radius:14px;padding:20px 24px;margin-bottom:24px;
                         display:flex;align-items:center;gap:24px;">
               <div style="text-align:center;min-width:80px;">
                 <div style="font-size:3rem;font-weight:700;color:{ov_color};
-                            font-family:'JetBrains Mono',monospace;line-height:1;">{overall:.1f}<span style="font-size:1.2rem;color:#243048;">/5</span></div>
+                            font-family:'JetBrains Mono',monospace;line-height:1;">{overall:.1f}<span style="font-size:1.2rem;color:#2d4060;">/5</span></div>
                 <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
                             color:{ov_color};font-family:'JetBrains Mono',monospace;margin-top:4px;">{ov_label}</div>
               </div>
               <div style="flex:1;">
-                <div style="font-size:0.9rem;font-weight:700;color:#dce8ff;
+                <div style="font-size:0.9rem;font-weight:700;color:#c8daf5;
                             font-family:'Inter',sans-serif;margin-bottom:6px;">Overall Maturity Score</div>
-                <div style="font-size:0.78rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.6;">
+                <div style="font-size:0.78rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.6;">
                   {assessment.completion_pct:.0f}% of questions answered &nbsp;&middot;&nbsp;
                   {len(assessment.domain_scores)} domains assessed
                 </div>
@@ -1319,21 +1475,21 @@ if "findings" in st.session_state:
             st.markdown('<div class="rf-section-label">Domain Scores</div>', unsafe_allow_html=True)
 
             _SEV_COLORS = {
-                "deal_blocker": ("#f43f5e", "DEAL-BLOCKER"),
-                "below_min":    ("#fbbf24", "BELOW MIN"),
-                "acceptable":   ("#60a5fa", "ACCEPTABLE"),
-                "at_target":    ("#34d399", "AT TARGET"),
+                "deal_blocker": ("#e6394a", "DEAL-BLOCKER"),
+                "below_min":    ("#f59e0b", "BELOW MIN"),
+                "acceptable":   ("#6fa3ff", "ACCEPTABLE"),
+                "at_target":    ("#10b981", "AT TARGET"),
             }
 
             domain_cols = st.columns(2)
             for di, ds in enumerate(assessment.domain_scores):
                 sev_val   = str(ds.gap_severity.value if hasattr(ds.gap_severity, "value") else ds.gap_severity)
-                sev_color, sev_label = _SEV_COLORS.get(sev_val, ("#5f7ca0", "N/A"))
+                sev_color, sev_label = _SEV_COLORS.get(sev_val, ("#4a6080", "N/A"))
                 bar_pct = int(ds.score / 5 * 100)
                 with domain_cols[di % 2]:
                     st.markdown(f"""
-                    <div style="background:linear-gradient(160deg,#080d1c,#060a16);
-                                border:1px solid #0e1828;border-radius:12px;
+                    <div style="background:linear-gradient(160deg,#0f1623,#0a0f1c);
+                                border:1px solid #1a2640;border-radius:12px;
                                 padding:16px 18px;margin-bottom:12px;">
                       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
                         <div style="font-size:0.8rem;font-weight:700;color:#c7d8f5;
@@ -1352,14 +1508,14 @@ if "findings" in st.session_state:
                                     text-align:right;">{ds.score:.1f}</div>
                       </div>
                       <div style="margin-top:8px;display:flex;gap:16px;">
-                        <span style="font-size:0.7rem;color:#243048;font-family:'JetBrains Mono',monospace;">
-                          Min acceptable: <span style="color:#5f7ca0;">{ds.acceptable_min}</span>
+                        <span style="font-size:0.7rem;color:#2d4060;font-family:'JetBrains Mono',monospace;">
+                          Min acceptable: <span style="color:#4a6080;">{ds.acceptable_min}</span>
                         </span>
-                        <span style="font-size:0.7rem;color:#243048;font-family:'JetBrains Mono',monospace;">
-                          Target: <span style="color:#5f7ca0;">{ds.recommended}</span>
+                        <span style="font-size:0.7rem;color:#2d4060;font-family:'JetBrains Mono',monospace;">
+                          Target: <span style="color:#4a6080;">{ds.recommended}</span>
                         </span>
-                        <span style="font-size:0.7rem;color:#243048;font-family:'JetBrains Mono',monospace;">
-                          Answered: <span style="color:#5f7ca0;">{ds.answered}/{ds.total_questions}</span>
+                        <span style="font-size:0.7rem;color:#2d4060;font-family:'JetBrains Mono',monospace;">
+                          Answered: <span style="color:#4a6080;">{ds.answered}/{ds.total_questions}</span>
                         </span>
                       </div>
                     </div>""", unsafe_allow_html=True)
@@ -1371,25 +1527,25 @@ if "findings" in st.session_state:
                 if mat_narrative:
                     st.markdown(
                         f"<div style='font-size:0.85rem;color:#c7d8f5;font-family:\"Inter\",sans-serif;"
-                        f"line-height:1.75;padding:16px;background:#060a16;border-radius:10px;"
-                        f"border-left:3px solid #fbbf24;margin-bottom:16px;'>{mat_narrative}</div>",
+                        f"line-height:1.75;padding:16px;background:#0a0f1c;border-radius:10px;"
+                        f"border-left:3px solid #f59e0b;margin-bottom:16px;'>{mat_narrative}</div>",
                         unsafe_allow_html=True,
                     )
 
                 for gap in gap_report.deal_blocker_gaps + gap_report.below_min_gaps:
                     st.markdown(f"""
-                    <div style="background:#060a16;border:1px solid #f43f5e33;border-radius:10px;
-                                border-left:3px solid #f43f5e;padding:14px 18px;margin-bottom:10px;">
-                      <div style="font-size:0.82rem;font-weight:700;color:#f43f5e;
+                    <div style="background:#0a0f1c;border:1px solid #e6394a33;border-radius:10px;
+                                border-left:3px solid #e6394a;padding:14px 18px;margin-bottom:10px;">
+                      <div style="font-size:0.82rem;font-weight:700;color:#e6394a;
                                   font-family:'Inter',sans-serif;margin-bottom:4px;">
                         {gap.label} — Score {gap.current_score:.1f} (need {gap.acceptable_min})
                       </div>
-                      <div style="font-size:0.78rem;color:#5f7ca0;font-family:'Inter',sans-serif;
+                      <div style="font-size:0.78rem;color:#4a6080;font-family:'Inter',sans-serif;
                                   line-height:1.65;">{gap.rationale}</div>
                     </div>""", unsafe_allow_html=True)
         else:
             st.markdown(
-                "<div style='padding:40px;text-align:center;color:#243048;"
+                "<div style='padding:40px;text-align:center;color:#2d4060;"
                 "font-family:\"JetBrains Mono\",monospace;font-size:0.78rem;'>"
                 "Complete the questionnaire above and click Run Maturity Assessment to see results.</div>",
                 unsafe_allow_html=True,
@@ -1403,7 +1559,7 @@ if "findings" in st.session_state:
 
         st.markdown('<div class="rf-section-label">Remediation Cost & Budget</div>', unsafe_allow_html=True)
         st.markdown(
-            "<div style='font-size:0.82rem;color:#5f7ca0;font-family:\"Inter\",sans-serif;"
+            "<div style='font-size:0.82rem;color:#4a6080;font-family:\"Inter\",sans-serif;"
             "line-height:1.7;margin-bottom:20px;'>"
             "Cost estimates are generated from scanner findings and maturity gaps using industry benchmark "
             "pricing.  All figures are shown as low / base / high scenarios.  CapEx and OpEx are separated. "
@@ -1439,8 +1595,8 @@ if "findings" in st.session_state:
             if cost_narrative:
                 st.markdown(
                     f"<div style='font-size:0.85rem;color:#c7d8f5;font-family:\"Inter\",sans-serif;"
-                    f"line-height:1.75;padding:16px;background:#060a16;border-radius:10px;"
-                    f"border-left:3px solid #60a5fa;margin-bottom:20px;'>{cost_narrative}</div>",
+                    f"line-height:1.75;padding:16px;background:#0a0f1c;border-radius:10px;"
+                    f"border-left:3px solid #6fa3ff;margin-bottom:20px;'>{cost_narrative}</div>",
                     unsafe_allow_html=True,
                 )
 
@@ -1452,29 +1608,29 @@ if "findings" in st.session_state:
 
             sc_col1, sc_col2, sc_col3 = st.columns(3)
             for sc_col, sc, sc_label, sc_color in [
-                (sc_col1, sc_low,  "Low Scenario",  "#34d399"),
-                (sc_col2, sc_base, "Base Scenario", "#60a5fa"),
-                (sc_col3, sc_high, "High Scenario", "#f43f5e"),
+                (sc_col1, sc_low,  "Low Scenario",  "#10b981"),
+                (sc_col2, sc_base, "Base Scenario", "#6fa3ff"),
+                (sc_col3, sc_high, "High Scenario", "#e6394a"),
             ]:
                 with sc_col:
                     if sc:
                         st.markdown(f"""
-                        <div style="background:linear-gradient(160deg,#080d1c,#060a16);
-                                    border:1px solid #0e1828;border-radius:14px;padding:20px 16px;">
+                        <div style="background:linear-gradient(160deg,#0f1623,#0a0f1c);
+                                    border:1px solid #1a2640;border-radius:14px;padding:20px 16px;">
                           <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.18em;
-                                      text-transform:uppercase;color:#243048;
+                                      text-transform:uppercase;color:#2d4060;
                                       font-family:'JetBrains Mono',monospace;margin-bottom:10px;">{sc_label}</div>
                           <div style="font-size:2.2rem;font-weight:700;color:{sc_color};
                                       font-family:'JetBrains Mono',monospace;line-height:1;">
                             ${sc.total_usd:,.0f}
                           </div>
                           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                            <div style="font-size:0.72rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
-                              <span style="color:#fbbf24;font-weight:700;">CapEx</span><br>
+                            <div style="font-size:0.72rem;color:#4a6080;font-family:'Inter',sans-serif;">
+                              <span style="color:#f59e0b;font-weight:700;">CapEx</span><br>
                               ${sc.capex_usd:,.0f}
                             </div>
-                            <div style="font-size:0.72rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
-                              <span style="color:#34d399;font-weight:700;">OpEx</span><br>
+                            <div style="font-size:0.72rem;color:#4a6080;font-family:'Inter',sans-serif;">
+                              <span style="color:#10b981;font-weight:700;">OpEx</span><br>
                               ${sc.opex_usd:,.0f}
                             </div>
                           </div>
@@ -1486,13 +1642,13 @@ if "findings" in st.session_state:
             if rollup.has_flagged_items:
                 flagged_items = [i for i in rollup.line_items if i.needs_review]
                 st.markdown(f"""
-                <div style="background:#0a0610;border:1px solid #f43f5e44;border-radius:12px;
-                            border-left:3px solid #f43f5e;padding:16px 20px;margin-bottom:16px;">
-                  <div style="font-size:0.82rem;font-weight:700;color:#f43f5e;
+                <div style="background:#0a0610;border:1px solid #e6394a44;border-radius:12px;
+                            border-left:3px solid #e6394a;padding:16px 20px;margin-bottom:16px;">
+                  <div style="font-size:0.82rem;font-weight:700;color:#e6394a;
                               font-family:'Inter',sans-serif;margin-bottom:6px;">
                     ⚠  {len(flagged_items)} Item(s) Require Human Review Before Export
                   </div>
-                  <div style="font-size:0.78rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.65;">
+                  <div style="font-size:0.78rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.65;">
                     The highlighted items below have high cost variance, zero estimates, or are linked to
                     deal-killer findings.  Review and acknowledge before downloading the cost report.
                   </div>
@@ -1579,7 +1735,7 @@ if "findings" in st.session_state:
 
         else:
             st.markdown(
-                "<div style='padding:40px;text-align:center;color:#243048;"
+                "<div style='padding:40px;text-align:center;color:#2d4060;"
                 "font-family:\"JetBrains Mono\",monospace;font-size:0.78rem;'>"
                 "Click Generate Cost Estimate to build the remediation budget.</div>",
                 unsafe_allow_html=True,
@@ -1595,8 +1751,8 @@ if "findings" in st.session_state:
         with exp_col:
             st.markdown('<div class="rf-section-label">Report Summary</div>', unsafe_allow_html=True)
 
-            dk_color  = "#f87171" if n_dk   else "#34d399"
-            crt_color = "#fb923c" if n_crit else "#243048"
+            dk_color  = "#f87171" if n_dk   else "#10b981"
+            crt_color = "#f97316" if n_crit else "#2d4060"
 
             st.markdown(f"""
             <div class="rf-target-panel" style="margin-bottom:16px;">
@@ -1690,7 +1846,7 @@ if "findings" in st.session_state:
 # ══════════════════════════════════════════════════════════════════════════════
 
 st.markdown(
-    "<hr style='border:none;border-top:1px solid #0d1828;margin:48px 0 0;'>",
+    "<hr style='border:none;border-top:1px solid #141d2e;margin:48px 0 0;'>",
     unsafe_allow_html=True,
 )
 
@@ -1700,26 +1856,26 @@ with _fp_col:
     with st.expander("\U0001f4c4  Privacy Policy"):
         st.markdown(
             """<div style="padding:6px 0 4px;">
-  <div style="font-size:1rem;font-weight:800;color:#dce8ff;
+  <div style="font-size:1rem;font-weight:800;color:#c8daf5;
               font-family:'Inter',sans-serif;margin-bottom:3px;">Privacy Policy</div>
-  <div style="font-size:0.65rem;color:#243048;font-family:'JetBrains Mono',monospace;
+  <div style="font-size:0.65rem;color:#2d4060;font-family:'JetBrains Mono',monospace;
               margin-bottom:16px;">Effective: May 2026 &middot; RedFlag v3</div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">01 &middot; Data We Process</div>
-    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">01 &middot; Data We Process</div>
+    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
       RedFlag processes only data you explicitly provide: scan targets, uploaded files (OpenVAS, ZAP,
       Shodan JSON, Asset Excel), and scan outputs stored locally in
-      <code style="font-family:'JetBrains Mono',monospace;color:#60a5fa;">data/results/</code>.
+      <code style="font-family:'JetBrains Mono',monospace;color:#6fa3ff;">data/results/</code>.
       <strong style="color:#7a93b8;">No personal data</strong> is collected.
     </div>
   </div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">02 &middot; How Data Is Processed</div>
-    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">02 &middot; How Data Is Processed</div>
+    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
       All processing is <strong style="color:#7a93b8;">local</strong>. Outbound API calls enrich
       findings only &mdash; <strong style="color:#7a93b8;">Shodan</strong> (1 credit/scan),
       <strong style="color:#7a93b8;">NVD/NIST</strong> (public CVSS),
@@ -1731,18 +1887,18 @@ with _fp_col:
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">03 &middot; Data Retention</div>
-    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">03 &middot; Data Retention</div>
+    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
       No data is retained on remote servers. Scan files live only in your local
-      <code style="font-family:'JetBrains Mono',monospace;color:#60a5fa;">data/results/</code> folder.
+      <code style="font-family:'JetBrains Mono',monospace;color:#6fa3ff;">data/results/</code> folder.
       In-session state clears on restart.
     </div>
   </div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">04 &middot; Responsible Use</div>
-    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">04 &middot; Responsible Use</div>
+    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
       Use RedFlag only against systems you own or have
       <strong style="color:#7a93b8;">explicit written authorisation</strong> to assess.
       The developers accept no liability for misuse.
@@ -1751,8 +1907,8 @@ with _fp_col:
 
   <div>
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#f43f5e;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">05 &middot; Changes &amp; Contact</div>
-    <div style="font-size:0.82rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">05 &middot; Changes &amp; Contact</div>
+    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
       Material changes will be reflected in an updated effective date above.
       Questions? Use the Contact panel.
     </div>
@@ -1765,45 +1921,45 @@ with _fc_col:
     with st.expander("✉️  Contact"):
         st.markdown(
             """<div style="padding:6px 0 4px;">
-  <div style="font-size:1rem;font-weight:800;color:#dce8ff;
+  <div style="font-size:1rem;font-weight:800;color:#c8daf5;
               font-family:'Inter',sans-serif;margin-bottom:3px;">Get in Touch</div>
-  <div style="font-size:0.65rem;color:#243048;font-family:'JetBrains Mono',monospace;
+  <div style="font-size:0.65rem;color:#2d4060;font-family:'JetBrains Mono',monospace;
               margin-bottom:14px;">RedFlag &middot; M&amp;A Cybersecurity Intelligence</div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;">
-    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
-                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
+                border:1px solid #1a2640;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#128737;&#65039;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
                   font-family:'Inter',sans-serif;margin-bottom:3px;">Security Questions</div>
-      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
         Methodology, scoring, M&amp;A interpretation.
       </div>
     </div>
-    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
-                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
+                border:1px solid #1a2640;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#129309;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
                   font-family:'Inter',sans-serif;margin-bottom:3px;">Partnerships</div>
-      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
         Enterprise, white-label, advisory.
       </div>
     </div>
-    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
-                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
+                border:1px solid #1a2640;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#128027;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
                   font-family:'Inter',sans-serif;margin-bottom:3px;">Bug Reports</div>
-      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
         Unexpected behaviour or feature ideas.
       </div>
     </div>
-    <div style="background:linear-gradient(145deg,#080d1c,#060a16);
-                border:1px solid #0e1828;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
+                border:1px solid #1a2640;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#128203;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#dce8ff;
+      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
                   font-family:'Inter',sans-serif;margin-bottom:3px;">Privacy Enquiries</div>
-      <div style="font-size:0.75rem;color:#5f7ca0;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
         Questions about how RedFlag handles data.
       </div>
     </div>
@@ -1811,7 +1967,7 @@ with _fc_col:
 
   <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#100;&#105;&#116;&#121;&#97;&#97;&#118;&#101;&#108;&#48;&#48;&#55;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;"
      style="display:block;text-align:center;
-            background:linear-gradient(160deg,#f43f5e,#9f1239);
+            background:linear-gradient(160deg,#e6394a,#9f1239);
             color:#fff;text-decoration:none;font-family:'Inter',sans-serif;
             font-weight:700;font-size:0.83rem;letter-spacing:0.05em;
             padding:11px 20px;border-radius:10px;
@@ -1820,11 +1976,11 @@ with _fc_col:
   </a>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-    <div style="font-size:0.76rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
-      <span style="color:#34d399;font-weight:700;">General enquiries</span><br>Within 2 business days
+    <div style="font-size:0.76rem;color:#4a6080;font-family:'Inter',sans-serif;">
+      <span style="color:#10b981;font-weight:700;">General enquiries</span><br>Within 2 business days
     </div>
-    <div style="font-size:0.76rem;color:#5f7ca0;font-family:'Inter',sans-serif;">
-      <span style="color:#fbbf24;font-weight:700;">Security / critical</span><br>Within 24 hours
+    <div style="font-size:0.76rem;color:#4a6080;font-family:'Inter',sans-serif;">
+      <span style="color:#f59e0b;font-weight:700;">Security / critical</span><br>Within 24 hours
     </div>
   </div>
 </div>""",

@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Mock OpenVAS / GVM scan report for testing RedFlag.
+  Upload this file in the OpenVAS XML upload field on the Findings tab.
+  Target: 192.168.1.10
+-->
+<report id="d7c2a4f1-8b3e-4e9f-a812-1c5d6e7f8a9b"
+        extension="xml"
+        format_id="a994b278-1f62-11e1-96ac-406186ea4fc5"
+        content_type="text/xml">
+
+  <name>2026-05-28T10:30:00Z</name>
+  <owner><name>admin</name></owner>
+
+  <results start="1" max="10">
+
+    <!-- ── Finding 1: EternalBlue (Critical, KEV) ─────────────────────────── -->
+    <result id="r001">
+      <name>MS17-010 EternalBlue SMB Remote Code Execution</name>
+      <host>192.168.1.10</host>
+      <port>445/tcp</port>
+      <severity>9.8</severity>
+      <threat>Critical</threat>
+      <description>
+        The remote host is missing the MS17-010 security update which fixes
+        critical remote code execution vulnerabilities in the Windows SMBv1
+        server. The EternalBlue exploit targeting this vulnerability was used
+        in the WannaCry and NotPetya ransomware campaigns.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.812348">
+        <name>MS17-010 EternalBlue</name>
+        <cvss_base>9.8</cvss_base>
+        <cve>CVE-2017-0144</cve>
+        <refs>
+          <ref type="cve" id="CVE-2017-0144"/>
+          <ref type="url" id="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-0144"/>
+        </refs>
+      </nvt>
+      <solution>Apply Microsoft Security Bulletin MS17-010 immediately.
+Disable SMBv1 if the patch cannot be applied immediately.
+Block inbound TCP port 445 at the network perimeter.</solution>
+    </result>
+
+    <!-- ── Finding 2: PrintNightmare (Critical) ──────────────────────────── -->
+    <result id="r002">
+      <name>Windows Print Spooler RCE (PrintNightmare)</name>
+      <host>192.168.1.10</host>
+      <port>135/tcp</port>
+      <severity>8.8</severity>
+      <threat>High</threat>
+      <description>
+        The Windows Print Spooler service is vulnerable to remote code execution.
+        An authenticated attacker can exploit this vulnerability to run arbitrary
+        code with SYSTEM privileges on a vulnerable system.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.817645">
+        <name>PrintNightmare CVE-2021-34527</name>
+        <cvss_base>8.8</cvss_base>
+        <cve>CVE-2021-34527</cve>
+        <refs>
+          <ref type="cve" id="CVE-2021-34527"/>
+        </refs>
+      </nvt>
+      <solution>Apply the latest cumulative update from Microsoft.
+Consider disabling the Print Spooler service on Domain Controllers and
+systems that do not require printing.</solution>
+    </result>
+
+    <!-- ── Finding 3: Unencrypted Telnet (High) ──────────────────────────── -->
+    <result id="r003">
+      <name>Telnet Cleartext Authentication</name>
+      <host>192.168.1.15</host>
+      <port>23/tcp</port>
+      <severity>7.5</severity>
+      <threat>High</threat>
+      <description>
+        The Telnet service is running and accepting connections. Telnet
+        transmits all data including authentication credentials in cleartext,
+        allowing network eavesdroppers to capture passwords and session data.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.10042">
+        <name>Telnet Service Cleartext Credentials</name>
+        <cvss_base>7.5</cvss_base>
+        <cve/>
+        <refs/>
+      </nvt>
+      <solution>Disable the Telnet service and migrate all remote access to SSH.
+Ensure SSH is configured with key-based authentication and has root login disabled.</solution>
+    </result>
+
+    <!-- ── Finding 4: SSL/TLS Deprecated Protocol (Medium) ───────────────── -->
+    <result id="r004">
+      <name>SSL/TLS: Deprecated TLS 1.0 Protocol Enabled</name>
+      <host>192.168.1.20</host>
+      <port>443/tcp</port>
+      <severity>5.3</severity>
+      <threat>Medium</threat>
+      <description>
+        The remote server is configured to accept connections using the deprecated
+        TLS 1.0 protocol. TLS 1.0 is vulnerable to the BEAST attack and has other
+        known cryptographic weaknesses. PCI DSS 3.2 and above requires TLS 1.0 to
+        be disabled.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.802087">
+        <name>SSL/TLS: Deprecated TLS 1.0 Protocol</name>
+        <cvss_base>5.3</cvss_base>
+        <cve>CVE-2011-3389</cve>
+        <refs>
+          <ref type="cve" id="CVE-2011-3389"/>
+        </refs>
+      </nvt>
+      <solution>Disable TLS 1.0 and TLS 1.1 on the server.
+Enable only TLS 1.2 and TLS 1.3.
+Update cipher suites to exclude CBC-mode ciphers where possible.</solution>
+    </result>
+
+    <!-- ── Finding 5: Missing Security Headers (Low) ─────────────────────── -->
+    <result id="r005">
+      <name>Missing HTTP Security Headers</name>
+      <host>192.168.1.20</host>
+      <port>80/tcp</port>
+      <severity>4.3</severity>
+      <threat>Medium</threat>
+      <description>
+        The web server response is missing several recommended security headers:
+        - Content-Security-Policy (CSP) not set
+        - X-Frame-Options not set (clickjacking risk)
+        - X-Content-Type-Options not set
+        - Strict-Transport-Security (HSTS) not set
+        These missing headers increase the attack surface for client-side attacks.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.112071">
+        <name>HTTP Security Headers Missing</name>
+        <cvss_base>4.3</cvss_base>
+        <cve/>
+        <refs/>
+      </nvt>
+      <solution>Configure the web server to send appropriate security headers.
+Add Content-Security-Policy, X-Frame-Options: DENY, X-Content-Type-Options: nosniff,
+and Strict-Transport-Security headers to all HTTP responses.</solution>
+    </result>
+
+    <!-- ── Finding 6: Default Credentials (Critical) ─────────────────────── -->
+    <result id="r006">
+      <name>Default Credentials: admin/admin (Web Interface)</name>
+      <host>192.168.1.30</host>
+      <port>8080/tcp</port>
+      <severity>9.8</severity>
+      <threat>Critical</threat>
+      <description>
+        The administrative web interface is accessible using default credentials
+        (admin/admin or admin/password). Default credentials allow any unauthenticated
+        attacker to gain full administrative access to the device or application.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.108568">
+        <name>Default Credentials Check</name>
+        <cvss_base>9.8</cvss_base>
+        <cve/>
+        <refs/>
+      </nvt>
+      <solution>Immediately change all default credentials to strong, unique passwords.
+Implement account lockout after failed login attempts.
+Consider restricting administrative access to trusted IP ranges only.</solution>
+    </result>
+
+    <!-- ── Finding 7: Log4Shell (Critical) ───────────────────────────────── -->
+    <result id="r007">
+      <name>Apache Log4j2 JNDI Remote Code Execution (Log4Shell)</name>
+      <host>192.168.1.35</host>
+      <port>8443/tcp</port>
+      <severity>10.0</severity>
+      <threat>Critical</threat>
+      <description>
+        The remote host is running a version of Apache Log4j2 that is vulnerable to
+        CVE-2021-44228 (Log4Shell). An unauthenticated remote attacker can exploit
+        this vulnerability by sending a specially crafted request containing a JNDI
+        lookup string to achieve remote code execution.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.117758">
+        <name>Apache Log4j2 CVE-2021-44228</name>
+        <cvss_base>10.0</cvss_base>
+        <cve>CVE-2021-44228</cve>
+        <refs>
+          <ref type="cve" id="CVE-2021-44228"/>
+          <ref type="url" id="https://logging.apache.org/log4j/2.x/security.html"/>
+        </refs>
+      </nvt>
+      <solution>Update Log4j2 to version 2.17.1 or later (Java 8), 2.12.4 (Java 7),
+or 2.3.2 (Java 6). As an immediate mitigation, set
+-Dlog4j2.formatMsgNoLookups=true in the JVM arguments.
+Identify all applications using Log4j2 as a dependency.</solution>
+    </result>
+
+    <!-- ── Finding 8: Open Redis (High) ──────────────────────────────────── -->
+    <result id="r008">
+      <name>Redis Server Accessible Without Authentication</name>
+      <host>192.168.1.40</host>
+      <port>6379/tcp</port>
+      <severity>7.5</severity>
+      <threat>High</threat>
+      <description>
+        A Redis server is accessible without authentication. Unauthenticated access
+        to Redis allows an attacker to read and write all cached data, execute
+        arbitrary Lua scripts, and potentially escalate to remote code execution
+        by writing malicious cron jobs or SSH keys.
+      </description>
+      <nvt oid="1.3.6.1.4.1.25623.1.0.106451">
+        <name>Redis Unauthorized Access</name>
+        <cvss_base>7.5</cvss_base>
+        <cve>CVE-2022-0543</cve>
+        <refs>
+          <ref type="cve" id="CVE-2022-0543"/>
+        </refs>
+      </nvt>
+      <solution>Enable Redis authentication (requirepass) in redis.conf.
+Bind Redis to localhost or an internal network interface only.
+Use a firewall to block external access to port 6379.
+Consider running Redis in a protected-mode configuration.</solution>
+    </result>
+
+  </results>
+
+</report>
