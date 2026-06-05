@@ -18,6 +18,9 @@ from analysis.standards_compare import compare_to_standard
 from cost.rollup import run_cost_pipeline
 from cost.schema import ScenarioType, ReviewFlag
 from narrative.engine import build_executive_summary, build_maturity_narrative, build_cost_narrative
+from scanners.dns_scan import run_dns_scan
+from scanners.tls_scan import run_tls_scan
+from scanners.breach_scan import run_breach_scan
 
 
 st.set_page_config(
@@ -656,6 +659,9 @@ st.markdown("""
       <span class="rf-epill">Shodan</span>
       <span class="rf-epill">OpenVAS</span>
       <span class="rf-epill">ZAP</span>
+      <span class="rf-epill">DNS</span>
+      <span class="rf-epill">TLS</span>
+      <span class="rf-epill">Breach</span>
     </div>
     <div class="rf-status-dot-wrap">
       <span class="rf-dot ok" style="width:7px;height:7px;"></span>
@@ -792,7 +798,7 @@ if run_scan:
         st.error("Please enter a valid target.")
     else:
         try:
-            with st.spinner("Scanning target · Vulners CVE lookup · Shodan enrichment · NVD CVSS · CISA KEV — this may take 30–60s..."):
+            with st.spinner("Scanning target · Vulners · Shodan · DNS · TLS · Breach check — this may take 45–90s..."):
                 clean_target      = target.strip()
                 xml_file          = run_nmap_scan(clean_target, fast_mode=fast_mode)
                 nmap_findings     = analyze_nmap_file(xml_file)
@@ -867,6 +873,42 @@ if run_scan:
                     all_findings = merged_nmap + shodan_standalone
                 st.session_state["zap_count"] = len(zap_findings)
 
+                # ── DNS & Email Security ──────────────────────────────────────
+                dns_findings: list = []
+                dns_summary: dict  = {}
+                try:
+                    dns_findings = run_dns_scan(clean_target)
+                    dns_summary  = {"count": len(dns_findings), "success": True}
+                except Exception as _e:
+                    dns_summary  = {"count": 0, "success": False, "error": str(_e)}
+                all_findings += dns_findings
+
+                # ── TLS / Certificate Health ──────────────────────────────────
+                tls_findings: list = []
+                tls_summary: dict  = {}
+                try:
+                    _https_ports = list({
+                        f.port for f in nmap_findings
+                        if f.port and (
+                            (f.service or "").lower() in ("https", "ssl") or f.port == 443
+                        )
+                    })
+                    tls_findings, tls_summary = run_tls_scan(clean_target, _https_ports)
+                except Exception as _e:
+                    tls_summary = {"count": 0, "success": False, "error": str(_e)}
+                all_findings += tls_findings
+
+                # ── Breach / Dark Web Exposure ────────────────────────────────
+                breach_findings: list = []
+                breach_summary: dict  = {}
+                try:
+                    breach_findings, breach_summary = run_breach_scan(
+                        clean_target, [resolved_ip]
+                    )
+                except Exception as _e:
+                    breach_summary = {"count": 0, "success": False, "error": str(_e)}
+                all_findings += breach_findings
+
                 # ── Asset inventory / data_sensitivity ───────────────────────
                 asset_map = {}
                 if asset_file is not None:
@@ -891,6 +933,12 @@ if run_scan:
             st.session_state["openvas_count"]    = len(openvas_findings)
             st.session_state["zap_count"]        = len(zap_findings)
             st.session_state["asset_hosts"]      = len(asset_map)
+            st.session_state["dns_findings"]     = dns_findings
+            st.session_state["dns_summary"]      = dns_summary
+            st.session_state["tls_findings"]     = tls_findings
+            st.session_state["tls_summary"]      = tls_summary
+            st.session_state["breach_findings"]  = breach_findings
+            st.session_state["breach_summary"]   = breach_summary
 
             deal_killers = sum(1 for f in findings if str(getattr(f.deal_tier, "value", f.deal_tier)) == "deal_killer")
             if deal_killers:
@@ -972,6 +1020,30 @@ if "findings" in st.session_state:
                 <div class="dk-alert-sub">Immediate escalation required — these findings block deal close</div>
               </div>
               <div class="dk-alert-count">{n_dk}</div>
+            </div>""", unsafe_allow_html=True)
+
+        # ── Breach alert banner ───────────────────────────────────────────────
+        _breach_sum = st.session_state.get("breach_summary", {})
+        if _breach_sum.get("breach_found"):
+            _n_breach = _breach_sum.get("total", 0)
+            st.markdown(f"""
+            <div style="background:linear-gradient(135deg,rgba(139,0,0,0.1),rgba(100,0,0,0.05));
+                        border:1px solid rgba(220,50,50,0.3);border-left:4px solid #dc3232;
+                        border-radius:12px;padding:14px 18px;margin-bottom:14px;
+                        display:flex;align-items:center;gap:14px;">
+              <div style="font-size:1.4rem;flex-shrink:0;">🔓</div>
+              <div style="flex:1;">
+                <div style="font-size:0.84rem;font-weight:700;color:#ff6b6b;
+                            font-family:'Inter',sans-serif;margin-bottom:2px;">
+                  Breach Exposure Detected — Target Appears in Public Breach Index
+                </div>
+                <div style="font-size:0.77rem;color:rgba(255,107,107,0.65);
+                            font-family:'Inter',sans-serif;">
+                  {_n_breach} indexed exposure(s) found via LeakIX — already known to attackers
+                </div>
+              </div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;
+                          font-weight:700;color:#ff6b6b;line-height:1;flex-shrink:0;">{_n_breach}</div>
             </div>""", unsafe_allow_html=True)
 
         _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
@@ -1138,6 +1210,36 @@ if "findings" in st.session_state:
                 'border-radius:4px;padding:2px 7px;font-weight:700;letter-spacing:0.1em;">LIVE API</span>'
             )
 
+            # Extended scanner state for pipeline display
+            _dns_sum    = st.session_state.get("dns_summary",    {})
+            _tls_sum    = st.session_state.get("tls_summary",    {})
+            _breach_s   = st.session_state.get("breach_summary", {})
+            _dns_count  = _dns_sum.get("count", 0)
+            _tls_count  = len(st.session_state.get("tls_findings", []))
+            _br_count   = _breach_s.get("total", 0)
+
+            dns_ps = _ps(
+                "ok" if _dns_sum.get("success") else "off",
+                "DNS",
+                f"{_dns_count} findings" if _dns_count else ("ok" if _dns_sum.get("success") else "—"),
+                "ok" if _dns_count else ("warn" if _dns_sum.get("success") else ""),
+            )
+            tls_ps = _ps(
+                "ok" if _tls_sum.get("certs_checked", 0) or _tls_sum.get("subdomains_ct", 0) else
+                ("warn" if _tls_sum else "off"),
+                "TLS",
+                f"{_tls_count} findings" if _tls_count else
+                (f"{_tls_sum.get('certs_checked',0)} cert(s)" if _tls_sum else "—"),
+                "ok" if _tls_count else "",
+            )
+            breach_ps = _ps(
+                "err" if _breach_s.get("breach_found") else
+                ("ok" if _breach_s.get("error") is None and "total" in _breach_s else "off"),
+                "Breach",
+                f"{_br_count} found" if _br_count else ("clean" if "total" in _breach_s else "—"),
+                "warn" if _br_count else ("ok" if "total" in _breach_s else ""),
+            )
+
             st.markdown(f"""
             <div class="rf-pipeline-h" style="margin-bottom:14px;">
               <div class="rf-pipeline-header">
@@ -1148,6 +1250,10 @@ if "findings" in st.session_state:
               </div>
               <div class="rf-pipeline-flow">
                 {nmap_ps}{vuln_ps}{shod_ps}{ov_ps}{zap_ps}
+              </div>
+              <div style="height:1px;background:#0d1828;margin:10px 0 8px;"></div>
+              <div class="rf-pipeline-flow">
+                {dns_ps}{tls_ps}{breach_ps}
               </div>
             </div>
             """, unsafe_allow_html=True)
@@ -1205,6 +1311,75 @@ if "findings" in st.session_state:
                 """, unsafe_allow_html=True)
             else:
                 st.warning(shodan_result.get("error", "Shodan enrichment unavailable."))
+
+            # ── DNS Security card ─────────────────────────────────────────
+            _dns_findings_list = st.session_state.get("dns_findings", [])
+            if _dns_sum.get("success") is not None:
+                _dns_ok  = not bool(_dns_findings_list)
+                _dns_col = "#10b981" if _dns_ok else "#f59e0b"
+                _dns_lbl = "All Checks Passed" if _dns_ok else f"{len(_dns_findings_list)} Gap(s) Found"
+                _dns_rows = ""
+                for _df in _dns_findings_list[:4]:
+                    _check = (_df.raw_data or {}).get("check", "dns")
+                    _dns_rows += (
+                        f'<div style="display:flex;justify-content:space-between;'
+                        f'align-items:center;padding:5px 0;border-bottom:1px solid #0d1828;">'
+                        f'<span style="font-size:0.76rem;color:#4a6080;font-family:\'Inter\',sans-serif;">'
+                        f'{_df.title[:55]}{"…" if len(_df.title)>55 else ""}</span>'
+                        f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;'
+                        f'color:#f59e0b;font-weight:700;">{_df.cvss_score}</span></div>'
+                    )
+                st.markdown(f"""
+                <div style="background:#0c1422;border:1px solid #1e3050;border-left:3px solid {_dns_col};
+                            border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+                                letter-spacing:0.18em;text-transform:uppercase;color:{_dns_col};">
+                      DNS &amp; EMAIL SECURITY
+                    </div>
+                    <span style="font-size:0.65rem;font-weight:700;color:{_dns_col};
+                                 font-family:'JetBrains Mono',monospace;">{_dns_lbl}</span>
+                  </div>
+                  {_dns_rows if _dns_rows else
+                   '<div style="font-size:0.76rem;color:#10b981;font-family:\'Inter\',sans-serif;">'
+                   '✓ SPF, DMARC, DKIM, and DNSSEC all configured correctly.</div>'}
+                </div>""", unsafe_allow_html=True)
+
+            # ── TLS Health card ───────────────────────────────────────────
+            _tls_findings_list = st.session_state.get("tls_findings", [])
+            if _tls_sum:
+                _tls_ok  = not bool(_tls_findings_list)
+                _tls_col = "#10b981" if _tls_ok else ("#e6394a" if _tls_sum.get("expired") else "#f59e0b")
+                _tls_lbl = "All Checks Passed" if _tls_ok else f"{len(_tls_findings_list)} Issue(s) Found"
+                _tls_rows = ""
+                for _tf in _tls_findings_list[:3]:
+                    _tls_rows += (
+                        f'<div style="display:flex;justify-content:space-between;'
+                        f'align-items:center;padding:5px 0;border-bottom:1px solid #0d1828;">'
+                        f'<span style="font-size:0.76rem;color:#4a6080;font-family:\'Inter\',sans-serif;">'
+                        f'{_tf.title[:55]}{"…" if len(_tf.title)>55 else ""}</span>'
+                        f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;'
+                        f'color:#f59e0b;font-weight:700;">{_tf.cvss_score}</span></div>'
+                    )
+                _ct_count = _tls_sum.get("subdomains_ct", 0)
+                st.markdown(f"""
+                <div style="background:#0c1422;border:1px solid #1e3050;border-left:3px solid {_tls_col};
+                            border-radius:12px;padding:14px 16px;margin-bottom:12px;">
+                  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+                                letter-spacing:0.18em;text-transform:uppercase;color:{_tls_col};">
+                      TLS / CERTIFICATE HEALTH
+                    </div>
+                    <span style="font-size:0.65rem;font-weight:700;color:{_tls_col};
+                                 font-family:'JetBrains Mono',monospace;">{_tls_lbl}</span>
+                  </div>
+                  {_tls_rows if _tls_rows else
+                   '<div style="font-size:0.76rem;color:#10b981;font-family:\'Inter\',sans-serif;">'
+                   '✓ No expired certs, no deprecated TLS versions found.</div>'}
+                  {(f'<div style="margin-top:6px;font-size:0.72rem;color:#3a5070;'
+                    f'font-family:\'Inter\',sans-serif;">CT logs: {_ct_count} subdomain(s) found</div>')
+                   if _ct_count else ""}
+                </div>""", unsafe_allow_html=True)
 
             # ── Mini findings list ────────────────────────────────────────
             st.markdown('<div class="rf-section-label">Top Findings</div>', unsafe_allow_html=True)
@@ -1384,6 +1559,140 @@ if "findings" in st.session_state:
                       </div>
                     </div>
                     """, unsafe_allow_html=True)
+
+            # ══════════════════════════════════════════════════════════════
+            # What-If Scenario Simulator — Feature 6
+            # ══════════════════════════════════════════════════════════════
+            st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
+            st.markdown("""
+            <div style="border-top:1px solid #141d2e;padding-top:20px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.57rem;font-weight:700;
+                          letter-spacing:0.2em;text-transform:uppercase;color:#2d4060;
+                          display:flex;align-items:center;gap:10px;margin-bottom:4px;">
+                What-If Scenario Simulator
+                <div style="flex:1;height:1px;background:linear-gradient(90deg,#141d2e,transparent);"></div>
+              </div>
+              <div style="font-size:0.78rem;color:#3a5070;font-family:'Inter',sans-serif;
+                          margin-bottom:14px;line-height:1.6;">
+                Mark findings as resolved pre-close and instantly see how the risk profile changes.
+                Use this to quantify the value of each remediation demand in M&amp;A negotiations.
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+            # Build options: "Title (score)" for each finding
+            _wi_options = {
+                f.id: f"{f.title[:70]} — score {f.risk_score:.0f}"
+                for f in findings
+            }
+            _wi_selected_ids = st.multiselect(
+                "Select findings to mark as pre-close remediation",
+                options=list(_wi_options.keys()),
+                format_func=lambda fid: _wi_options.get(fid, fid),
+                key="whatif_remediated",
+                placeholder="Choose findings the seller will fix before close...",
+            )
+
+            if _wi_selected_ids:
+                from analysis.triage import triage_all as _triage_all
+
+                _remaining = [f for f in findings if f.id not in _wi_selected_ids]
+                _simulated = _triage_all(_remaining) if _remaining else []
+
+                # Compute deltas
+                _orig_score  = sum(f.risk_score for f in findings) / len(findings) if findings else 0
+                _sim_score   = sum(f.risk_score for f in _simulated) / len(_simulated) if _simulated else 0
+                _delta_score = _orig_score - _sim_score
+
+                _orig_dk  = sum(1 for f in findings   if str(getattr(f.deal_tier,"value",f.deal_tier)) == "deal_killer")
+                _sim_dk   = sum(1 for f in _simulated if str(getattr(f.deal_tier,"value",f.deal_tier)) == "deal_killer")
+                _orig_crit = sum(1 for f in findings   if str(getattr(f.deal_tier,"value",f.deal_tier)) == "critical")
+                _sim_crit  = sum(1 for f in _simulated if str(getattr(f.deal_tier,"value",f.deal_tier)) == "critical")
+
+                # Overall tier before / after
+                def _overall_tier(fs):
+                    if any(str(getattr(f.deal_tier,"value",f.deal_tier)) == "deal_killer" for f in fs):
+                        return "DEAL KILLER", "#e6394a"
+                    avg = sum(f.risk_score for f in fs) / len(fs) if fs else 0
+                    if avg >= 75: return "CRITICAL", "#f97316"
+                    if avg >= 50: return "MODERATE", "#f59e0b"
+                    return "MANAGEABLE", "#10b981"
+
+                _orig_tier_lbl, _orig_tier_col  = _overall_tier(findings)
+                _sim_tier_lbl,  _sim_tier_col   = _overall_tier(_simulated)
+
+                st.markdown(f"""
+                <div style="background:linear-gradient(135deg,#0a1020,#080c14);
+                            border:1px solid #1a2640;border-radius:14px;padding:20px 24px;
+                            margin-top:8px;">
+                  <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.18em;
+                              text-transform:uppercase;color:#2d4060;
+                              font-family:'JetBrains Mono',monospace;margin-bottom:16px;">
+                    Simulated Risk Profile — {len(_wi_selected_ids)} finding(s) marked as resolved
+                  </div>
+                  <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
+
+                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                      <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
+                                  text-transform:uppercase;color:#2d4060;
+                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Avg Score</div>
+                      <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                                  color:{score_color(_orig_score)};line-height:1;">{_orig_score:.1f}</div>
+                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
+                        → <span style="color:{score_color(_sim_score)};font-weight:700;">{_sim_score:.1f}</span>
+                        &nbsp;<span style="color:#10b981;">▼ {_delta_score:.1f}</span>
+                      </div>
+                    </div>
+
+                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                      <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
+                                  text-transform:uppercase;color:#2d4060;
+                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Deal Killers</div>
+                      <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                                  color:#e6394a;line-height:1;">{_orig_dk}</div>
+                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
+                        → <span style="color:{'#10b981' if _sim_dk == 0 else '#e6394a'};font-weight:700;">{_sim_dk}</span>
+                        {('<span style="color:#10b981;">&nbsp;✓ cleared</span>' if _sim_dk == 0 and _orig_dk > 0 else "")}
+                      </div>
+                    </div>
+
+                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                      <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
+                                  text-transform:uppercase;color:#2d4060;
+                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Critical</div>
+                      <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                                  color:#f97316;line-height:1;">{_orig_crit}</div>
+                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
+                        → <span style="color:{'#10b981' if _sim_crit < _orig_crit else '#f97316'};font-weight:700;">{_sim_crit}</span>
+                      </div>
+                    </div>
+
+                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                      <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
+                                  text-transform:uppercase;color:#2d4060;
+                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Deal Tier</div>
+                      <div style="font-size:0.85rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                                  color:{_orig_tier_col};line-height:1.3;">{_orig_tier_lbl}</div>
+                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
+                        → <span style="color:{_sim_tier_col};font-weight:700;">{_sim_tier_lbl}</span>
+                        {('<span style="color:#10b981;">&nbsp;✓ improved</span>' if _sim_tier_lbl != _orig_tier_lbl else "")}
+                      </div>
+                    </div>
+
+                  </div>
+                  <div style="margin-top:12px;padding-top:12px;border-top:1px solid #141d2e;
+                              font-size:0.74rem;color:#3a5070;font-family:'Inter',sans-serif;line-height:1.6;">
+                    Remediating the selected {len(_wi_selected_ids)} finding(s) reduces the average risk score
+                    by <strong style="color:#c8daf5;">{_delta_score:.1f} points</strong>
+                    ({len(findings) - len(_simulated)} fewer findings in scope).
+                  </div>
+                </div>""", unsafe_allow_html=True)
+            else:
+                st.markdown(
+                    "<div style='padding:12px 0;font-size:0.75rem;color:#2d4060;"
+                    "font-family:\"JetBrains Mono\",monospace;'>"
+                    "Select one or more findings above to simulate the impact of pre-close remediation.</div>",
+                    unsafe_allow_html=True,
+                )
 
     # ══════════════════════════════════════════════════════════════════════════════
     # Tab: Maturity Assessment
