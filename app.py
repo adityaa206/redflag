@@ -56,38 +56,35 @@ html, body, [class*="css"],
 /* ── TOP NAVBAR ── */
 .rf-topnav {
     display: flex; align-items: center; padding: 0 24px;
-    height: 56px; background: #0a0f1c;
+    height: 52px; background: #0a0f1c;
     border-bottom: 1px solid #141d2e;
     margin: 0 -2rem 20px; gap: 0;
     position: sticky; top: 0; z-index: 999;
 }
 .rf-brand {
-    display: flex; align-items: center; gap: 10px; margin-right: 36px; text-decoration: none;
+    display: flex; align-items: center; gap: 12px; text-decoration: none;
 }
 .rf-brand-icon {
-    width: 30px; height: 30px; background: linear-gradient(135deg, #e6394a 0%, #9f1239 100%);
-    border-radius: 7px; display: flex; align-items: center; justify-content: center;
-    font-size: 0.7rem; color: white; font-weight: 900;
-    box-shadow: 0 2px 14px rgba(230,57,74,0.45);
+    width: 32px; height: 32px; background: linear-gradient(135deg, #e6394a 0%, #9f1239 100%);
+    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    font-size: 0.6rem; color: white; font-weight: 900; letter-spacing: 0.05em;
+    box-shadow: 0 2px 14px rgba(230,57,74,0.4); flex-shrink: 0;
 }
+.rf-brand-text { display: flex; flex-direction: column; gap: 1px; }
 .rf-brand-name {
-    font-size: 1.2rem; font-weight: 800; color: #e8f0ff;
-    letter-spacing: -0.03em; font-family: 'Inter', sans-serif; line-height: 1;
+    font-size: 1.05rem; font-weight: 800; color: #e8f0ff;
+    letter-spacing: -0.02em; font-family: 'Inter', sans-serif; line-height: 1;
 }
-.rf-nav { display: flex; align-items: center; gap: 2px; flex: 1; }
-.rf-nav-link {
-    padding: 7px 15px; border-radius: 8px; font-size: 0.84rem; font-weight: 500;
-    color: #3a5070; cursor: default; transition: color 0.15s ease;
-    display: inline-flex; align-items: center; gap: 5px;
-    font-family: 'Inter', sans-serif; border: none; background: none;
+.rf-brand-sub {
+    font-size: 0.55rem; font-weight: 600; color: #2d4060;
+    letter-spacing: 0.1em; text-transform: uppercase;
+    font-family: 'JetBrains Mono', monospace; line-height: 1;
 }
-.rf-nav-link:hover { color: #6a87a8; }
-.rf-nav-link.active {
-    color: #c8daf5; position: relative;
-}
-.rf-nav-link.active::after {
-    content: ''; position: absolute; bottom: -1px; left: 15px; right: 15px;
-    height: 2px; background: #3d7fff; border-radius: 1px;
+.rf-engines-text {
+    font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 600;
+    color: #1e2d45; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 14px; border-left: 1px solid #141d2e;
+    margin: 0 16px;
 }
 .rf-nav-right { display: flex; align-items: center; gap: 10px; }
 
@@ -95,13 +92,13 @@ html, body, [class*="css"],
 .rf-metric {
     background: #0f1623;
     border: 1px solid #1a2640;
-    border-radius: 14px;
-    padding: 18px 16px 20px;
+    border-radius: 14px 14px 0 0;
+    padding: 18px 16px 16px;
     text-align: center;
     position: relative;
     overflow: hidden;
     transition: transform 0.2s ease, box-shadow 0.25s ease;
-    cursor: default;
+    cursor: pointer;
 }
 .rf-metric::before {
     content: '';
@@ -110,7 +107,7 @@ html, body, [class*="css"],
     height: 2px;
     border-radius: 14px 14px 0 0;
 }
-.rf-metric:hover { transform: translateY(-3px); }
+.rf-metric:hover { transform: translateY(-2px); }
 .rf-metric .label {
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em;
     text-transform: uppercase; color: #2d4060; margin-bottom: 10px;
@@ -506,48 +503,78 @@ html, body, [class*="css"],
 /* ── ALERTS ── */
 [data-testid="stAlertContainer"] { border-radius: 10px !important; }
 
-/* ── METRIC CARD — clickable view buttons ── */
-/* ghost "View all ›" links under each metric card (5-col row) */
+/* ── METRIC CARD — bottom action tab ── */
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondary"] button,
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondaryFormSubmit"] button {
-    background:     transparent !important;
-    border:         none !important;
-    box-shadow:     none !important;
-    color:          #253555 !important;
-    font-size:      0.6rem !important;
-    font-family:    'JetBrains Mono', monospace !important;
-    font-weight:    700 !important;
-    letter-spacing: 0.14em !important;
-    text-transform: uppercase !important;
-    padding:        6px 0 4px !important;
-    margin-top:     0 !important;
-    width:          100% !important;
-    min-height:     0 !important;
-    height:         auto !important;
-    transition:     color 0.15s ease !important;
+    background:      #0a0f1c !important;
+    border:          1px solid #1a2640 !important;
+    border-top:      none !important;
+    border-radius:   0 0 14px 14px !important;
+    box-shadow:      none !important;
+    color:           #2a3f60 !important;
+    font-size:       0.56rem !important;
+    font-family:     'JetBrains Mono', monospace !important;
+    font-weight:     700 !important;
+    letter-spacing:  0.14em !important;
+    text-transform:  uppercase !important;
+    padding:         7px 0 6px !important;
+    margin-top:      -1px !important;
+    width:           100% !important;
+    min-height:      0 !important;
+    height:          28px !important;
+    transition:      color 0.18s ease, background 0.18s ease !important;
+    cursor:          pointer !important;
 }
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondary"] button:hover {
-    color: #6fa3ff !important; background: transparent !important;
-    box-shadow: none !important; transform: none !important;
+    color:      #6fa3ff !important;
+    background: #0d1828 !important;
+    box-shadow: none !important;
+    transform:  none !important;
 }
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     > div:first-child [data-testid="stBaseButton-secondary"] { display: none; }
 
-/* ── ENGINE PILLS (navbar right) ── */
-.rf-engine-pills {
-    display: flex; gap: 4px; align-items: center; margin-right: 16px;
-}
+/* ── ENGINE PILLS (kept for backwards-compat, not used in navbar) ── */
+.rf-engine-pills { display: flex; gap: 4px; align-items: center; }
 .rf-epill {
     font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 700;
     letter-spacing: 0.1em; text-transform: uppercase;
     color: #2d4060; background: #0f1623; border: 1px solid #1a2640;
     border-radius: 5px; padding: 4px 9px;
-    transition: color 0.15s ease, border-color 0.15s ease;
 }
-.rf-epill:hover { color: #4a6080; border-color: #253555; }
+
+/* ── PRE-SCAN WELCOME CARDS ── */
+.rf-prescan-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;
+}
+.rf-prescan-card {
+    background: #0f1623; border: 1px solid #1a2640; border-radius: 14px;
+    padding: 20px 18px; position: relative; overflow: hidden;
+}
+.rf-prescan-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    border-radius: 14px 14px 0 0;
+}
+.rf-prescan-card.blue::before  { background: linear-gradient(90deg, #3d7fff, #1d4ed8); }
+.rf-prescan-card.red::before   { background: linear-gradient(90deg, #e6394a, #9f1239); }
+.rf-prescan-card.green::before { background: linear-gradient(90deg, #10b981, #065f46); }
+.rf-prescan-card .pc-num {
+    font-size: 2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    line-height: 1; margin-bottom: 10px;
+}
+.rf-prescan-card.blue .pc-num  { color: #3d7fff; }
+.rf-prescan-card.red .pc-num   { color: #e6394a; }
+.rf-prescan-card.green .pc-num { color: #10b981; }
+.rf-prescan-card .pc-title {
+    font-size: 0.82rem; font-weight: 700; color: #c8daf5;
+    font-family: 'Inter', sans-serif; margin-bottom: 6px;
+}
+.rf-prescan-card .pc-body {
+    font-size: 0.75rem; color: #3a5070; font-family: 'Inter', sans-serif; line-height: 1.6;
+}
 .rf-status-dot-wrap {
     display: flex; align-items: center; gap: 6px;
     padding: 5px 12px; background: rgba(16,185,129,0.06);
@@ -632,6 +659,161 @@ def format_label(value):
     if value is None: return "—"
     return str(value).replace("_", " ").title()
 
+_TIER_DOT_COLORS = {
+    "deal_killer": "#e6394a",
+    "critical":    "#f97316",
+    "moderate":    "#f59e0b",
+    "manageable":  "#10b981",
+}
+
+def tier_dot_html(tier_val: str, size: int = 9) -> str:
+    """Return a small glowing dot as an HTML span — replaces emoji tier icons."""
+    c = _TIER_DOT_COLORS.get(tier_val, "#6b7280")
+    return (
+        f'<span style="display:inline-block;width:{size}px;height:{size}px;'
+        f'border-radius:50%;background:{c};flex-shrink:0;'
+        f'box-shadow:0 0 5px {c}99;"></span>'
+    )
+
+
+
+def _hex_to_rgba(hex_color: str, alpha: float) -> str:
+    h = hex_color.lstrip("#")
+    r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
+    return f"rgba({r},{g},{b},{alpha})"
+
+
+def _build_attack_graph_html(graph_data) -> str | None:
+    """
+    Build a pyvis/vis.js attack path graph and return the full HTML string.
+    Returns None if pyvis is not installed.
+    """
+    try:
+        from pyvis.network import Network
+    except ImportError:
+        return None
+
+    import json, tempfile, os
+
+    LEVEL  = {"INTERNET": 0, "HOST": 1, "SVC": 2, "CVE": 3}
+    SIZE   = {"INTERNET": 55, "HOST": 45, "SVC": 32, "CVE": 26}
+    FSIZE  = {"INTERNET": 15, "HOST": 12, "SVC": 10, "CVE": 10}
+
+    def _lyr(nid):
+        if nid == "INTERNET":       return "INTERNET"
+        if nid.startswith("HOST:"): return "HOST"
+        if nid.startswith("SVC:"):  return "SVC"
+        return "CVE"
+
+    net = Network(
+        height="680px",
+        width="100%",
+        bgcolor="#070b12",
+        font_color="#c8daf5",
+        directed=True,
+        notebook=False,
+    )
+
+    for node in graph_data.nodes:
+        lyr     = _lyr(node.id)
+        is_inet = node.id == "INTERNET"
+        net.add_node(
+            node.id,
+            label=node.label,
+            title=node.title,
+            color={
+                "background": node.color,
+                "border":     "#ffffff33" if not is_inet else "#6fa3ff",
+                "highlight":  {"background": node.color, "border": "#ffffff"},
+                "hover":      {"background": node.color, "border": "#ffffff88"},
+            },
+            size=SIZE[lyr],
+            font={
+                "size":        FSIZE[lyr],
+                "color":       "#e8f0ff",
+                "face":        "monospace",
+                "strokeWidth": 4,
+                "strokeColor": "#070b12",
+            },
+            shape="diamond" if is_inet else "dot",
+            shadow={"enabled": True, "color": node.color + "55", "size": 18, "x": 0, "y": 0},
+            level=LEVEL[lyr],
+            borderWidth=2,
+            borderWidthSelected=3,
+        )
+
+    for edge in graph_data.edges:
+        net.add_edge(
+            edge.source,
+            edge.target,
+            color={"color": edge.color, "opacity": 0.55, "highlight": edge.color, "hover": "#ffffff"},
+            width=max(1.8, edge.width),
+            arrows={"to": {"enabled": True, "scaleFactor": 0.9, "type": "arrow"}},
+            smooth={"type": "cubicBezier", "forceDirection": "vertical", "roundness": 0.45},
+            hoverWidth=1.5,
+            selectionWidth=2,
+        )
+
+    net.set_options(json.dumps({
+        "layout": {
+            "hierarchical": {
+                "enabled":            True,
+                "direction":          "UD",
+                "sortMethod":         "directed",
+                "levelSeparation":    200,
+                "nodeSpacing":        160,
+                "treeSpacing":        260,
+                "blockShifting":      True,
+                "edgeMinimization":   True,
+                "parentCentralization": True,
+            }
+        },
+        "physics": {"enabled": False},
+        "interaction": {
+            "hover":        True,
+            "tooltipDelay": 60,
+            "zoomView":     True,
+            "dragView":     True,
+        },
+        "nodes": {"borderWidth": 2},
+        "edges": {"selectionWidth": 2},
+    }))
+
+    with tempfile.NamedTemporaryFile(
+        mode="w", suffix=".html", delete=False, encoding="utf-8"
+    ) as f:
+        net.save_graph(f.name)
+        _fname = f.name
+    with open(_fname, encoding="utf-8") as f:
+        html = f.read()
+    os.unlink(_fname)
+
+    # ── Patch styles so everything matches Design System v4 ───────────────────
+    _css = """
+<style>
+  html, body { background: #070b12 !important; margin: 0; padding: 0; }
+  #mynetwork {
+    background: radial-gradient(ellipse at 50% 0%, #0d1a2e 0%, #070b12 70%) !important;
+    border: 1px solid #1a2640 !important;
+    border-radius: 14px !important;
+  }
+  div.vis-tooltip {
+    background: #0f1623 !important;
+    border: 1px solid #1a2640 !important;
+    color: #c8daf5 !important;
+    font-family: 'Inter', -apple-system, sans-serif !important;
+    font-size: 12px !important;
+    border-radius: 10px !important;
+    padding: 10px 14px !important;
+    max-width: 300px !important;
+    line-height: 1.6 !important;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+    pointer-events: none !important;
+  }
+</style>
+"""
+    return html.replace("</head>", _css + "</head>")
+
 
 # ── Header ────────────────────────────────────────────────────────────────────
 
@@ -639,30 +821,25 @@ st.markdown("""
 <div class="rf-topnav">
   <!-- Brand -->
   <div class="rf-brand">
-    <div class="rf-brand-icon">▶</div>
-    <span class="rf-brand-name">RedFlag</span>
+    <div class="rf-brand-icon">RF</div>
+    <div class="rf-brand-text">
+      <span class="rf-brand-name">RedFlag</span>
+      <span class="rf-brand-sub">M&amp;A Cyber Due Diligence</span>
+    </div>
   </div>
 
-  <!-- Nav links -->
-  <nav class="rf-nav">
-    <span class="rf-nav-link active">&#9679; Scan</span>
-    <span class="rf-nav-link">&#128196; Reports</span>
-    <span class="rf-nav-link">&#128193; Inventories</span>
-    <span class="rf-nav-link">&#9881; Settings</span>
-  </nav>
+  <!-- Spacer -->
+  <div style="flex:1"></div>
 
-  <!-- Right: engine status pills -->
+  <!-- Scanner engine list (compact text, not pills) -->
+  <div class="rf-engines-text">
+    Nmap &nbsp;&middot;&nbsp; Shodan &nbsp;&middot;&nbsp; OpenVAS &nbsp;&middot;&nbsp;
+    ZAP &nbsp;&middot;&nbsp; Vulners &nbsp;&middot;&nbsp; DNS &nbsp;&middot;&nbsp;
+    TLS &nbsp;&middot;&nbsp; Breach
+  </div>
+
+  <!-- System status -->
   <div class="rf-nav-right">
-    <div class="rf-engine-pills">
-      <span class="rf-epill">Nmap</span>
-      <span class="rf-epill">Vulners</span>
-      <span class="rf-epill">Shodan</span>
-      <span class="rf-epill">OpenVAS</span>
-      <span class="rf-epill">ZAP</span>
-      <span class="rf-epill">DNS</span>
-      <span class="rf-epill">TLS</span>
-      <span class="rf-epill">Breach</span>
-    </div>
     <div class="rf-status-dot-wrap">
       <span class="rf-dot ok" style="width:7px;height:7px;"></span>
       <span style="font-size:0.62rem;font-family:'JetBrains Mono',monospace;color:#10b981;
@@ -758,37 +935,46 @@ with scan_col3:
 
 st.markdown("</div></div>", unsafe_allow_html=True)
 
-# Upload section — styled cards instead of plain expanders
-st.markdown("""
-<div style="font-size:0.56rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;
-            color:#2d4060;font-family:'JetBrains Mono',monospace;margin:16px 0 10px;
-            display:flex;align-items:center;gap:10px;">
-  Optional Intelligence Sources
-  <div style="flex:1;height:1px;background:linear-gradient(90deg,#141d2e,transparent);"></div>
-</div>
-""", unsafe_allow_html=True)
-upload_col1, upload_col2, upload_col3, upload_col4 = st.columns(4)
+# Upload section — single collapsible panel
+with st.expander("Advanced Intelligence Sources  —  optional uploads to enrich the scan"):
+    u1, u2, u3, u4 = st.columns(4)
 
-with upload_col1:
-    with st.expander("🔍  Shodan JSON"):
-        st.caption("Target-provided Shodan export — replaces live API, 0 credits consumed.")
+    with u1:
+        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
+                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
+                    "text-transform:uppercase;margin-bottom:4px;'>Shodan JSON</div>"
+                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
+                    "font-family:\"Inter\",sans-serif;'>Target-provided Shodan export."
+                    " Replaces live API — 0 credits.</div>", unsafe_allow_html=True)
         shodan_json_file = st.file_uploader(
             "Shodan JSON", type=["json"], label_visibility="collapsed", key="shodan_json_upload"
         )
 
-with upload_col2:
-    with st.expander("🛡  OpenVAS XML"):
-        st.caption("Merge verified CVE findings with CONFIRMED evidence strength.")
+    with u2:
+        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
+                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
+                    "text-transform:uppercase;margin-bottom:4px;'>OpenVAS XML</div>"
+                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
+                    "font-family:\"Inter\",sans-serif;'>Verified CVE findings with"
+                    " CONFIRMED evidence strength.</div>", unsafe_allow_html=True)
         openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed", key="ov_upload")
 
-with upload_col3:
-    with st.expander("🕷  OWASP ZAP XML"):
-        st.caption("Merge web application layer findings into the risk model.")
+    with u3:
+        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
+                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
+                    "text-transform:uppercase;margin-bottom:4px;'>OWASP ZAP XML</div>"
+                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
+                    "font-family:\"Inter\",sans-serif;'>Web application layer findings"
+                    " — SQLi, XSS, misconfigs.</div>", unsafe_allow_html=True)
         zap_file = st.file_uploader("ZAP XML", type=["xml"], label_visibility="collapsed", key="zap_upload")
 
-with upload_col4:
-    with st.expander("📋  Asset Inventory"):
-        st.caption("Map host IPs to Crown Jewel / Regulated / Sensitive tiers. Unlocks deal-killer rules.")
+    with u4:
+        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
+                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
+                    "text-transform:uppercase;margin-bottom:4px;'>Asset Inventory</div>"
+                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
+                    "font-family:\"Inter\",sans-serif;'>Map hosts to Crown Jewel / Regulated"
+                    " tiers. Unlocks deal-killer rules.</div>", unsafe_allow_html=True)
         asset_file = st.file_uploader("Asset Inventory Excel", type=["xlsx", "xls"], label_visibility="collapsed", key="asset_upload")
 
 # ── Scan execution ────────────────────────────────────────────────────────────
@@ -949,6 +1135,68 @@ if run_scan:
         except Exception as e:
             st.error(f"Scan failed: {e}")
 
+# ── Pre-scan welcome state ───────────────────────────────────────────────────
+
+if "findings" not in st.session_state:
+    st.markdown(
+        "<div style='font-size:0.57rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;"
+        "color:#2d4060;font-family:\"JetBrains Mono\",monospace;margin:8px 0 14px;"
+        "display:flex;align-items:center;gap:10px;'>"
+        "What you get after running a scan"
+        "<div style='flex:1;height:1px;background:linear-gradient(90deg,#141d2e,transparent);'></div>"
+        "</div>",
+        unsafe_allow_html=True,
+    )
+
+    pc1, pc2, pc3 = st.columns(3)
+
+    _card_base = (
+        "background:#0f1623;border:1px solid #1a2640;border-radius:14px;"
+        "padding:20px 18px;position:relative;overflow:hidden;"
+    )
+
+    with pc1:
+        st.markdown(
+            f"<div style='{_card_base}border-top:2px solid #3d7fff;'>"
+            "<div style='font-size:2.2rem;font-weight:700;font-family:\"JetBrains Mono\",monospace;"
+            "color:#3d7fff;line-height:1;margin-bottom:10px;'>8</div>"
+            "<div style='font-size:0.84rem;font-weight:700;color:#c8daf5;"
+            "font-family:\"Inter\",sans-serif;margin-bottom:8px;'>Scanners Running in Parallel</div>"
+            "<div style='font-size:0.76rem;color:#3a5070;font-family:\"Inter\",sans-serif;line-height:1.65;'>"
+            "Nmap, Shodan, OpenVAS, ZAP, Vulners, CISA KEV, DNS security, and TLS certificate checks "
+            "all run simultaneously and merge into a single unified finding list."
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
+
+    with pc2:
+        st.markdown(
+            f"<div style='{_card_base}border-top:2px solid #e6394a;'>"
+            "<div style='font-size:2.2rem;font-weight:700;font-family:\"JetBrains Mono\",monospace;"
+            "color:#e6394a;line-height:1;margin-bottom:10px;'>0&#8211;100</div>"
+            "<div style='font-size:0.84rem;font-weight:700;color:#c8daf5;"
+            "font-family:\"Inter\",sans-serif;margin-bottom:8px;'>Weighted Risk Score Per Finding</div>"
+            "<div style='font-size:0.76rem;color:#3a5070;font-family:\"Inter\",sans-serif;line-height:1.65;'>"
+            "Every finding is scored on CVE severity, exposure level, data sensitivity, and exploit "
+            "availability. Deal-killer conditions bypass scoring and flag immediately."
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
+
+    with pc3:
+        st.markdown(
+            f"<div style='{_card_base}border-top:2px solid #10b981;'>"
+            "<div style='font-size:2.2rem;font-weight:700;font-family:\"JetBrains Mono\",monospace;"
+            "color:#10b981;line-height:1;margin-bottom:10px;'>5</div>"
+            "<div style='font-size:0.84rem;font-weight:700;color:#c8daf5;"
+            "font-family:\"Inter\",sans-serif;margin-bottom:8px;'>Report Tabs Generated</div>"
+            "<div style='font-size:0.76rem;color:#3a5070;font-family:\"Inter\",sans-serif;line-height:1.65;'>"
+            "Overview, Findings, Maturity Assessment, Cost &amp; Budget, and Export. "
+            "Includes a What-If simulator to quantify pre-close remediation value."
+            "</div></div>",
+            unsafe_allow_html=True,
+        )
+
 # ── Main results (only rendered after a scan) ───────────────────────────────
 
 if "findings" in st.session_state:
@@ -973,8 +1221,8 @@ if "findings" in st.session_state:
 
     # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-    tab_overview, tab_findings, tab_maturity, tab_cost, tab_export = st.tabs(
-        ["  Overview  ", "  Findings  ", "  Maturity Assessment  ", "  Cost & Budget  ", "  Export  "]
+    tab_overview, tab_findings, tab_attack, tab_maturity, tab_cost, tab_export = st.tabs(
+        ["  Overview  ", "  Findings  ", "  Attack Path  ", "  Maturity Assessment  ", "  Cost & Budget  ", "  Export  "]
     )
 
     # ══════════════════════════════════════════════════════════════════════════════
@@ -1027,23 +1275,29 @@ if "findings" in st.session_state:
         if _breach_sum.get("breach_found"):
             _n_breach = _breach_sum.get("total", 0)
             st.markdown(f"""
-            <div style="background:linear-gradient(135deg,rgba(139,0,0,0.1),rgba(100,0,0,0.05));
-                        border:1px solid rgba(220,50,50,0.3);border-left:4px solid #dc3232;
+            <div style="background:linear-gradient(135deg,rgba(230,57,74,0.07),rgba(159,18,57,0.04));
+                        border:1px solid rgba(230,57,74,0.25);border-left:4px solid #e6394a;
                         border-radius:12px;padding:14px 18px;margin-bottom:14px;
                         display:flex;align-items:center;gap:14px;">
-              <div style="font-size:1.4rem;flex-shrink:0;">🔓</div>
+              <div style="width:36px;height:36px;background:rgba(230,57,74,0.1);border-radius:9px;
+                          display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
+                     stroke="#e6394a" stroke-width="2" stroke-linecap="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+                </svg>
+              </div>
               <div style="flex:1;">
-                <div style="font-size:0.84rem;font-weight:700;color:#ff6b6b;
+                <div style="font-size:0.84rem;font-weight:700;color:#e6394a;
                             font-family:'Inter',sans-serif;margin-bottom:2px;">
-                  Breach Exposure Detected — Target Appears in Public Breach Index
+                  Breach Exposure Detected — Target Indexed in Public Breach Database
                 </div>
-                <div style="font-size:0.77rem;color:rgba(255,107,107,0.65);
+                <div style="font-size:0.77rem;color:rgba(230,57,74,0.6);
                             font-family:'Inter',sans-serif;">
-                  {_n_breach} indexed exposure(s) found via LeakIX — already known to attackers
+                  {_n_breach} live exposure(s) found via LeakIX — these are already known to attackers
                 </div>
               </div>
               <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;
-                          font-weight:700;color:#ff6b6b;line-height:1;flex-shrink:0;">{_n_breach}</div>
+                          font-weight:700;color:#e6394a;line-height:1;flex-shrink:0;">{_n_breach}</div>
             </div>""", unsafe_allow_html=True)
 
         _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
@@ -1252,7 +1506,7 @@ if "findings" in st.session_state:
                 {nmap_ps}{vuln_ps}{shod_ps}{ov_ps}{zap_ps}
               </div>
               <div style="height:1px;background:#0d1828;margin:10px 0 8px;"></div>
-              <div class="rf-pipeline-flow">
+              <div class="rf-pipeline-flow" style="justify-content:space-evenly;">
                 {dns_ps}{tls_ps}{breach_ps}
               </div>
             </div>
@@ -1385,12 +1639,11 @@ if "findings" in st.session_state:
             st.markdown('<div class="rf-section-label">Top Findings</div>', unsafe_allow_html=True)
 
             TIER_CSS_MAP = {"deal_killer": "dk", "critical": "crit", "moderate": "mod", "manageable": "man"}
-            TIER_ICONS   = {"deal_killer": "⚡", "critical": "🔴", "moderate": "🟡", "manageable": "🟢"}
 
             for f in findings[:6]:
                 t_val  = str(getattr(f.deal_tier, "value", f.deal_tier))
                 t_cls  = TIER_CSS_MAP.get(t_val, "")
-                t_icon = TIER_ICONS.get(t_val, "●")
+                t_icon = tier_dot_html(t_val, 10)
                 sc     = score_color(f.risk_score)
                 port_label = f":{f.port}" if f.port else ""
                 svc_label  = f.service or ""
@@ -1398,7 +1651,10 @@ if "findings" in st.session_state:
 
                 st.markdown(f"""
                 <div class="fmc {t_cls}">
-                  <div class="fmc-icon {t_cls}">{t_icon}</div>
+                  <div class="fmc-icon {t_cls}"
+                       style="display:flex;align-items:center;justify-content:center;">
+                    {t_icon}
+                  </div>
                   <div class="fmc-body">
                     <div class="fmc-title">{f.title}</div>
                     <div class="fmc-meta">
@@ -1697,6 +1953,95 @@ if "findings" in st.session_state:
     # ══════════════════════════════════════════════════════════════════════════════
     # Tab: Maturity Assessment
     # ══════════════════════════════════════════════════════════════════════════════
+
+    # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Attack Path
+    # ══════════════════════════════════════════════════════════════════════════════
+
+    with tab_attack:
+        from analysis.graph_builder import build_attack_graph
+        import streamlit.components.v1 as _components
+
+        _graph = build_attack_graph(findings)
+
+        # ── Stat cards ───────────────────────────────────────────────────────────
+        _inet_hosts  = sum(1 for n in _graph.nodes if n.id.startswith("HOST:") and
+                           any(e.source == "INTERNET" and e.target == n.id for e in _graph.edges))
+        _total_hosts = sum(1 for n in _graph.nodes if n.id.startswith("HOST:"))
+        _cve_count   = sum(1 for n in _graph.nodes if n.id.startswith("CVE:"))
+        _svc_count   = sum(1 for n in _graph.nodes if n.id.startswith("SVC:"))
+        _dk_count    = sum(1 for f in findings if str(getattr(f.deal_tier,"value",f.deal_tier)) == "deal_killer"
+                           and str(getattr(f.exposure,"value",f.exposure)) == "internet_facing")
+
+        st.markdown("""
+        <div style="margin-bottom:20px;">
+          <div style="font-size:1.05rem;font-weight:700;color:#e8f0ff;
+                      font-family:'Inter',sans-serif;letter-spacing:-0.01em;margin-bottom:4px;">
+            Attack Path Analysis
+          </div>
+          <div style="font-size:0.8rem;color:#3a5070;font-family:'Inter',sans-serif;line-height:1.6;">
+            Visualises how an attacker moves from the internet through exposed services to reach
+            vulnerabilities. Hover any node for full details. Drag to pan &middot; scroll to zoom.
+          </div>
+        </div>""", unsafe_allow_html=True)
+
+        _sc1, _sc2, _sc3, _sc4 = st.columns(4)
+        for _col, _lbl, _val, _color in [
+            (_sc1, "Exposed Hosts",    _inet_hosts,  "#3d7fff"),
+            (_sc2, "Total Hosts",      _total_hosts, "#4a6080"),
+            (_sc3, "CVEs on Path",     _cve_count,   "#e6394a" if _cve_count else "#4a6080"),
+            (_sc4, "Deal Killers Exposed", _dk_count, "#e6394a" if _dk_count else "#10b981"),
+        ]:
+            _col.markdown(f"""
+            <div style="background:#0f1623;border:1px solid #1a2640;border-radius:12px;
+                        padding:14px 16px;text-align:center;margin-bottom:16px;">
+              <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;font-weight:700;
+                          letter-spacing:0.18em;text-transform:uppercase;color:#2d4060;
+                          margin-bottom:8px;">{_lbl}</div>
+              <div style="font-size:2.2rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                          color:{_color};line-height:1;">{_val}</div>
+            </div>""", unsafe_allow_html=True)
+
+        # ── Graph ────────────────────────────────────────────────────────────────
+        if len(_graph.nodes) <= 1:
+            st.info("Not enough findings to build an attack path. Run a scan first.")
+        else:
+            _html = _build_attack_graph_html(_graph)
+            if _html is None:
+                st.warning("pyvis is not installed. Run `pip install pyvis` to enable this view.")
+            else:
+                _components.html(_html, height=700, scrolling=False)
+
+        # ── Legend ───────────────────────────────────────────────────────────────
+        st.markdown("""
+        <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;
+                    padding:12px 18px;background:#0a0f1c;border:1px solid #141d2e;
+                    border-radius:10px;margin-top:4px;">
+          <span style="font-family:'JetBrains Mono',monospace;font-size:0.57rem;font-weight:700;
+                       letter-spacing:0.18em;text-transform:uppercase;color:#2d4060;">Node colour</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#e6394a;flex-shrink:0;
+                         box-shadow:0 0 6px #e6394a88;display:inline-block;"></span>Deal Killer
+          </span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0;
+                         box-shadow:0 0 6px #f9731688;display:inline-block;"></span>Critical
+          </span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;
+                         box-shadow:0 0 6px #f59e0b88;display:inline-block;"></span>Moderate
+          </span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#10b981;flex-shrink:0;
+                         box-shadow:0 0 6px #10b98188;display:inline-block;"></span>Manageable
+          </span>
+          <span style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:0.57rem;
+                       font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#2d4060;">Shapes</span>
+          <span style="font-size:0.74rem;color:#4a6080;">◆ Internet entry &nbsp;● Host / Service / CVE</span>
+          <span style="margin-left:auto;font-size:0.72rem;color:#2d4060;font-family:'Inter',sans-serif;">
+            Hover any node for details &nbsp;·&nbsp; Drag to pan &nbsp;·&nbsp; Scroll to zoom
+          </span>
+        </div>""", unsafe_allow_html=True)
 
     with tab_maturity:
 

@@ -7,8 +7,9 @@
 
 RedFlag is an end-to-end cybersecurity assessment platform built for mergers & acquisitions.
 It aggregates evidence from multiple scanners, scores every finding with an SSVC/EPSS-aligned
-risk model, assesses the target's internal security maturity, and estimates remediation costs —
-all in a single Streamlit application.
+risk model, checks DNS/email security, TLS health, and breach exposure, assesses the target's
+internal security maturity, estimates remediation costs, and visualises attack paths — all in a
+single Streamlit application.
 
 ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
@@ -28,15 +29,20 @@ RedFlag automates the technical layer of that assessment:
 2. **Enriches** findings with exploit intelligence (CISA KEV, NVD, Vulners)
 3. **Merges** uploaded scanner outputs (OpenVAS, ZAP) into a single finding set
 4. **Scores** every finding using a weighted risk model (exploit status, exposure, CVSS, data sensitivity)
-5. **Assesses** the target's internal security programme maturity across 7 domains
-6. **Estimates** remediation costs with low / base / high scenarios and CapEx/OpEx split
-7. **Generates** a deterministic narrative report and downloadable CSV, PDF, and XLSX exports
+5. **Checks** DNS/email security controls (SPF, DMARC, DKIM, DNSSEC)
+6. **Validates** TLS certificate health and discovers shadow subdomains via CT logs
+7. **Queries** breach databases for prior compromise exposure (LeakIX)
+8. **Assesses** the target's internal security programme maturity across 7 domains
+9. **Estimates** remediation costs with low / base / high scenarios and CapEx/OpEx split
+10. **Visualises** the attack path from internet to vulnerabilities as an interactive graph
+11. **Generates** a deterministic narrative report and downloadable CSV, PDF, and XLSX exports
 
 ---
 
 ## Features
 
 ### 🔍 Multi-Scanner Intelligence
+
 | Scanner | Type | What It Finds |
 |---------|------|---------------|
 | **Nmap** | Active scan | Open ports, services, banners |
@@ -46,8 +52,12 @@ RedFlag automates the technical layer of that assessment:
 | **Vulners NSE** | Exploit intel | CVE-to-exploit mapping from Nmap scripts |
 | **CISA KEV** | Active exploitation | Known-exploited CVE cross-reference |
 | **NVD API** | CVSS enrichment | Real CVSS v3.1 scores for every CVE |
+| **DNS Scanner** | Config audit | SPF, DMARC, DKIM, DNSSEC presence and policy |
+| **TLS Scanner** | Cert health | Expiry, weak TLS versions, CT log subdomain discovery |
+| **Breach Scanner** | OSINT | Prior breach and exposure indexing via LeakIX |
 
 ### 📊 Risk Scoring (SSVC/EPSS-Aligned)
+
 Every finding receives a 0–100 risk score computed from four weighted factors:
 
 ```
@@ -60,27 +70,84 @@ Findings are classified into four deal tiers:
 - 🟡 **Moderate** — 90-day post-close security roadmap
 - 🟢 **Manageable** — Standard security hygiene backlog
 
+### 🌐 DNS & Email Security
+
+Automatically checks the target domain for the four essential email security controls:
+
+- **SPF** — Sender Policy Framework; prevents unauthorised mail servers from spoofing the domain
+- **DMARC** — Enforces SPF/DKIM policy and controls failure handling; a missing DMARC record means anyone can impersonate the target's domain
+- **DKIM** — Cryptographic email signing; verifies mail authenticity in transit
+- **DNSSEC** — Protects DNS records from tampering and cache poisoning
+
+Each missing or misconfigured record is converted to a scored Finding and contributes to the overall deal tier. A missing DMARC policy is flagged as Critical exposure because it represents an active, exploitable spoofing risk that becomes the acquirer's liability on day one.
+
+### 🔒 TLS Certificate Health
+
+Connects to all HTTPS ports discovered by Nmap and checks:
+
+- **Certificate expiry** — flags anything expiring within 30 days as Moderate, within 7 days as Critical
+- **TLS version** — TLS 1.0 and 1.1 are deprecated and a compliance violation under PCI-DSS; their presence is flagged immediately
+- **Shadow subdomain discovery** — queries the crt.sh certificate transparency log (free, public) for every certificate ever issued for the target domain, revealing forgotten subdomains that may be running unpatched, unmonitored services
+
+### 🕵️ Breach Exposure Check
+
+Queries LeakIX — a free internet-wide security scanner — for any indexed exposure associated with the target's domain and IP addresses. Returns findings for:
+
+- Exposed databases (MongoDB, Elasticsearch, Redis instances accessible without authentication)
+- Leaked configuration files and credential dumps
+- Known-compromised services indexed by the security research community
+
+A confirmed breach hit is classified as DEAL_KILLER and surfaced with a prominent alert banner in the Overview tab. This answers the single most important question in any acquisition: **has this company already been compromised?**
+
 ### 🏛️ Maturity Assessment
+
 A 23-question inside-out assessment across 7 security domains:
 
 > Identity & Access · Network Security · Endpoint Security · Application Security ·
 > Data Protection · Incident Response · Third-Party Risk
 
 Each domain is scored 0–5 and compared against a configurable corporate acquisition standard.
-Gaps below the deal-blocker threshold are flagged separately from technical scan findings.
+Gaps below the deal-blocker threshold are flagged separately from technical scan findings. Every maturity gap also feeds into the Cost Engine — the gap between current score and required score drives a separate set of remediation cost line items.
 
 ### 💰 Cost & Budget Engine
-- Estimates remediation cost per finding using a YAML-driven pricing catalog
+
+- Estimates remediation cost per finding and per maturity gap using a YAML-driven pricing catalog
 - Deduplicates identical remediations across multiple findings (e.g. 10 SSH findings → 1 line item)
 - Outputs **low / base / high** scenarios with full **CapEx vs OpEx** breakdown
 - Human review gate: flagged items (high-variance estimates, deal-killer findings) must be acknowledged before export
+- Exports as CSV or XLSX
+
+### 🎯 What-If Scenario Simulator
+
+An interactive negotiation tool in the Findings tab. Select any combination of findings and mark them as "pre-close remediation" — the simulator instantly recalculates the full risk profile without those findings:
+
+- New average risk score and delta from current
+- Whether any deal-killers are cleared
+- Whether the overall deal tier improves
+
+Turns security findings into quantified negotiating leverage. You can tell the seller exactly which issues to fix and show the precise risk reduction if they do — backed by the same scoring model that produced the original assessment.
+
+### 🗺️ Attack Path Visualisation
+
+A dedicated **Attack Path** tab displaying an interactive vis.js graph of how an attacker moves from the open internet through exposed services to reach specific vulnerabilities. Built with four hierarchical layers:
+
+```
+INTERNET  →  Exposed Hosts  →  Services (port/protocol)  →  CVEs
+```
+
+- Every node is coloured by its worst deal tier (red → orange → amber → green)
+- Internal-only hosts are shown but have no edge from INTERNET — immediately visible isolation
+- Hover any node for full details: CVE ID, CVSS score, risk score, exposure level, service info
+- Fully interactive: zoom, pan, drag — powered by vis.js hierarchical layout
+- Stat cards at the top show: Exposed Hosts / Total Hosts / CVEs on Path / Deal Killers Exposed
 
 ### 📝 Narrative Template Engine
+
 Deterministic narrative text generated from 25+ YAML-backed template blocks — no LLM required.
 Same input always produces the same output. Covers executive summary, maturity gaps, cost rationale,
 per-finding context, and remediation priority guidance.
 
-
+---
 
 ## Getting Started
 
@@ -133,6 +200,7 @@ VULNERS_API_KEY=your_vulners_api_key_here
 > - Upload a Shodan JSON export (target-provided or from your account) instead of a live query
 > - Upload OpenVAS and ZAP XML exports for verified scanner data
 > - NVD and CISA KEV use public APIs (no key required)
+> - DNS, TLS, and breach checks require no API keys at all
 
 ---
 
@@ -147,7 +215,9 @@ VULNERS_API_KEY=your_vulners_api_key_here
    - **OpenVAS XML** — GVM/OpenVAS scan report
    - **ZAP XML** — OWASP ZAP active scan report
    - **Asset Inventory (Excel)** — classifies hosts as Crown Jewel / Regulated / Sensitive
-4. Click **Run Scan**
+4. Click **Run Comprehensive Scan**
+
+DNS, TLS, and breach checks run automatically alongside the Nmap scan — no extra configuration needed.
 
 ### Using the Mock Data Files
 
@@ -167,9 +237,10 @@ The mock ZAP file includes: SQL injection, reflected XSS, IDOR, CSRF absence, di
 
 | Tab | What You Do |
 |-----|------------|
-| **Overview** | See the risk dashboard — metric cards, donut chart, target intel, scanner pipeline status |
-| **Findings** | Filter and drill into individual findings; click a metric card to pre-filter |
-| **Maturity Assessment** | Complete the 23-question security programme questionnaire; see domain scores vs. standard |
+| **Overview** | Risk dashboard — metric cards, donut chart, DNS/TLS/breach summary cards, target intel, scanner pipeline status |
+| **Findings** | Filter and drill into individual findings; What-If simulator to quantify pre-close remediation value |
+| **Attack Path** | Interactive vis.js graph of attacker movement from internet to vulnerabilities; stat cards showing exposed hosts and CVE counts |
+| **Maturity Assessment** | Complete the 23-question security programme questionnaire; see domain scores vs. acquisition standard |
 | **Cost & Budget** | Generate remediation cost model; review flagged items; download CSV or XLSX |
 | **Export** | Download full CSV report and PDF report |
 
@@ -188,7 +259,10 @@ RedFlag/
 │   ├── zap_scan.py             OWASP ZAP XML parser
 │   ├── vulners_parse.py        Vulners NSE block parser
 │   ├── vulners_enrich.py       Vulners API exploit confirmation
-│   └── kev_lookup.py           CISA KEV feed (cached per session)
+│   ├── kev_lookup.py           CISA KEV feed (cached per session)
+│   ├── dns_scan.py             SPF / DMARC / DKIM / DNSSEC checks
+│   ├── tls_scan.py             Cert expiry, TLS version, CT log subdomain scan
+│   └── breach_scan.py          LeakIX breach and exposure check
 │
 ├── analysis/
 │   ├── schema.py               Pydantic Finding model + all enums
@@ -196,6 +270,7 @@ RedFlag/
 │   ├── triage.py               Weighted risk scoring + deal-tier classification
 │   ├── maturity.py             Inside-Out Maturity Assessment engine
 │   ├── standards_compare.py    Gap analysis vs. corporate standard
+│   ├── graph_builder.py        Attack path graph node/edge builder
 │   └── parsers/
 │       └── excel_assets.py     Asset inventory Excel parser
 │
@@ -252,24 +327,26 @@ ZAP XML ───────┼──→ merge_zap_with_nmap()
                │
 Excel ─────────┼──→ apply_sensitivity_to_findings()
                │
+DNS ───────────┼──→ run_dns_scan()    (SPF / DMARC / DKIM / DNSSEC)
+               │
+TLS ───────────┼──→ run_tls_scan()    (cert expiry / TLS version / CT log)
+               │
+Breach ────────┼──→ run_breach_scan() (LeakIX domain + IP check)
+               │
                ▼
            triage_all()  →  [Finding, risk_score, deal_tier]
                │
-    ┌──────────┴──────────┐
-    ▼                     ▼
-Maturity Assessment    Cost Pipeline
-run_assessment()       run_cost_pipeline()
-    │                     │
-compare_to_standard()  build_rollup()
-    │                     │
-    └──────────┬──────────┘
-               ▼
-        Narrative Engine
-        build_report()
-               │
-    ┌──────────┴──────────┐
-    ▼                     ▼
- CSV / PDF             XLSX export
+    ┌──────────┼──────────┬──────────────┐
+    ▼          ▼          ▼              ▼
+Maturity    Cost       Attack Path    Narrative
+Assessment  Pipeline   Graph          Engine
+    │          │       build_attack_  build_report()
+    │          │       graph()            │
+    └──────────┴──────────┴──────────────┘
+                          │
+              ┌───────────┴───────────┐
+              ▼                       ▼
+         CSV / PDF               XLSX export
 ```
 
 ---
@@ -282,10 +359,13 @@ compare_to_standard()  build_rollup()
 | Data validation | [Pydantic v2](https://docs.pydantic.dev) |
 | Data manipulation | [pandas](https://pandas.pydata.org) |
 | Charts | [Plotly](https://plotly.com/python/) |
+| Attack path graph | [pyvis](https://pyvis.readthedocs.io) (vis.js) |
 | PDF generation | [fpdf2](https://py-fpdf2.readthedocs.io) |
 | XLSX export | [openpyxl](https://openpyxl.readthedocs.io) |
 | Nmap integration | [python-nmap](https://xael.org/pages/python-nmap-en.html) |
 | Shodan integration | [shodan](https://shodan.readthedocs.io) |
+| DNS queries | [dnspython](https://www.dnspython.org) |
+| TLS/cert parsing | [cryptography](https://cryptography.io) |
 | Config | [PyYAML](https://pyyaml.org) |
 | Env vars | [python-dotenv](https://github.com/theskumar/python-dotenv) |
 | Testing | [pytest](https://pytest.org) |
@@ -357,9 +437,13 @@ All thresholds, weights, pricing, and narrative text are YAML-driven — no code
 
 ## Roadmap
 
+- [ ] AI-generated executive summary (plain-English paragraph report for non-technical stakeholders)
+- [ ] Compliance gap mapping (ISO 27001 / NIST CSF / SOC 2 / GDPR / PCI-DSS)
+- [ ] 30/60/90 day post-acquisition remediation roadmap generator
+- [ ] Public GitHub repository secret scanner (trufflehog integration)
+- [ ] Multi-target comparison view (side-by-side risk, maturity, and cost across acquisition candidates)
 - [ ] Multi-host Shodan (subnet scan support)
 - [ ] Auto-merge cost PDF section into main report
-- [ ] Real CVSS enrichment for Nmap-only services (no version string)
 - [ ] `requirements.txt` with pinned versions
 - [ ] Docker Compose for one-command startup
 
@@ -379,6 +463,8 @@ RedFlag processes only data you explicitly provide. No scan data is sent to any 
 - **NVD/NIST** (public CVSS API) — only CVE IDs are sent
 - **CISA KEV** (public feed) — downloaded once per session, no data sent
 - **Vulners** (optional NSE/API) — only CVE IDs are sent
+- **LeakIX** (free breach API) — only the target domain and IP are sent
+- **crt.sh** (public CT log API) — only the target domain is sent
 
 All scan outputs are stored locally in `data/results/` and are excluded from version control.
 
