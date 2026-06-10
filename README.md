@@ -11,7 +11,7 @@ risk model, checks DNS/email security, TLS health, and breach exposure, assesses
 internal security maturity, estimates remediation costs, and visualises attack paths — all in a
 single Streamlit application.
 
-![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-34d399?style=flat-square)
 ![Tests](https://img.shields.io/badge/Tests-86%20passing-34d399?style=flat-square)
@@ -155,7 +155,7 @@ per-finding context, and remediation priority guidance.
 
 | Requirement | Windows | macOS |
 |-------------|---------|-------|
-| Python 3.10+ | [python.org/downloads](https://www.python.org/downloads/) | `brew install python` or [python.org](https://www.python.org/downloads/) |
+| Python 3.11+ | [python.org/downloads](https://www.python.org/downloads/) | `brew install python` or [python.org](https://www.python.org/downloads/) |
 | Git | [git-scm.com](https://git-scm.com/download/win) | Pre-installed on macOS, or `brew install git` |
 | Nmap | [nmap.org/download](https://nmap.org/download.html#windows) | `brew install nmap` |
 | Shodan API key | Optional — free tier at [shodan.io](https://shodan.io) | Same |
@@ -175,7 +175,7 @@ Open **Command Prompt** or **PowerShell** and follow these steps exactly.
 python --version
 ```
 
-You should see `Python 3.10.x` or higher. If you see an error, download and install Python from [python.org/downloads](https://www.python.org/downloads/). During installation, **tick the "Add Python to PATH" checkbox** on the first screen.
+You should see `Python 3.11.x` or higher. If you see an error, download and install Python from [python.org/downloads](https://www.python.org/downloads/). During installation, **tick the "Add Python to PATH" checkbox** on the first screen.
 
 #### Step 2 — Install Nmap
 
@@ -260,7 +260,7 @@ brew install python git nmap
 Verify everything installed correctly:
 
 ```bash
-python3 --version   # Should show Python 3.10 or higher
+python3 --version   # Should show Python 3.11 or higher
 git --version       # Should show git version 2.x
 nmap --version      # Should show Nmap version 7.x
 ```

@@ -1,6 +1,5 @@
 streamlit==1.57.0
 pydantic==2.13.4
-pydantic-settings==2.14.1
 pandas==3.0.3
 plotly==6.7.0
 pyvis==0.3.2
@@ -14,4 +13,3 @@ PyYAML==6.0.3
 python-dotenv==1.2.2
 requests==2.34.2
 pytest==9.0.3
-streamlit-agraph==0.0.45
