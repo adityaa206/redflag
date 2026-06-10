@@ -151,56 +151,236 @@ per-finding context, and remediation priority guidance.
 
 ## Getting Started
 
-### Prerequisites
+### What You Need Before Starting
 
-- Python 3.10+
-- [Nmap](https://nmap.org/download.html) installed and on `PATH`
-  - Windows default: `C:\Program Files (x86)\Nmap\nmap.exe`
-- (Optional) Shodan API key for live lookups
-- (Optional) Vulners API key for exploit enrichment
+| Requirement | Windows | macOS |
+|-------------|---------|-------|
+| Python 3.10+ | [python.org/downloads](https://www.python.org/downloads/) | `brew install python` or [python.org](https://www.python.org/downloads/) |
+| Git | [git-scm.com](https://git-scm.com/download/win) | Pre-installed on macOS, or `brew install git` |
+| Nmap | [nmap.org/download](https://nmap.org/download.html#windows) | `brew install nmap` |
+| Shodan API key | Optional — free tier at [shodan.io](https://shodan.io) | Same |
+| Vulners API key | Optional — free tier at [vulners.com](https://vulners.com) | Same |
 
-### Installation
+> **No API keys?** You can still run a full assessment without them — see the [No API Keys](#no-api-keys) section below.
 
-```bash
-# 1. Clone the repository
+---
+
+### Installation — Windows
+
+Open **Command Prompt** or **PowerShell** and follow these steps exactly.
+
+#### Step 1 — Verify Python is installed
+
+```powershell
+python --version
+```
+
+You should see `Python 3.10.x` or higher. If you see an error, download and install Python from [python.org/downloads](https://www.python.org/downloads/). During installation, **tick the "Add Python to PATH" checkbox** on the first screen.
+
+#### Step 2 — Install Nmap
+
+1. Go to [nmap.org/download.html](https://nmap.org/download.html#windows)
+2. Download the **Latest stable release self-installer** (e.g. `nmap-7.x-setup.exe`)
+3. Run the installer with default options
+4. Verify it worked:
+
+```powershell
+nmap --version
+```
+
+You should see `Nmap version 7.x`. If you see an error, add Nmap to your PATH manually:
+`C:\Program Files (x86)\Nmap` (or `C:\Program Files\Nmap` on 64-bit installs).
+
+#### Step 3 — Clone the repository
+
+```powershell
 git clone https://github.com/adityaa206/redflag.git
 cd redflag
+```
 
-# 2. Create and activate a virtual environment
+#### Step 4 — Create a virtual environment
+
+```powershell
 python -m venv venv
-# Windows
+```
+
+#### Step 5 — Activate the virtual environment
+
+```powershell
 venv\Scripts\activate
-# macOS / Linux
-source venv/bin/activate
+```
 
-# 3. Install dependencies
+Your prompt will change to show `(venv)` at the start. **You must do this every time you open a new terminal before running the app.**
+
+#### Step 6 — Install dependencies
+
+```powershell
 pip install -r requirements.txt
+```
 
-# 4. Configure API keys
-cp .env.example .env
-# Edit .env and add your keys (see Configuration section)
+This installs all required packages. It will take 1–3 minutes on first run.
 
-# 5. Launch the app
+#### Step 7 — Set up your API keys
+
+```powershell
+copy .env.example .env
+notepad .env
+```
+
+In Notepad, fill in your API keys (see [Configuration](#configuration) below). Save and close.
+
+#### Step 8 — Launch the app
+
+```powershell
 streamlit run app.py
 ```
 
+The app opens automatically at **http://localhost:8501** in your browser.
+
+---
+
+### Installation — macOS
+
+Open **Terminal** and follow these steps exactly.
+
+#### Step 1 — Install Homebrew (if not already installed)
+
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Skip this step if `brew --version` already works.
+
+#### Step 2 — Install Python, Git, and Nmap
+
+```bash
+brew install python git nmap
+```
+
+Verify everything installed correctly:
+
+```bash
+python3 --version   # Should show Python 3.10 or higher
+git --version       # Should show git version 2.x
+nmap --version      # Should show Nmap version 7.x
+```
+
+#### Step 3 — Clone the repository
+
+```bash
+git clone https://github.com/adityaa206/redflag.git
+cd redflag
+```
+
+#### Step 4 — Create a virtual environment
+
+```bash
+python3 -m venv venv
+```
+
+#### Step 5 — Activate the virtual environment
+
+```bash
+source venv/bin/activate
+```
+
+Your prompt will change to show `(venv)` at the start. **You must do this every time you open a new terminal before running the app.**
+
+#### Step 6 — Install dependencies
+
+```bash
+pip install -r requirements.txt
+```
+
+This installs all required packages. It will take 1–3 minutes on first run.
+
+#### Step 7 — Set up your API keys
+
+```bash
+cp .env.example .env
+nano .env          # or: open -e .env  (opens in TextEdit)
+```
+
+Fill in your API keys (see [Configuration](#configuration) below). Save and close (`Ctrl+X → Y → Enter` in nano).
+
+#### Step 8 — Launch the app
+
+```bash
+streamlit run app.py
+```
+
+The app opens automatically at **http://localhost:8501** in your browser.
+
+---
+
+### Running the App After First Install
+
+Once installed, you only need two commands each time:
+
+**Windows:**
+```powershell
+cd redflag
+venv\Scripts\activate
+streamlit run app.py
+```
+
+**macOS:**
+```bash
+cd redflag
+source venv/bin/activate
+streamlit run app.py
+```
+
+---
+
 ### Configuration
 
-Create a `.env` file in the project root:
+Edit the `.env` file in the project root to add your API keys:
 
 ```env
-# Required for live Shodan lookups (1 credit per IP)
+# Required for live Shodan lookups (1 credit per IP queried)
 SHODAN_API_KEY=your_shodan_api_key_here
 
-# Optional — enables exploit confirmation via Vulners API
+# Optional — enables per-CVE exploit confirmation via Vulners
 VULNERS_API_KEY=your_vulners_api_key_here
 ```
 
-> **No API keys?** You can still run a full assessment:
-> - Upload a Shodan JSON export (target-provided or from your account) instead of a live query
-> - Upload OpenVAS and ZAP XML exports for verified scanner data
-> - NVD and CISA KEV use public APIs (no key required)
-> - DNS, TLS, and breach checks require no API keys at all
+Get your keys here:
+- **Shodan** — [account.shodan.io](https://account.shodan.io) → API Key (free tier available)
+- **Vulners** — [vulners.com/userinfo](https://vulners.com/userinfo) → API Keys (free tier available)
+
+#### No API Keys?
+
+You can run a complete assessment with zero API keys:
+
+| What you lose | Workaround |
+|---------------|------------|
+| Live Shodan lookups | Upload a Shodan JSON export instead (target-provided or exported from your account) |
+| Vulners exploit confirmation | Findings still score; exploit status defaults to UNKNOWN |
+| Nothing else | NVD, CISA KEV, DNS, TLS, and breach checks all work with no keys |
+
+---
+
+### Troubleshooting
+
+**`nmap: command not found` (macOS) or `'nmap' is not recognized` (Windows)**
+- macOS: run `brew install nmap`
+- Windows: reinstall Nmap from [nmap.org](https://nmap.org/download.html#windows) and ensure the installer adds it to PATH
+
+**`python: command not found` (macOS)**
+- macOS uses `python3` by default. Replace `python` with `python3` in all commands, or run `brew install python` which aliases `python3` as `python`.
+
+**`ModuleNotFoundError` when running the app**
+- Your virtual environment is not active. Run `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (macOS) first.
+
+**Port 8501 already in use**
+- Another Streamlit instance is running. Stop it, or launch on a different port:
+  ```bash
+  streamlit run app.py --server.port 8502
+  ```
+
+**Streamlit opens but the scan fails immediately**
+- Nmap is not on your PATH. Verify with `nmap --version`. See the Nmap install step above.
 
 ---
 

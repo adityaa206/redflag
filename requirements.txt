@@ -1,0 +1,17 @@
+streamlit==1.57.0
+pydantic==2.13.4
+pydantic-settings==2.14.1
+pandas==3.0.3
+plotly==6.7.0
+pyvis==0.3.2
+fpdf2==2.8.7
+openpyxl==3.1.5
+python-nmap==0.7.1
+shodan==1.31.0
+dnspython==2.8.0
+cryptography==48.0.0
+PyYAML==6.0.3
+python-dotenv==1.2.2
+requests==2.34.2
+pytest==9.0.3
+streamlit-agraph==0.0.45
