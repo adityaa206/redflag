@@ -1,6 +1,7 @@
 import os
 import datetime
 from fpdf import FPDF
+from fpdf.enums import XPos, YPos
 
 # ── Colour palette ─────────────────────────────────────────────────────────────
 _BG        = (14,  17,  23)   # #0e1117
@@ -63,10 +64,10 @@ class _PDF(FPDF):
         self.set_font("Helvetica", "B", 11)
         self.set_text_color(*_RED)
         self.set_xy(10, 4)
-        self.cell(20, 8, "RedFlag", ln=0)
+        self.cell(20, 8, "RedFlag", new_x=XPos.RIGHT, new_y=YPos.TOP)
         self.set_font("Helvetica", "", 9)
         self.set_text_color(*_MUTED)
-        self.cell(0, 8, _safe(f"M&A Cybersecurity Due Diligence  -  {self._target}  -  {self._scan_date}"), ln=0, align="R")
+        self.cell(0, 8, _safe(f"M&A Cybersecurity Due Diligence  -  {self._target}  -  {self._scan_date}"), new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
         self.set_draw_color(*_BORDER)
         self.line(0, 18, 210, 18)
         self.ln(6)
@@ -83,7 +84,7 @@ class _PDF(FPDF):
         self.set_font("Helvetica", "B", 10)
         self.set_text_color(*_MUTED)
         self.set_fill_color(*_BG)
-        self.cell(0, 6, text.upper(), ln=True, fill=True)
+        self.cell(0, 6, text.upper(), new_x=XPos.LMARGIN, new_y=YPos.NEXT, fill=True)
         self.set_draw_color(*_BORDER)
         self.line(self.get_x(), self.get_y(), 200, self.get_y())
         self.ln(3)
@@ -98,11 +99,11 @@ class _PDF(FPDF):
         self.set_xy(x, y + 3)
         self.set_font("Helvetica", "", 7)
         self.set_text_color(*_MUTED)
-        self.cell(w, 4, label.upper(), align="C", ln=True)
+        self.cell(w, 4, label.upper(), align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
         self.set_xy(x, y + 8)
         self.set_font("Helvetica", "B", 18)
         self.set_text_color(*color)
-        self.cell(w, 10, str(value), align="C", ln=True)
+        self.cell(w, 10, str(value), align="C", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     def _finding_row(self, f, is_shade: bool):
         tier_val  = str(getattr(f.deal_tier, "value", f.deal_tier))
@@ -130,29 +131,29 @@ class _PDF(FPDF):
         self.set_xy(x0 + 6, y0 + 1)
         self.set_font("Helvetica", "", 7.5)
         self.set_text_color(*_TEXT)
-        self.cell(82, row_h - 2, title, ln=0)
+        self.cell(82, row_h - 2, title, new_x=XPos.RIGHT, new_y=YPos.TOP)
 
         # Host:Port
         host_str = _safe(f"{f.host or '-'}:{f.port}" if f.port else (f.host or "-"))
         self.set_font("Helvetica", "", 7)
         self.set_text_color(*_MUTED)
-        self.cell(32, row_h - 2, host_str, ln=0)
+        self.cell(32, row_h - 2, host_str, new_x=XPos.RIGHT, new_y=YPos.TOP)
 
         # Scanner
         src = str(getattr(f.scanner_source, "value", f.scanner_source)).upper()
-        self.cell(18, row_h - 2, src, ln=0)
+        self.cell(18, row_h - 2, src, new_x=XPos.RIGHT, new_y=YPos.TOP)
 
         # CVSS
-        self.cell(14, row_h - 2, f"{f.cvss_score:.1f}", ln=0, align="C")
+        self.cell(14, row_h - 2, f"{f.cvss_score:.1f}", new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
 
         # Evidence
         ev = str(getattr(f.evidence_strength, "value", f.evidence_strength)).title()
-        self.cell(22, row_h - 2, ev, ln=0)
+        self.cell(22, row_h - 2, ev, new_x=XPos.RIGHT, new_y=YPos.TOP)
 
         # Risk score
         self.set_font("Helvetica", "B", 8)
         self.set_text_color(*sc)
-        self.cell(16, row_h - 2, f"{f.risk_score:.1f}", ln=0, align="R")
+        self.cell(16, row_h - 2, f"{f.risk_score:.1f}", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
 
         self.ln(row_h)
 
@@ -197,7 +198,7 @@ def generate_cost_section(
     pdf.add_page()
     pdf.set_font("Helvetica", "B", 14)
     pdf.set_text_color(*_RED)
-    pdf.cell(0, 10, "Cost & Remediation Budget", ln=True)
+    pdf.cell(0, 10, "Cost & Remediation Budget", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
     pdf.set_draw_color(*_BORDER)
     pdf.line(10, pdf.get_y(), 200, pdf.get_y())
     pdf.ln(4)
@@ -238,7 +239,7 @@ def generate_cost_section(
     pdf.set_text_color(*_MUTED)
     pdf.set_x(10)
     for col, w in headers:
-        pdf.cell(w, 7, col, ln=0, align="L" if col == "Title" else "C")
+        pdf.cell(w, 7, col, new_x=XPos.RIGHT, new_y=YPos.TOP, align="L" if col == "Title" else "C")
     pdf.ln(7)
 
     for idx, item in enumerate(rollup.line_items):
@@ -261,15 +262,15 @@ def generate_cost_section(
         cat = str(getattr(item.category, "value", item.category)).replace("_", " ").title()
         ce  = str(getattr(item.capex_opex, "value", item.capex_opex)).upper()
 
-        pdf.cell(70, 5, _safe(title_short), ln=0)
-        pdf.cell(28, 5, _safe(cat[:18]),    ln=0, align="C")
-        pdf.cell(16, 5, ce,                 ln=0, align="C")
-        pdf.cell(22, 5, f"${item.cost.low:,.0f}",  ln=0, align="R")
-        pdf.cell(22, 5, f"${item.cost.base:,.0f}", ln=0, align="R")
-        pdf.cell(22, 5, f"${item.cost.high:,.0f}", ln=0, align="R")
+        pdf.cell(70, 5, _safe(title_short), new_x=XPos.RIGHT, new_y=YPos.TOP)
+        pdf.cell(28, 5, _safe(cat[:18]),    new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
+        pdf.cell(16, 5, ce,                 new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
+        pdf.cell(22, 5, f"${item.cost.low:,.0f}",  new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
+        pdf.cell(22, 5, f"${item.cost.base:,.0f}", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
+        pdf.cell(22, 5, f"${item.cost.high:,.0f}", new_x=XPos.RIGHT, new_y=YPos.TOP, align="R")
         flag_str = "!" if has_flags else ""
         pdf.set_text_color(*(_RED if has_flags else _MUTED))
-        pdf.cell(10, 5, flag_str, ln=0, align="C")
+        pdf.cell(10, 5, flag_str, new_x=XPos.RIGHT, new_y=YPos.TOP, align="C")
         pdf.ln(7)
 
     pdf.output(out_path)
@@ -315,28 +316,28 @@ def generate_pdf_report(
     pdf.set_xy(10, 24)
     pdf.set_font("Helvetica", "B", 22)
     pdf.set_text_color(*_TEXT)
-    pdf.cell(0, 10, "RedFlag", ln=True)
+    pdf.cell(0, 10, "RedFlag", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     pdf.set_x(10)
     pdf.set_font("Helvetica", "", 11)
     pdf.set_text_color(*_MUTED)
-    pdf.cell(0, 7, "Cybersecurity Due Diligence Report", ln=True)
+    pdf.cell(0, 7, "Cybersecurity Due Diligence Report", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     pdf.set_x(10)
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(*_TEXT)
-    pdf.cell(30, 6, "Target:", ln=0)
+    pdf.cell(30, 6, "Target:", new_x=XPos.RIGHT, new_y=YPos.TOP)
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*_BLUE)
-    pdf.cell(0, 6, f"{target}  ({resolved_ip})", ln=True)
+    pdf.cell(0, 6, f"{target}  ({resolved_ip})", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     pdf.set_x(10)
     pdf.set_font("Helvetica", "B", 10)
     pdf.set_text_color(*_TEXT)
-    pdf.cell(30, 6, "Generated:", ln=0)
+    pdf.cell(30, 6, "Generated:", new_x=XPos.RIGHT, new_y=YPos.TOP)
     pdf.set_font("Helvetica", "", 10)
     pdf.set_text_color(*_MUTED)
-    pdf.cell(0, 6, scan_date, ln=True)
+    pdf.cell(0, 6, scan_date, new_x=XPos.LMARGIN, new_y=YPos.NEXT)
 
     pdf.ln(6)
 
@@ -372,13 +373,13 @@ def generate_pdf_report(
             pdf.set_xy(10, y0 + 3)
             pdf.set_font("Helvetica", "B", 9)
             pdf.set_text_color(*_RED)
-            pdf.cell(0, 5, _safe(f.title[:90]), ln=True)
+            pdf.cell(0, 5, _safe(f.title[:90]), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             pdf.set_x(10)
             pdf.set_font("Helvetica", "", 8)
             pdf.set_text_color(*_MUTED)
             host_str = f"{f.host}:{f.port}" if f.port else (f.host or "—")
             cve_str  = f.cve_id or "-"
-            pdf.cell(0, 5, _safe(f"Host: {host_str}   CVE: {cve_str}   CVSS: {f.cvss_score:.1f}   Score: {f.risk_score:.1f}"), ln=True)
+            pdf.cell(0, 5, _safe(f"Host: {host_str}   CVE: {cve_str}   CVSS: {f.cvss_score:.1f}   Score: {f.risk_score:.1f}"), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
             if f.override_reason:
                 pdf.set_x(10)
                 pdf.set_font("Helvetica", "I", 7.5)
@@ -392,7 +393,7 @@ def generate_pdf_report(
             pdf.set_x(10)
             pdf.set_font("Helvetica", "B", 7.5)
             pdf.set_text_color(*_ORANGE)
-            pdf.cell(22, 4.5, "Remediation:", ln=0)
+            pdf.cell(22, 4.5, "Remediation:", new_x=XPos.RIGHT, new_y=YPos.TOP)
             pdf.set_font("Helvetica", "", 7.5)
             pdf.set_text_color(*_TEXT)
             rem = f.remediation[:220] + ("..." if len(f.remediation) > 220 else "")
@@ -410,7 +411,7 @@ def generate_pdf_report(
     pdf.set_text_color(*_MUTED)
     pdf.set_x(10)
     for col, w in [("Title", 88), ("Host:Port", 32), ("Scanner", 18), ("CVSS", 14), ("Evidence", 22), ("Score", 16)]:
-        pdf.cell(w, 7, col, ln=0, align="L" if col not in ("CVSS", "Score") else "C")
+        pdf.cell(w, 7, col, new_x=XPos.RIGHT, new_y=YPos.TOP, align="L" if col not in ("CVSS", "Score") else "C")
     pdf.ln(7)
 
     for i, f in enumerate(findings):

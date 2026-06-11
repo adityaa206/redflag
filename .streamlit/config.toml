@@ -1,0 +1,51 @@
+# ══════════════════════════════════════════════════════════════
+#  RedFlag — Design System v4  ·  native theme foundation
+#  Locks the app to dark mode and themes every native Streamlit
+#  surface (widgets, menus, tooltips, dataframe, charts) to match
+#  the injected CSS layer in app.py. Without this, Streamlit follows
+#  the visitor's OS light/dark setting and native widgets clash.
+# ══════════════════════════════════════════════════════════════
+
+[theme]
+base = "dark"
+
+# ── Core surfaces ──
+primaryColor             = "#3d7fff"   # electric blue — buttons, focus, active
+backgroundColor          = "#080c14"   # app background
+secondaryBackgroundColor = "#0f1623"   # cards, widgets, code blocks
+textColor                = "#c8daf5"   # body text
+borderColor              = "#1a2640"   # widget borders
+linkColor                = "#6fa3ff"
+linkUnderline            = false
+
+# ── Code ──
+codeBackgroundColor = "#0a0f1c"
+codeTextColor       = "#c8daf5"
+
+# ── Semantic palette (matches tier + badge colors) ──
+redColor    = "#e6394a"
+orangeColor = "#f97316"
+yellowColor = "#f59e0b"
+greenColor  = "#10b981"
+blueColor   = "#3d7fff"
+violetColor = "#a78bfa"
+grayColor   = "#6b7280"
+
+# ── Dataframe (findings table) ──
+dataframeBorderColor           = "#1a2640"
+dataframeHeaderBackgroundColor = "#0a0f1c"
+
+# ── Charts (Plotly donut, etc.) — tier-ordered ──
+chartCategoricalColors = ["#e6394a", "#f97316", "#f59e0b", "#10b981", "#3d7fff", "#a78bfa", "#6b7280"]
+
+# ── Shape ──
+baseRadius       = "large"   # 12px — matches card radii
+buttonRadius     = "medium"  # 10px — matches primary button
+showWidgetBorder = true
+
+# ── Typography ──
+# Loaded via Google Fonts at the theme level (non-render-blocking),
+# replacing the @import in app.py's CSS.
+font        = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+headingFont = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@600;700;800&display=swap"
+codeFont    = "'JetBrains Mono':https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap"

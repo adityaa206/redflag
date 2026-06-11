@@ -621,6 +621,108 @@ html, body, [class*="css"],
 """, unsafe_allow_html=True)
 
 
+# ── Design System v4.1 — DEPTH & GLOW layer ─────────────────────────────────────
+# Appended on top of v4 so every shared surface gains glassmorphism, layered
+# shadows, and soft accent glows without touching any tab markup.
+st.markdown("""
+<style>
+/* ── Ambient atmosphere: fixed corner glows behind everything ── */
+[data-testid="stAppViewContainer"] {
+    background:
+        radial-gradient(1100px 640px at 6% -10%, rgba(61,127,255,0.075), transparent 55%),
+        radial-gradient(950px 620px at 102% 110%, rgba(230,57,74,0.06), transparent 55%),
+        #080c14 !important;
+    background-attachment: fixed !important;
+}
+
+/* ── Metric cards: frosted glass + accent glow + neon value ── */
+.rf-metric {
+    background: linear-gradient(165deg, rgba(28,40,68,0.55) 0%, rgba(14,21,34,0.88) 100%) !important;
+    backdrop-filter: blur(10px) saturate(125%);
+    -webkit-backdrop-filter: blur(10px) saturate(125%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.05), 0 10px 30px rgba(0,0,0,0.45);
+}
+.rf-metric::after {
+    content: ''; position: absolute; top: -34%; left: 50%; transform: translateX(-50%);
+    width: 78%; height: 66%; border-radius: 50%;
+    filter: blur(30px); opacity: 0.55; z-index: 0; pointer-events: none;
+}
+.rf-metric .label, .rf-metric .value { position: relative; z-index: 1; }
+.rf-metric.red::after    { background: radial-gradient(circle, rgba(230,57,74,0.34), transparent 70%); }
+.rf-metric.orange::after { background: radial-gradient(circle, rgba(249,115,22,0.30), transparent 70%); }
+.rf-metric.yellow::after { background: radial-gradient(circle, rgba(245,158,11,0.24), transparent 70%); }
+.rf-metric.green::after  { background: radial-gradient(circle, rgba(16,185,129,0.26), transparent 70%); }
+.rf-metric.blue::after   { background: radial-gradient(circle, rgba(61,127,255,0.30), transparent 70%); }
+.rf-metric.red .value    { text-shadow: 0 0 22px rgba(230,57,74,0.55); }
+.rf-metric.orange .value { text-shadow: 0 0 22px rgba(249,115,22,0.5); }
+.rf-metric.yellow .value { text-shadow: 0 0 22px rgba(245,158,11,0.45); }
+.rf-metric.green .value  { text-shadow: 0 0 22px rgba(16,185,129,0.45); }
+.rf-metric.blue .value   { text-shadow: 0 0 22px rgba(61,127,255,0.5); }
+.rf-metric:hover {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 44px rgba(0,0,0,0.6) !important;
+}
+
+/* ── Panels: translucent glass so the ambient glow reads through ── */
+.rf-target-panel, .rf-pipeline-h {
+    background: rgba(15,22,35,0.72) !important;
+    backdrop-filter: blur(9px) saturate(115%);
+    -webkit-backdrop-filter: blur(9px) saturate(115%);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 8px 26px rgba(0,0,0,0.42);
+}
+.rf-shodan {
+    background: rgba(12,20,34,0.74) !important;
+    backdrop-filter: blur(9px) saturate(115%);
+    -webkit-backdrop-filter: blur(9px) saturate(115%);
+    box-shadow: inset 0 1px 0 rgba(61,127,255,0.10), 0 8px 26px rgba(0,0,0,0.42),
+                0 0 34px rgba(61,127,255,0.05);
+}
+
+/* ── Finding + mini cards: subtle glass depth at rest ── */
+.finding-card {
+    background: rgba(15,22,35,0.70) !important;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 6px 20px rgba(0,0,0,0.35);
+}
+.fmc {
+    background: rgba(15,22,35,0.66) !important;
+    backdrop-filter: blur(7px);
+    -webkit-backdrop-filter: blur(7px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.03), 0 5px 16px rgba(0,0,0,0.3);
+}
+
+/* ── Scan hero + deal-killer alert + pre-scan cards: more depth ── */
+.rf-scan-hero {
+    box-shadow: 0 22px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
+}
+.dk-alert {
+    box-shadow: 0 0 44px rgba(230,57,74,0.10), inset 0 1px 0 rgba(255,255,255,0.04);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+.rf-prescan-card {
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.42);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    transition: transform 0.2s ease, box-shadow 0.25s ease;
+}
+.rf-prescan-card:hover {
+    transform: translateY(-2px);
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.06), 0 16px 40px rgba(0,0,0,0.55);
+}
+
+/* ── Active tab: soft electric glow ── */
+[data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
+    text-shadow: 0 0 16px rgba(61,127,255,0.5);
+}
+
+/* ── Expanders: lift off the page ── */
+[data-testid="stExpander"] details {
+    box-shadow: 0 6px 20px rgba(0,0,0,0.32);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+}
+</style>
+""", unsafe_allow_html=True)
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 TIER_COLOR = {
@@ -681,6 +783,19 @@ def _hex_to_rgba(hex_color: str, alpha: float) -> str:
     h = hex_color.lstrip("#")
     r, g, b = int(h[0:2], 16), int(h[2:4], 16), int(h[4:6], 16)
     return f"rgba({r},{g},{b},{alpha})"
+
+
+def _embed_html(html: str, height: int = 0, scrolling: bool = False):
+    """Render raw HTML + JS inside a sandboxed iframe.
+
+    Calls ``st._main._html`` — the exact implementation that the now-deprecated
+    ``st.components.v1.html`` wraps. We call it directly to avoid the in-browser
+    deprecation warning while keeping JS-in-iframe behaviour, which the public
+    alternatives cannot provide: ``st.html`` renders inline (no iframe) and
+    ``st.iframe`` accepts a URL only (no raw HTML). Used for the pyvis attack
+    graph and the metric-card → Findings tab switcher.
+    """
+    return st._main._html(html, height=height, scrolling=scrolling)
 
 
 def _build_attack_graph_html(graph_data) -> str | None:
@@ -927,7 +1042,7 @@ with scan_col1:
         label_visibility="collapsed",
     )
 with scan_col2:
-    run_scan = st.button("Run Comprehensive Scan", use_container_width=True, type="primary")
+    run_scan = st.button("Run Comprehensive Scan", width="stretch", type="primary")
 with scan_col3:
     st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     fast_mode = st.checkbox("Fast Scan Mode", value=False,
@@ -1237,22 +1352,22 @@ if "findings" in st.session_state:
             st.markdown(metric_card("Total Findings", n_total, "blue"), unsafe_allow_html=True)
         with mc2:
             st.markdown(metric_card("Deal Killers", n_dk, "red"), unsafe_allow_html=True)
-            if st.button("View all ›", key="mc_dk", use_container_width=True):
+            if st.button("View all ›", key="mc_dk", width="stretch"):
                 st.session_state["tier_preset"]         = "deal_killer"
                 st.session_state["_switch_to_findings"] = True
         with mc3:
             st.markdown(metric_card("Critical", n_crit, "orange"), unsafe_allow_html=True)
-            if st.button("View all ›", key="mc_crit", use_container_width=True):
+            if st.button("View all ›", key="mc_crit", width="stretch"):
                 st.session_state["tier_preset"]         = "critical"
                 st.session_state["_switch_to_findings"] = True
         with mc4:
             st.markdown(metric_card("Moderate", n_mod, "yellow"), unsafe_allow_html=True)
-            if st.button("View all ›", key="mc_mod", use_container_width=True):
+            if st.button("View all ›", key="mc_mod", width="stretch"):
                 st.session_state["tier_preset"]         = "moderate"
                 st.session_state["_switch_to_findings"] = True
         with mc5:
             st.markdown(metric_card("Manageable", n_man, "green"), unsafe_allow_html=True)
-            if st.button("View all ›", key="mc_man", use_container_width=True):
+            if st.button("View all ›", key="mc_man", width="stretch"):
                 st.session_state["tier_preset"]         = "manageable"
                 st.session_state["_switch_to_findings"] = True
 
@@ -1354,7 +1469,7 @@ if "findings" in st.session_state:
                         font=dict(family="JetBrains Mono"), showarrow=False,
                     )],
                 )
-                st.plotly_chart(fig, use_container_width=True, config={"displayModeBar": False})
+                st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
 
             # Risk Profile Summary (collapsible)
             avg_score = sum(f.risk_score for f in findings) / len(findings) if findings else 0
@@ -1701,10 +1816,20 @@ if "findings" in st.session_state:
 
             df = pd.DataFrame(rows).sort_values("Risk Score", ascending=False).reset_index(drop=True)
 
-            # Apply preset tier filter from metric card click (Overview → Findings navigation)
+            # Apply preset tier filter from metric card click (Overview → Findings navigation).
+            # The multiselect is driven entirely through session_state (no `default=`) to avoid
+            # Streamlit's "default value + session state" conflict warning.
+            _all_tiers = sorted(df["Deal Tier"].dropna().unique())
+            if "tier_filter_ms" not in st.session_state:
+                st.session_state["tier_filter_ms"] = _all_tiers
+            else:
+                # Drop any tiers no longer present in the current scan (stale-state repair)
+                st.session_state["tier_filter_ms"] = [
+                    t for t in st.session_state["tier_filter_ms"] if t in _all_tiers
+                ]
             if "tier_preset" in st.session_state:
                 _preset = st.session_state.pop("tier_preset")
-                if _preset in df["Deal Tier"].values:
+                if _preset in _all_tiers:
                     st.session_state["tier_filter_ms"] = [_preset]
 
             # Filters
@@ -1713,8 +1838,7 @@ if "findings" in st.session_state:
             with fc1:
                 selected_tiers = st.multiselect(
                     "Deal Tier",
-                    options=sorted(df["Deal Tier"].dropna().unique()),
-                    default=sorted(df["Deal Tier"].dropna().unique()),
+                    options=_all_tiers,
                     key="tier_filter_ms",
                 )
             with fc2:
@@ -1742,7 +1866,7 @@ if "findings" in st.session_state:
 
             st.dataframe(
                 table_df,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
                 column_config={
                     "Title":    st.column_config.TextColumn("Title", width="large"),
@@ -1876,7 +2000,7 @@ if "findings" in st.session_state:
                 _orig_tier_lbl, _orig_tier_col  = _overall_tier(findings)
                 _sim_tier_lbl,  _sim_tier_col   = _overall_tier(_simulated)
 
-                st.markdown(f"""
+                st.html(f"""
                 <div style="background:linear-gradient(135deg,#0a1020,#080c14);
                             border:1px solid #1a2640;border-radius:14px;padding:20px 24px;
                             margin-top:8px;">
@@ -1886,7 +2010,6 @@ if "findings" in st.session_state:
                     Simulated Risk Profile — {len(_wi_selected_ids)} finding(s) marked as resolved
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
-
                     <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
                                   text-transform:uppercase;color:#2d4060;
@@ -1898,7 +2021,6 @@ if "findings" in st.session_state:
                         &nbsp;<span style="color:#10b981;">▼ {_delta_score:.1f}</span>
                       </div>
                     </div>
-
                     <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
                                   text-transform:uppercase;color:#2d4060;
@@ -1910,7 +2032,6 @@ if "findings" in st.session_state:
                         {('<span style="color:#10b981;">&nbsp;✓ cleared</span>' if _sim_dk == 0 and _orig_dk > 0 else "")}
                       </div>
                     </div>
-
                     <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
                                   text-transform:uppercase;color:#2d4060;
@@ -1921,7 +2042,6 @@ if "findings" in st.session_state:
                         → <span style="color:{'#10b981' if _sim_crit < _orig_crit else '#f97316'};font-weight:700;">{_sim_crit}</span>
                       </div>
                     </div>
-
                     <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
                                   text-transform:uppercase;color:#2d4060;
@@ -1933,7 +2053,6 @@ if "findings" in st.session_state:
                         {('<span style="color:#10b981;">&nbsp;✓ improved</span>' if _sim_tier_lbl != _orig_tier_lbl else "")}
                       </div>
                     </div>
-
                   </div>
                   <div style="margin-top:12px;padding-top:12px;border-top:1px solid #141d2e;
                               font-size:0.74rem;color:#3a5070;font-family:'Inter',sans-serif;line-height:1.6;">
@@ -1941,7 +2060,7 @@ if "findings" in st.session_state:
                     by <strong style="color:#c8daf5;">{_delta_score:.1f} points</strong>
                     ({len(findings) - len(_simulated)} fewer findings in scope).
                   </div>
-                </div>""", unsafe_allow_html=True)
+                </div>""")
             else:
                 st.markdown(
                     "<div style='padding:12px 0;font-size:0.75rem;color:#2d4060;"
@@ -1960,7 +2079,6 @@ if "findings" in st.session_state:
 
     with tab_attack:
         from analysis.graph_builder import build_attack_graph
-        import streamlit.components.v1 as _components
 
         _graph = build_attack_graph(findings)
 
@@ -2010,7 +2128,7 @@ if "findings" in st.session_state:
             if _html is None:
                 st.warning("pyvis is not installed. Run `pip install pyvis` to enable this view.")
             else:
-                _components.html(_html, height=700, scrolling=False)
+                _embed_html(_html, height=700, scrolling=False)
 
         # ── Legend ───────────────────────────────────────────────────────────────
         st.markdown("""
@@ -2086,7 +2204,7 @@ if "findings" in st.session_state:
 
             submitted = st.form_submit_button(
                 "Run Maturity Assessment",
-                use_container_width=True,
+                width="stretch",
             )
 
         if submitted:
@@ -2231,7 +2349,7 @@ if "findings" in st.session_state:
             help="Requires a completed Maturity Assessment.",
         )
 
-        if st.button("Generate Cost Estimate", use_container_width=False):
+        if st.button("Generate Cost Estimate", width="content"):
             with st.spinner("Building cost model…"):
                 rollup = run_cost_pipeline(
                     findings=findings,
@@ -2341,7 +2459,7 @@ if "findings" in st.session_state:
             cost_df = _pd_cost.DataFrame(cost_rows)
             st.dataframe(
                 cost_df,
-                use_container_width=True,
+                width="stretch",
                 hide_index=True,
                 column_config={
                     "Low ($)":  st.column_config.NumberColumn(format="$%d"),
@@ -2367,7 +2485,7 @@ if "findings" in st.session_state:
                             data=csv_bytes,
                             file_name=f"redflag_cost_{clean_target.replace('.', '_')}.csv",
                             mime="text/csv",
-                            use_container_width=True,
+                            width="stretch",
                         )
                     except Exception as e_csv:
                         st.error(f"CSV export failed: {e_csv}")
@@ -2380,7 +2498,7 @@ if "findings" in st.session_state:
                             data=xlsx_bytes,
                             file_name=f"redflag_cost_{clean_target.replace('.', '_')}.xlsx",
                             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-                            use_container_width=True,
+                            width="stretch",
                         )
                     except ImportError:
                         st.info("Install openpyxl for XLSX export: `pip install openpyxl`")
@@ -2450,7 +2568,7 @@ if "findings" in st.session_state:
                     data=f,
                     file_name=csv_file.split("\\")[-1].split("/")[-1],
                     mime="text/csv",
-                    use_container_width=True,
+                    width="stretch",
                 )
 
             st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
@@ -2462,7 +2580,7 @@ if "findings" in st.session_state:
                     data=f,
                     file_name=pdf_file.split("\\")[-1].split("/")[-1],
                     mime="application/pdf",
-                    use_container_width=True,
+                    width="stretch",
                 )
 
     # ══════════════════════════════════════════════════════════════════════════════
@@ -2477,8 +2595,7 @@ if "findings" in st.session_state:
 
     if st.session_state.get("_switch_to_findings"):
         st.session_state["_switch_to_findings"] = False
-        import streamlit.components.v1 as _components
-        _components.html(
+        _embed_html(
             """<script>
             (function () {
                 var parent = window.parent;

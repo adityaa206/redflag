@@ -28,3 +28,20 @@ build/
 # OS
 .DS_Store
 Thumbs.db
+
+# Claude Code local files
+.claude/
+
+# Generated docs / reports
+*.pdf
+*.docx
+*.png
+example_reports/
+
+# PDF generation scripts
+generate_explainer_pdf.py
+generate_implementation_guide.py
+generate_roadmap_pdf.py
+
+# Vendored / local libs
+lib/
