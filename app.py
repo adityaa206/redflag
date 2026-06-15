@@ -27,7 +27,7 @@ st.set_page_config(
     page_title="RedFlag",
     page_icon="🚩",
     layout="wide",
-    initial_sidebar_state="collapsed"
+    initial_sidebar_state="expanded"
 )
 
 # ── Global styles ──────────────────────────────────────────────────────────────
@@ -35,15 +35,15 @@ st.set_page_config(
 st.markdown("""
 <style>
 /* ══════════════════════════════════════════════════════════════
-   REDFLAG  —  Design System v4
-   Fonts  : JetBrains Mono + Inter
-   Palette: Deep navy · Signal red · Electric blue
+   REDFLAG  —  Design System v5 · ULTRAVIOLET
+   Fonts  : Space Grotesk + IBM Plex Mono
+   Palette: Void violet-black · Electric violet · Neon crimson · Cyan
 ══════════════════════════════════════════════════════════════ */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
 
 /* ── Base ── */
-[data-testid="stAppViewContainer"] { background: #080c14 !important; }
+[data-testid="stAppViewContainer"] { background: #07060f !important; }
 [data-testid="stHeader"]           { display: none !important; }
 [data-testid="stMainBlockContainer"] { padding-top: 0 !important; max-width: 100% !important; }
 [data-testid="stAppViewBlockContainer"] { padding: 0 2rem !important; }
@@ -51,13 +51,13 @@ html, body, [class*="css"],
 [data-testid="stMarkdownContainer"] p,
 [data-testid="stMarkdownContainer"] li,
 .stCheckbox label, .stSlider label, .stMultiSelect label,
-.stCaption, .stAlert p, button { font-family: 'Inter', -apple-system, sans-serif !important; }
+.stCaption, .stAlert p, button { font-family: 'Space Grotesk', -apple-system, sans-serif !important; }
 
 /* ── TOP NAVBAR ── */
 .rf-topnav {
     display: flex; align-items: center; padding: 0 24px;
-    height: 52px; background: #0a0f1c;
-    border-bottom: 1px solid #141d2e;
+    height: 52px; background: #0b0917;
+    border-bottom: 1px solid #1d1735;
     margin: 0 -2rem 20px; gap: 0;
     position: sticky; top: 0; z-index: 999;
 }
@@ -65,33 +65,33 @@ html, body, [class*="css"],
     display: flex; align-items: center; gap: 12px; text-decoration: none;
 }
 .rf-brand-icon {
-    width: 32px; height: 32px; background: linear-gradient(135deg, #e6394a 0%, #9f1239 100%);
-    border-radius: 8px; display: flex; align-items: center; justify-content: center;
+    width: 32px; height: 32px; background: linear-gradient(135deg, #ff3b5f 0%, #8b5cf6 100%);
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
     font-size: 0.6rem; color: white; font-weight: 900; letter-spacing: 0.05em;
-    box-shadow: 0 2px 14px rgba(230,57,74,0.4); flex-shrink: 0;
+    box-shadow: 0 2px 14px rgba(255,59,95,0.35), 0 2px 18px rgba(139,92,246,0.3); flex-shrink: 0;
 }
 .rf-brand-text { display: flex; flex-direction: column; gap: 1px; }
 .rf-brand-name {
-    font-size: 1.05rem; font-weight: 800; color: #e8f0ff;
-    letter-spacing: -0.02em; font-family: 'Inter', sans-serif; line-height: 1;
+    font-size: 1.05rem; font-weight: 800; color: #f1edfe;
+    letter-spacing: -0.02em; font-family: 'Space Grotesk', sans-serif; line-height: 1;
 }
 .rf-brand-sub {
-    font-size: 0.55rem; font-weight: 600; color: #2d4060;
+    font-size: 0.55rem; font-weight: 600; color: #4d4274;
     letter-spacing: 0.1em; text-transform: uppercase;
-    font-family: 'JetBrains Mono', monospace; line-height: 1;
+    font-family: 'IBM Plex Mono', monospace; line-height: 1;
 }
 .rf-engines-text {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 600;
-    color: #1e2d45; letter-spacing: 0.08em; text-transform: uppercase;
-    padding: 4px 14px; border-left: 1px solid #141d2e;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; font-weight: 600;
+    color: #2c2253; letter-spacing: 0.08em; text-transform: uppercase;
+    padding: 4px 14px; border-left: 1px solid #1d1735;
     margin: 0 16px;
 }
 .rf-nav-right { display: flex; align-items: center; gap: 10px; }
 
 /* ── METRIC CARDS ── */
 .rf-metric {
-    background: #0f1623;
-    border: 1px solid #1a2640;
+    background: #130f23;
+    border: 1px solid #261d46;
     border-radius: 14px 14px 0 0;
     padding: 18px 16px 16px;
     text-align: center;
@@ -110,139 +110,139 @@ html, body, [class*="css"],
 .rf-metric:hover { transform: translateY(-2px); }
 .rf-metric .label {
     font-size: 0.58rem; font-weight: 700; letter-spacing: 0.18em;
-    text-transform: uppercase; color: #2d4060; margin-bottom: 10px;
-    font-family: 'JetBrains Mono', monospace;
+    text-transform: uppercase; color: #4d4274; margin-bottom: 10px;
+    font-family: 'IBM Plex Mono', monospace;
 }
 .rf-metric .value {
     font-size: 2.6rem; font-weight: 700; line-height: 1;
-    font-family: 'JetBrains Mono', monospace; letter-spacing: -0.03em;
+    font-family: 'IBM Plex Mono', monospace; letter-spacing: -0.03em;
 }
-.rf-metric.red::before    { background: linear-gradient(90deg, #e6394a, #9f1239); }
-.rf-metric.red .value     { color: #e6394a; }
-.rf-metric.red:hover      { box-shadow: 0 8px 32px rgba(230,57,74,0.2); border-color: rgba(230,57,74,0.2); }
-.rf-metric.orange::before { background: linear-gradient(90deg, #f97316, #c2410c); }
-.rf-metric.orange .value  { color: #f97316; }
-.rf-metric.orange:hover   { box-shadow: 0 8px 32px rgba(249,115,22,0.18); border-color: rgba(249,115,22,0.2); }
-.rf-metric.yellow::before { background: linear-gradient(90deg, #f59e0b, #b45309); }
-.rf-metric.yellow .value  { color: #f59e0b; }
-.rf-metric.yellow:hover   { box-shadow: 0 8px 32px rgba(245,158,11,0.15); border-color: rgba(245,158,11,0.18); }
-.rf-metric.green::before  { background: linear-gradient(90deg, #10b981, #065f46); }
-.rf-metric.green .value   { color: #10b981; }
-.rf-metric.green:hover    { box-shadow: 0 8px 32px rgba(16,185,129,0.16); border-color: rgba(16,185,129,0.18); }
-.rf-metric.blue::before   { background: linear-gradient(90deg, #3d7fff, #1d4ed8); }
-.rf-metric.blue .value    { color: #6fa3ff; }
-.rf-metric.blue:hover     { box-shadow: 0 8px 32px rgba(61,127,255,0.18); border-color: rgba(61,127,255,0.18); }
+.rf-metric.red::before    { background: linear-gradient(90deg, #ff3b5f, #c1124d); }
+.rf-metric.red .value     { color: #ff3b5f; }
+.rf-metric.red:hover      { box-shadow: 0 8px 32px rgba(255,59,95,0.2); border-color: rgba(255,59,95,0.2); }
+.rf-metric.orange::before { background: linear-gradient(90deg, #ff7849, #d8490e); }
+.rf-metric.orange .value  { color: #ff7849; }
+.rf-metric.orange:hover   { box-shadow: 0 8px 32px rgba(255,120,73,0.18); border-color: rgba(255,120,73,0.2); }
+.rf-metric.yellow::before { background: linear-gradient(90deg, #fbbf24, #d97706); }
+.rf-metric.yellow .value  { color: #fbbf24; }
+.rf-metric.yellow:hover   { box-shadow: 0 8px 32px rgba(251,191,36,0.15); border-color: rgba(251,191,36,0.18); }
+.rf-metric.green::before  { background: linear-gradient(90deg, #2dd4a0, #0d9468); }
+.rf-metric.green .value   { color: #2dd4a0; }
+.rf-metric.green:hover    { box-shadow: 0 8px 32px rgba(45,212,160,0.16); border-color: rgba(45,212,160,0.18); }
+.rf-metric.blue::before   { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+.rf-metric.blue .value    { color: #b39dfb; }
+.rf-metric.blue:hover     { box-shadow: 0 8px 32px rgba(139,92,246,0.18); border-color: rgba(139,92,246,0.18); }
 
 /* ── SECTION LABEL ── */
 .rf-section-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
-    letter-spacing: 0.2em; text-transform: uppercase; color: #2d4060;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #4d4274;
     display: flex; align-items: center; gap: 10px;
     margin-bottom: 12px; margin-top: 4px;
 }
 .rf-section-label::after {
     content: ''; flex: 1; height: 1px;
-    background: linear-gradient(90deg, #141d2e 0%, transparent 100%);
+    background: linear-gradient(90deg, #1d1735 0%, transparent 100%);
 }
 
 /* ── BADGES ── */
 .badge {
     display: inline-flex; align-items: center; padding: 3px 9px; border-radius: 5px;
     font-size: 0.59rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-    font-family: 'JetBrains Mono', monospace;
+    font-family: 'IBM Plex Mono', monospace;
 }
-.badge-dk   { background: rgba(230,57,74,0.12);  color: #f87171; border: 1px solid rgba(230,57,74,0.3); }
-.badge-crit { background: rgba(249,115,22,0.12); color: #f97316; border: 1px solid rgba(249,115,22,0.3); }
-.badge-mod  { background: rgba(245,158,11,0.1);  color: #f59e0b; border: 1px solid rgba(245,158,11,0.3); }
-.badge-man  { background: rgba(16,185,129,0.1);  color: #10b981; border: 1px solid rgba(16,185,129,0.25); }
-.badge-unk  { background: rgba(107,114,128,0.08);color: #6b7280; border: 1px solid rgba(107,114,128,0.2); }
-.badge-inet { background: rgba(61,127,255,0.1);  color: #6fa3ff; border: 1px solid rgba(61,127,255,0.3); }
-.badge-part { background: rgba(167,139,250,0.1); color: #a78bfa; border: 1px solid rgba(124,58,237,0.3); }
-.badge-int  { background: rgba(16,185,129,0.08); color: #10b981; border: 1px solid rgba(16,185,129,0.22); }
-.badge-ukn  { background: rgba(107,114,128,0.08);color: #6b7280; border: 1px solid rgba(55,65,81,0.22); }
+.badge-dk   { background: rgba(255,59,95,0.12);  color: #ff8298; border: 1px solid rgba(255,59,95,0.3); }
+.badge-crit { background: rgba(255,120,73,0.12); color: #ff7849; border: 1px solid rgba(255,120,73,0.3); }
+.badge-mod  { background: rgba(251,191,36,0.1);  color: #fbbf24; border: 1px solid rgba(251,191,36,0.3); }
+.badge-man  { background: rgba(45,212,160,0.1);  color: #2dd4a0; border: 1px solid rgba(45,212,160,0.25); }
+.badge-unk  { background: rgba(125,119,149,0.08);color: #7d7795; border: 1px solid rgba(125,119,149,0.2); }
+.badge-inet { background: rgba(139,92,246,0.1);  color: #b39dfb; border: 1px solid rgba(139,92,246,0.3); }
+.badge-part { background: rgba(34,211,238,0.1); color: #22d3ee; border: 1px solid rgba(124,58,237,0.3); }
+.badge-int  { background: rgba(45,212,160,0.08); color: #2dd4a0; border: 1px solid rgba(45,212,160,0.22); }
+.badge-ukn  { background: rgba(125,119,149,0.08);color: #7d7795; border: 1px solid rgba(55,65,81,0.22); }
 
 /* ── FINDING CARDS ── */
 @keyframes pulse-dk {
-    0%,100% { box-shadow: 0 0 0 0 rgba(230,57,74,0.25); }
-    50%      { box-shadow: 0 0 0 4px rgba(230,57,74,0); }
+    0%,100% { box-shadow: 0 0 0 0 rgba(255,59,95,0.25); }
+    50%      { box-shadow: 0 0 0 4px rgba(255,59,95,0); }
 }
 .finding-card {
-    background: #0f1623;
-    border: 1px solid #1a2640;
-    border-left: 3px solid #1a2640;
+    background: #130f23;
+    border: 1px solid #261d46;
+    border-left: 3px solid #261d46;
     border-radius: 12px;
     padding: 16px 20px;
     margin-bottom: 8px;
     transition: background 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
 }
-.finding-card:hover { background: #131a27; }
-.finding-card.dk   { border-left-color: #e6394a; animation: pulse-dk 3s ease-in-out infinite; }
-.finding-card.crit { border-left-color: #f97316; }
-.finding-card.mod  { border-left-color: #f59e0b; }
-.finding-card.man  { border-left-color: #10b981; }
-.finding-card.dk:hover   { border-color: rgba(230,57,74,0.25);  box-shadow: 0 4px 24px rgba(230,57,74,0.12); }
-.finding-card.crit:hover { border-color: rgba(249,115,22,0.25); box-shadow: 0 4px 24px rgba(249,115,22,0.10); }
-.finding-card.mod:hover  { border-color: rgba(245,158,11,0.22); box-shadow: 0 4px 20px rgba(245,158,11,0.07); }
-.finding-card.man:hover  { border-color: rgba(16,185,129,0.2);  box-shadow: 0 4px 20px rgba(16,185,129,0.07); }
+.finding-card:hover { background: #181230; }
+.finding-card.dk   { border-left-color: #ff3b5f; animation: pulse-dk 3s ease-in-out infinite; }
+.finding-card.crit { border-left-color: #ff7849; }
+.finding-card.mod  { border-left-color: #fbbf24; }
+.finding-card.man  { border-left-color: #2dd4a0; }
+.finding-card.dk:hover   { border-color: rgba(255,59,95,0.25);  box-shadow: 0 4px 24px rgba(255,59,95,0.12); }
+.finding-card.crit:hover { border-color: rgba(255,120,73,0.25); box-shadow: 0 4px 24px rgba(255,120,73,0.10); }
+.finding-card.mod:hover  { border-color: rgba(251,191,36,0.22); box-shadow: 0 4px 20px rgba(251,191,36,0.07); }
+.finding-card.man:hover  { border-color: rgba(45,212,160,0.2);  box-shadow: 0 4px 20px rgba(45,212,160,0.07); }
 .finding-card h4 {
-    color: #c8daf5; font-size: 0.94rem; font-weight: 600;
-    margin: 0 0 7px; font-family: 'Inter', sans-serif;
+    color: #d8d2f0; font-size: 0.94rem; font-weight: 600;
+    margin: 0 0 7px; font-family: 'Space Grotesk', sans-serif;
     line-height: 1.45; letter-spacing: -0.01em;
 }
 .finding-card .meta {
-    color: #3a5070; font-size: 0.76rem; margin-bottom: 12px;
+    color: #5b4e85; font-size: 0.76rem; margin-bottom: 12px;
     display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
 }
-.finding-card .fc-divider { border: none; border-top: 1px solid #141d2e; margin: 11px 0; }
+.finding-card .fc-divider { border: none; border-top: 1px solid #1d1735; margin: 11px 0; }
 .finding-card .field-label {
-    color: #2d4060; font-size: 0.57rem; font-weight: 700;
+    color: #4d4274; font-size: 0.57rem; font-weight: 700;
     text-transform: uppercase; letter-spacing: 0.15em;
-    margin-bottom: 4px; font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 4px; font-family: 'IBM Plex Mono', monospace;
 }
-.finding-card .field-value { color: #4a6080; font-size: 0.83rem; margin-bottom: 10px; line-height: 1.65; }
+.finding-card .field-value { color: #6c5f97; font-size: 0.83rem; margin-bottom: 10px; line-height: 1.65; }
 .finding-card .score-pill {
-    background: #0a0f1c; border: 1px solid #1a2640; border-radius: 10px;
+    background: #0b0917; border: 1px solid #261d46; border-radius: 10px;
     padding: 12px 14px; text-align: center; min-width: 70px; flex-shrink: 0;
 }
 .finding-card .score-pill .s-label {
-    color: #2d4060; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.15em; font-family: 'JetBrains Mono', monospace;
+    color: #4d4274; font-size: 0.55rem; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.15em; font-family: 'IBM Plex Mono', monospace;
     display: block; margin-bottom: 4px;
 }
 .finding-card .score-pill .s-value {
-    font-size: 1.75rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    font-size: 1.75rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace;
     line-height: 1; letter-spacing: -0.03em;
 }
 
 /* ── MINI FINDING CARDS (Overview right panel) ── */
 .fmc {
-    background: #0f1623; border: 1px solid #1a2640; border-left: 3px solid #1a2640;
+    background: #130f23; border: 1px solid #261d46; border-left: 3px solid #261d46;
     border-radius: 10px; padding: 12px 16px; margin-bottom: 6px;
     display: flex; align-items: flex-start; gap: 12px;
     transition: background 0.15s ease;
 }
-.fmc:hover { background: #131a27; }
-.fmc.dk   { border-left-color: #e6394a; }
-.fmc.crit { border-left-color: #f97316; }
-.fmc.mod  { border-left-color: #f59e0b; }
-.fmc.man  { border-left-color: #10b981; }
+.fmc:hover { background: #181230; }
+.fmc.dk   { border-left-color: #ff3b5f; }
+.fmc.crit { border-left-color: #ff7849; }
+.fmc.mod  { border-left-color: #fbbf24; }
+.fmc.man  { border-left-color: #2dd4a0; }
 .fmc-icon {
     width: 32px; height: 32px; border-radius: 8px; flex-shrink: 0;
     display: flex; align-items: center; justify-content: center;
-    font-size: 0.8rem; background: #141d2e;
+    font-size: 0.8rem; background: #1d1735;
 }
-.fmc-icon.dk   { background: rgba(230,57,74,0.1); }
-.fmc-icon.crit { background: rgba(249,115,22,0.1); }
-.fmc-icon.mod  { background: rgba(245,158,11,0.08); }
-.fmc-icon.man  { background: rgba(16,185,129,0.08); }
+.fmc-icon.dk   { background: rgba(255,59,95,0.1); }
+.fmc-icon.crit { background: rgba(255,120,73,0.1); }
+.fmc-icon.mod  { background: rgba(251,191,36,0.08); }
+.fmc-icon.man  { background: rgba(45,212,160,0.08); }
 .fmc-body { flex: 1; min-width: 0; }
 .fmc-title {
-    font-size: 0.83rem; font-weight: 600; color: #c8daf5;
-    font-family: 'Inter', sans-serif; margin-bottom: 4px;
+    font-size: 0.83rem; font-weight: 600; color: #d8d2f0;
+    font-family: 'Space Grotesk', sans-serif; margin-bottom: 4px;
     white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .fmc-desc {
-    font-size: 0.74rem; color: #3a5070; font-family: 'Inter', sans-serif;
+    font-size: 0.74rem; color: #5b4e85; font-family: 'Space Grotesk', sans-serif;
     line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 1;
     -webkit-box-orient: vertical; overflow: hidden;
 }
@@ -250,10 +250,10 @@ html, body, [class*="css"],
     display: flex; align-items: center; gap: 6px; margin-top: 4px;
 }
 .fmc-port {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.66rem; color: #2d4060;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.66rem; color: #4d4274;
 }
 .fmc-score {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.72rem; font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; font-weight: 700;
     margin-left: auto;
 }
 
@@ -263,20 +263,20 @@ html, body, [class*="css"],
     border-radius: 50%; flex-shrink: 0;
 }
 @keyframes warn-blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.rf-dot.ok   { background: #10b981; box-shadow: 0 0 7px rgba(16,185,129,0.9); }
-.rf-dot.warn { background: #f59e0b; box-shadow: 0 0 7px rgba(245,158,11,0.9); animation: warn-blink 2s infinite; }
-.rf-dot.err  { background: #e6394a; box-shadow: 0 0 7px rgba(230,57,74,0.9); }
-.rf-dot.off  { background: #1e2d45; }
+.rf-dot.ok   { background: #2dd4a0; box-shadow: 0 0 7px rgba(45,212,160,0.9); }
+.rf-dot.warn { background: #fbbf24; box-shadow: 0 0 7px rgba(251,191,36,0.9); animation: warn-blink 2s infinite; }
+.rf-dot.err  { background: #ff3b5f; box-shadow: 0 0 7px rgba(255,59,95,0.9); }
+.rf-dot.off  { background: #2c2253; }
 
 /* ── SCANNER PIPELINE ── */
 .rf-pipeline-h {
-    background: #0f1623; border: 1px solid #1a2640;
+    background: #130f23; border: 1px solid #261d46;
     border-radius: 14px; padding: 16px 20px 14px; margin-bottom: 12px;
 }
 .rf-pipeline-header {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
-    letter-spacing: 0.2em; text-transform: uppercase; color: #2d4060;
-    margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #141d2e;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.2em; text-transform: uppercase; color: #4d4274;
+    margin-bottom: 16px; padding-bottom: 10px; border-bottom: 1px solid #1d1735;
     display: flex; align-items: center; gap: 8px;
 }
 .rf-pipeline-flow {
@@ -285,32 +285,32 @@ html, body, [class*="css"],
 }
 .rf-pipeline-flow::before {
     content: ''; position: absolute; top: 11px; left: 28px; right: 28px;
-    height: 1px; background: linear-gradient(90deg, #1e2d45, #2a3f60 50%, #1e2d45);
+    height: 1px; background: linear-gradient(90deg, #2c2253, #3e316e 50%, #2c2253);
     z-index: 0;
 }
 .rf-pipeline-step {
     display: flex; flex-direction: column; align-items: center; gap: 6px;
-    padding: 0 8px; z-index: 1; background: #0f1623; min-width: 60px;
+    padding: 0 8px; z-index: 1; background: #130f23; min-width: 60px;
     cursor: default;
 }
 .rf-pipeline-step .step-dot { margin-bottom: 0; }
 .rf-pipeline-step .step-name {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.67rem; font-weight: 600;
-    color: #4a6080; white-space: nowrap;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.67rem; font-weight: 600;
+    color: #6c5f97; white-space: nowrap;
 }
 .rf-pipeline-step .step-status {
-    font-size: 0.6rem; color: #2d4060; font-family: 'Inter', sans-serif;
+    font-size: 0.6rem; color: #4d4274; font-family: 'Space Grotesk', sans-serif;
     white-space: nowrap; text-align: center;
 }
-.rf-pipeline-step .step-status.ok   { color: #10b981; }
-.rf-pipeline-step .step-status.warn { color: #f59e0b; }
+.rf-pipeline-step .step-status.ok   { color: #2dd4a0; }
+.rf-pipeline-step .step-status.warn { color: #fbbf24; }
 .rf-pipeline-arrow {
-    color: #1e2d45; font-size: 0.8rem; padding-top: 14px; flex-shrink: 0;
+    color: #2c2253; font-size: 0.8rem; padding-top: 14px; flex-shrink: 0;
 }
 
 /* ── TARGET / INFO PANEL ── */
 .rf-target-panel {
-    background: #0f1623; border: 1px solid #1a2640;
+    background: #130f23; border: 1px solid #261d46;
     border-radius: 12px; padding: 14px 16px 8px; margin-bottom: 10px;
 }
 .rf-tp-row {
@@ -318,86 +318,86 @@ html, body, [class*="css"],
     align-items: baseline; margin-bottom: 9px; gap: 8px;
 }
 .rf-tp-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
-    letter-spacing: 0.15em; text-transform: uppercase; color: #2d4060;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase; color: #4d4274;
 }
 .rf-tp-value {
-    font-size: 0.83rem; color: #c8daf5;
-    font-family: 'JetBrains Mono', monospace; word-break: break-all;
+    font-size: 0.83rem; color: #d8d2f0;
+    font-family: 'IBM Plex Mono', monospace; word-break: break-all;
 }
 
 /* ── SHODAN SNAPSHOT ── */
 .rf-shodan {
-    background: #0c1422; border: 1px solid #1e3050;
-    border-left: 3px solid #3d7fff; border-radius: 12px; padding: 14px 16px 8px;
+    background: #110d24; border: 1px solid #30255b;
+    border-left: 3px solid #8b5cf6; border-radius: 12px; padding: 14px 16px 8px;
 }
 .rf-shodan-row {
     display: grid; grid-template-columns: 90px 1fr;
     align-items: baseline; margin-bottom: 9px; gap: 8px;
 }
 .rf-shodan-label {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.57rem; font-weight: 700;
-    letter-spacing: 0.15em; text-transform: uppercase; color: #2d4060;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.15em; text-transform: uppercase; color: #4d4274;
 }
-.rf-shodan-value { font-size: 0.83rem; color: #7a91b3; font-family: 'Inter', sans-serif; }
+.rf-shodan-value { font-size: 0.83rem; color: #968ab8; font-family: 'Space Grotesk', sans-serif; }
 
 /* ── DEAL-KILLER ALERT BANNER ── */
 .dk-alert {
-    background: linear-gradient(135deg, rgba(230,57,74,0.07), rgba(159,18,57,0.04));
-    border: 1px solid rgba(230,57,74,0.2);
-    border-left: 4px solid #e6394a;
+    background: linear-gradient(135deg, rgba(255,59,95,0.07), rgba(193,18,77,0.04));
+    border: 1px solid rgba(255,59,95,0.2);
+    border-left: 4px solid #ff3b5f;
     border-radius: 12px; padding: 14px 18px; margin-bottom: 16px;
     display: flex; align-items: center; gap: 14px;
 }
 .dk-alert-body { flex: 1; }
-.dk-alert-title { font-size: 0.84rem; font-weight: 700; color: #e6394a; font-family: 'Inter', sans-serif; margin-bottom: 2px; }
-.dk-alert-sub   { font-size: 0.77rem; color: rgba(230,57,74,0.6); font-family: 'Inter', sans-serif; }
-.dk-alert-count { font-family: 'JetBrains Mono', monospace; font-size: 2rem; font-weight: 700; color: #e6394a; line-height: 1; flex-shrink: 0; }
+.dk-alert-title { font-size: 0.84rem; font-weight: 700; color: #ff3b5f; font-family: 'Space Grotesk', sans-serif; margin-bottom: 2px; }
+.dk-alert-sub   { font-size: 0.77rem; color: rgba(255,59,95,0.6); font-family: 'Space Grotesk', sans-serif; }
+.dk-alert-count { font-family: 'IBM Plex Mono', monospace; font-size: 2rem; font-weight: 700; color: #ff3b5f; line-height: 1; flex-shrink: 0; }
 
 /* ── ASSET INVENTORY NOTICE ── */
 .inv-notice {
     border-radius: 10px; padding: 11px 16px; margin-bottom: 16px;
-    font-size: 0.82rem; font-family: 'Inter', sans-serif;
+    font-size: 0.82rem; font-family: 'Space Grotesk', sans-serif;
     display: flex; align-items: center; gap: 10px;
 }
-.inv-notice.active { background: rgba(16,185,129,0.05); border: 1px solid rgba(16,185,129,0.2); border-left: 3px solid #10b981; color: #10b981; }
-.inv-notice.warn   { background: rgba(245,158,11,0.04);  border: 1px solid rgba(245,158,11,0.18); border-left: 3px solid #f59e0b; color: #f59e0b; }
+.inv-notice.active { background: rgba(45,212,160,0.05); border: 1px solid rgba(45,212,160,0.2); border-left: 3px solid #2dd4a0; color: #2dd4a0; }
+.inv-notice.warn   { background: rgba(251,191,36,0.04);  border: 1px solid rgba(251,191,36,0.18); border-left: 3px solid #fbbf24; color: #fbbf24; }
 
 /* ── DIVIDERS ── */
-.rf-divider { border: none; border-top: 1px solid #141d2e; margin: 14px 0; }
+.rf-divider { border: none; border-top: 1px solid #1d1735; margin: 14px 0; }
 
 /* ── SCAN INPUT ── */
 [data-testid="stTextInput"] input {
-    background: #0f1623 !important; border: 1px solid #1e2d45 !important;
-    border-radius: 12px !important; color: #e8f0ff !important;
-    font-size: 0.93rem !important; font-family: 'Inter', sans-serif !important;
+    background: #130f23 !important; border: 1px solid #2c2253 !important;
+    border-radius: 12px !important; color: #f1edfe !important;
+    font-size: 0.93rem !important; font-family: 'Space Grotesk', sans-serif !important;
     padding: 13px 18px !important;
     transition: border-color 0.15s ease, box-shadow 0.15s ease !important;
 }
 [data-testid="stTextInput"] input:focus {
-    border-color: #3d7fff !important;
-    box-shadow: 0 0 0 3px rgba(61,127,255,0.15) !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.15) !important;
 }
-[data-testid="stTextInput"] input::placeholder { color: #2d4060 !important; }
+[data-testid="stTextInput"] input::placeholder { color: #4d4274 !important; }
 [data-testid="stTextInput"] label {
-    color: #2d4060 !important; font-size: 0.57rem !important; font-weight: 700 !important;
+    color: #4d4274 !important; font-size: 0.57rem !important; font-weight: 700 !important;
     letter-spacing: 0.18em !important; text-transform: uppercase !important;
-    font-family: 'JetBrains Mono', monospace !important;
+    font-family: 'IBM Plex Mono', monospace !important;
 }
 
 /* ── PRIMARY BUTTON ── */
 [data-testid="stButton"] > button[kind="primary"],
 [data-testid="stBaseButton-primary"] {
-    background: linear-gradient(135deg, #3d7fff 0%, #1d4ed8 100%) !important;
-    border: 1px solid rgba(61,127,255,0.4) !important;
-    border-radius: 10px !important; font-family: 'Inter', sans-serif !important;
+    background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%) !important;
+    border: 1px solid rgba(139,92,246,0.4) !important;
+    border-radius: 10px !important; font-family: 'Space Grotesk', sans-serif !important;
     font-weight: 700 !important; font-size: 0.86rem !important; color: white !important;
-    box-shadow: 0 4px 20px rgba(61,127,255,0.35) !important;
+    box-shadow: 0 4px 20px rgba(139,92,246,0.35) !important;
     transition: box-shadow 0.15s ease, transform 0.12s ease !important;
 }
 [data-testid="stButton"] > button[kind="primary"]:hover,
 [data-testid="stBaseButton-primary"]:hover {
-    box-shadow: 0 6px 28px rgba(61,127,255,0.55) !important;
+    box-shadow: 0 6px 28px rgba(139,92,246,0.55) !important;
     transform: translateY(-1px) !important;
 }
 [data-testid="stButton"] > button[kind="primary"]:active,
@@ -405,99 +405,114 @@ html, body, [class*="css"],
 
 /* ── DOWNLOAD BUTTONS ── */
 [data-testid="stDownloadButton"] > button {
-    background: #0f1623 !important; border: 1px solid #1e2d45 !important;
-    border-radius: 10px !important; color: #4a6080 !important;
-    font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
+    background: #130f23 !important; border: 1px solid #2c2253 !important;
+    border-radius: 10px !important; color: #6c5f97 !important;
+    font-family: 'Space Grotesk', sans-serif !important; font-weight: 500 !important;
     transition: all 0.15s ease !important;
 }
 [data-testid="stDownloadButton"] > button:hover {
-    border-color: #3d7fff !important; color: #6fa3ff !important;
-    box-shadow: 0 2px 18px rgba(61,127,255,0.2) !important;
+    border-color: #8b5cf6 !important; color: #b39dfb !important;
+    box-shadow: 0 2px 18px rgba(139,92,246,0.2) !important;
 }
 
-/* ── TABS ── */
+/* ── TABS — full-width segmented command bar ── */
 [data-testid="stTabs"] [role="tablist"] {
-    border-bottom: 1px solid #141d2e !important;
-    gap: 0 !important; background: transparent !important;
+    border-bottom: none !important;
+    gap: 6px !important;
+    background: rgba(19,15,35,0.7) !important;
+    border: 1px solid #261d46 !important;
+    border-radius: 16px !important;
+    padding: 6px !important;
+    width: 100% !important;
+    display: flex !important;
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 [data-testid="stTabs"] button[role="tab"] {
-    font-family: 'Inter', sans-serif !important; font-weight: 500 !important;
-    font-size: 0.84rem !important; color: #3a5070 !important;
-    letter-spacing: 0.02em !important; padding: 12px 24px !important;
-    border-bottom: 2px solid transparent !important;
-    transition: color 0.15s ease !important;
-    background: transparent !important; border-radius: 0 !important;
+    flex: 1 1 0 !important;
+    justify-content: center !important;
+    font-family: 'IBM Plex Mono', monospace !important; font-weight: 600 !important;
+    font-size: 0.7rem !important; color: #5b4e85 !important;
+    letter-spacing: 0.14em !important; text-transform: uppercase !important;
+    padding: 11px 8px !important;
+    border-bottom: none !important;
+    transition: color 0.15s ease, background 0.18s ease !important;
+    background: transparent !important; border-radius: 11px !important;
 }
 [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    color: #e8f0ff !important; border-bottom-color: #3d7fff !important;
+    color: #f1edfe !important;
+    background: linear-gradient(135deg, rgba(139,92,246,0.3), rgba(109,40,217,0.16)) !important;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 4px 18px rgba(139,92,246,0.22) !important;
 }
-[data-testid="stTabs"] button[role="tab"]:hover { color: #7a91b3 !important; }
+[data-testid="stTabs"] button[role="tab"]:hover { color: #968ab8 !important; }
+[data-testid="stTabs"] [data-baseweb="tab-highlight"],
+[data-testid="stTabs"] [data-baseweb="tab-border"] { display: none !important; }
 
 /* ── EXPANDERS ── */
 [data-testid="stExpander"] details {
-    background: #0f1623 !important; border: 1px solid #1e2d45 !important;
+    background: #130f23 !important; border: 1px solid #2c2253 !important;
     border-radius: 12px !important; transition: border-color 0.15s ease !important;
 }
 [data-testid="stExpander"] details:hover {
-    border-color: #2a3f60 !important;
+    border-color: #3e316e !important;
 }
 [data-testid="stExpander"] details[open] {
-    border-color: #3d7fff44 !important;
+    border-color: #8b5cf644 !important;
 }
 [data-testid="stExpander"] summary {
-    font-family: 'Inter', sans-serif !important; font-weight: 600 !important;
-    font-size: 0.84rem !important; color: #7a91b3 !important; padding: 14px 18px !important;
+    font-family: 'Space Grotesk', sans-serif !important; font-weight: 600 !important;
+    font-size: 0.84rem !important; color: #968ab8 !important; padding: 14px 18px !important;
 }
-[data-testid="stExpander"] summary:hover { color: #c8daf5 !important; }
+[data-testid="stExpander"] summary:hover { color: #d8d2f0 !important; }
 [data-testid="stExpander"] details > div { padding: 2px 18px 16px !important; }
 [data-testid="stExpander"] [data-testid="stCaptionContainer"] p {
-    color: #2d4060 !important; font-family: 'Inter', sans-serif !important;
+    color: #4d4274 !important; font-family: 'Space Grotesk', sans-serif !important;
     font-size: 0.75rem !important; letter-spacing: 0 !important;
 }
 
 /* ── FILE UPLOADER ── */
 [data-testid="stFileUploader"] section {
-    background: #080c14 !important; border: 1px dashed #1e2d45 !important;
+    background: #07060f !important; border: 1px dashed #2c2253 !important;
     border-radius: 10px !important;
 }
 [data-testid="stFileUploader"] section:hover {
-    border-color: #3d7fff !important;
+    border-color: #8b5cf6 !important;
 }
 [data-testid="stFileUploaderDropzoneInstructions"] {
-    color: #2d4060 !important; font-family: 'Inter', sans-serif !important;
+    color: #4d4274 !important; font-family: 'Space Grotesk', sans-serif !important;
     font-size: 0.78rem !important;
 }
 
 /* ── SCAN HERO INPUT (override for the borderless look) ── */
 .scan-hero [data-testid="stTextInput"] input {
-    background: #080c14 !important;
-    border: 1px solid #253555 !important;
+    background: #07060f !important;
+    border: 1px solid #372b64 !important;
     border-radius: 10px !important;
     font-size: 1rem !important;
     padding: 14px 20px !important;
     height: 50px !important;
 }
 .scan-hero [data-testid="stTextInput"] input:focus {
-    border-color: #3d7fff !important;
-    box-shadow: 0 0 0 3px rgba(61,127,255,0.12) !important;
+    border-color: #8b5cf6 !important;
+    box-shadow: 0 0 0 3px rgba(139,92,246,0.12) !important;
 }
 
 /* ── MULTISELECT ── */
 [data-testid="stMultiSelect"] [data-baseweb="select"] > div {
-    background: #0f1623 !important; border-color: #1e2d45 !important;
+    background: #130f23 !important; border-color: #2c2253 !important;
     border-radius: 10px !important;
 }
 
 /* ── CHECKBOX ── */
 [data-testid="stCheckbox"] label {
-    font-size: 0.85rem !important; color: #4a6080 !important;
-    font-family: 'Inter', sans-serif !important;
+    font-size: 0.85rem !important; color: #6c5f97 !important;
+    font-family: 'Space Grotesk', sans-serif !important;
 }
 
 /* ── CAPTION ── */
 [data-testid="stCaptionContainer"] p {
-    font-family: 'JetBrains Mono', monospace !important;
-    font-size: 0.71rem !important; color: #2d4060 !important; letter-spacing: 0.02em !important;
+    font-family: 'IBM Plex Mono', monospace !important;
+    font-size: 0.71rem !important; color: #4d4274 !important; letter-spacing: 0.02em !important;
 }
 
 /* ── ALERTS ── */
@@ -508,14 +523,14 @@ html, body, [class*="css"],
     [data-testid="stBaseButton-secondary"] button,
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondaryFormSubmit"] button {
-    background:      #0a0f1c !important;
-    border:          1px solid #1a2640 !important;
+    background:      #0b0917 !important;
+    border:          1px solid #261d46 !important;
     border-top:      none !important;
     border-radius:   0 0 14px 14px !important;
     box-shadow:      none !important;
-    color:           #2a3f60 !important;
+    color:           #3e316e !important;
     font-size:       0.56rem !important;
-    font-family:     'JetBrains Mono', monospace !important;
+    font-family:     'IBM Plex Mono', monospace !important;
     font-weight:     700 !important;
     letter-spacing:  0.14em !important;
     text-transform:  uppercase !important;
@@ -529,8 +544,8 @@ html, body, [class*="css"],
 }
 [data-testid="stHorizontalBlock"]:has(> div:nth-child(5))
     [data-testid="stBaseButton-secondary"] button:hover {
-    color:      #6fa3ff !important;
-    background: #0d1828 !important;
+    color:      #b39dfb !important;
+    background: #161129 !important;
     box-shadow: none !important;
     transform:  none !important;
 }
@@ -540,9 +555,9 @@ html, body, [class*="css"],
 /* ── ENGINE PILLS (kept for backwards-compat, not used in navbar) ── */
 .rf-engine-pills { display: flex; gap: 4px; align-items: center; }
 .rf-epill {
-    font-family: 'JetBrains Mono', monospace; font-size: 0.58rem; font-weight: 700;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; font-weight: 700;
     letter-spacing: 0.1em; text-transform: uppercase;
-    color: #2d4060; background: #0f1623; border: 1px solid #1a2640;
+    color: #4d4274; background: #130f23; border: 1px solid #261d46;
     border-radius: 5px; padding: 4px 9px;
 }
 
@@ -551,41 +566,41 @@ html, body, [class*="css"],
     display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px;
 }
 .rf-prescan-card {
-    background: #0f1623; border: 1px solid #1a2640; border-radius: 14px;
+    background: #130f23; border: 1px solid #261d46; border-radius: 14px;
     padding: 20px 18px; position: relative; overflow: hidden;
 }
 .rf-prescan-card::before {
     content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
     border-radius: 14px 14px 0 0;
 }
-.rf-prescan-card.blue::before  { background: linear-gradient(90deg, #3d7fff, #1d4ed8); }
-.rf-prescan-card.red::before   { background: linear-gradient(90deg, #e6394a, #9f1239); }
-.rf-prescan-card.green::before { background: linear-gradient(90deg, #10b981, #065f46); }
+.rf-prescan-card.blue::before  { background: linear-gradient(90deg, #8b5cf6, #6d28d9); }
+.rf-prescan-card.red::before   { background: linear-gradient(90deg, #ff3b5f, #c1124d); }
+.rf-prescan-card.green::before { background: linear-gradient(90deg, #2dd4a0, #0d9468); }
 .rf-prescan-card .pc-num {
-    font-size: 2rem; font-weight: 700; font-family: 'JetBrains Mono', monospace;
+    font-size: 2rem; font-weight: 700; font-family: 'IBM Plex Mono', monospace;
     line-height: 1; margin-bottom: 10px;
 }
-.rf-prescan-card.blue .pc-num  { color: #3d7fff; }
-.rf-prescan-card.red .pc-num   { color: #e6394a; }
-.rf-prescan-card.green .pc-num { color: #10b981; }
+.rf-prescan-card.blue .pc-num  { color: #8b5cf6; }
+.rf-prescan-card.red .pc-num   { color: #ff3b5f; }
+.rf-prescan-card.green .pc-num { color: #2dd4a0; }
 .rf-prescan-card .pc-title {
-    font-size: 0.82rem; font-weight: 700; color: #c8daf5;
-    font-family: 'Inter', sans-serif; margin-bottom: 6px;
+    font-size: 0.82rem; font-weight: 700; color: #d8d2f0;
+    font-family: 'Space Grotesk', sans-serif; margin-bottom: 6px;
 }
 .rf-prescan-card .pc-body {
-    font-size: 0.75rem; color: #3a5070; font-family: 'Inter', sans-serif; line-height: 1.6;
+    font-size: 0.75rem; color: #5b4e85; font-family: 'Space Grotesk', sans-serif; line-height: 1.6;
 }
 .rf-status-dot-wrap {
     display: flex; align-items: center; gap: 6px;
-    padding: 5px 12px; background: rgba(16,185,129,0.06);
-    border: 1px solid rgba(16,185,129,0.15); border-radius: 20px;
+    padding: 5px 12px; background: rgba(45,212,160,0.06);
+    border: 1px solid rgba(45,212,160,0.15); border-radius: 20px;
 }
 
 /* ── SCAN HERO ── */
 .rf-scan-hero {
     position: relative; overflow: hidden;
-    background: linear-gradient(135deg, #0c1526 0%, #090e1c 60%, #080c14 100%);
-    border: 1px solid #1a2640; border-radius: 18px;
+    background: linear-gradient(135deg, #170f2f 0%, #0d0a1c 60%, #07060f 100%);
+    border: 1px solid #261d46; border-radius: 18px;
     padding: 24px 28px 12px; margin-bottom: 18px;
 }
 .rf-hero-svg {
@@ -599,12 +614,12 @@ html, body, [class*="css"],
 }
 .rf-hero-glow-blue {
     width: 280px; height: 180px;
-    background: radial-gradient(circle, rgba(61,127,255,0.12) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(139,92,246,0.12) 0%, transparent 70%);
     right: 10%; top: -30px;
 }
 .rf-hero-glow-red {
     width: 200px; height: 160px;
-    background: radial-gradient(circle, rgba(230,57,74,0.08) 0%, transparent 70%);
+    background: radial-gradient(circle, rgba(255,59,95,0.08) 0%, transparent 70%);
     right: 30%; bottom: -20px;
 }
 .rf-hero-content {
@@ -614,24 +629,27 @@ html, body, [class*="css"],
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 4px; height: 4px; }
-::-webkit-scrollbar-track { background: #080c14; }
-::-webkit-scrollbar-thumb { background: #1a2640; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #253555; }
+::-webkit-scrollbar-track { background: #07060f; }
+::-webkit-scrollbar-thumb { background: #261d46; border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: #372b64; }
 </style>
 """, unsafe_allow_html=True)
 
 
-# ── Design System v4.1 — DEPTH & GLOW layer ─────────────────────────────────────
-# Appended on top of v4 so every shared surface gains glassmorphism, layered
+# ── Design System v5.1 — DEPTH & GLOW layer ─────────────────────────────────────
+# Appended on top of v5 so every shared surface gains glassmorphism, layered
 # shadows, and soft accent glows without touching any tab markup.
 st.markdown("""
 <style>
-/* ── Ambient atmosphere: fixed corner glows behind everything ── */
+/* ── Ambient atmosphere: corner glows + faint blueprint grid ── */
 [data-testid="stAppViewContainer"] {
     background:
-        radial-gradient(1100px 640px at 6% -10%, rgba(61,127,255,0.075), transparent 55%),
-        radial-gradient(950px 620px at 102% 110%, rgba(230,57,74,0.06), transparent 55%),
-        #080c14 !important;
+        radial-gradient(1100px 640px at 6% -10%, rgba(139,92,246,0.09), transparent 55%),
+        radial-gradient(950px 620px at 102% 110%, rgba(255,59,95,0.06), transparent 55%),
+        radial-gradient(800px 500px at 80% -5%, rgba(34,211,238,0.04), transparent 60%),
+        repeating-linear-gradient(0deg, rgba(139,92,246,0.022) 0px, rgba(139,92,246,0.022) 1px, transparent 1px, transparent 44px),
+        repeating-linear-gradient(90deg, rgba(139,92,246,0.022) 0px, rgba(139,92,246,0.022) 1px, transparent 1px, transparent 44px),
+        #07060f !important;
     background-attachment: fixed !important;
 }
 
@@ -648,16 +666,16 @@ st.markdown("""
     filter: blur(30px); opacity: 0.55; z-index: 0; pointer-events: none;
 }
 .rf-metric .label, .rf-metric .value { position: relative; z-index: 1; }
-.rf-metric.red::after    { background: radial-gradient(circle, rgba(230,57,74,0.34), transparent 70%); }
-.rf-metric.orange::after { background: radial-gradient(circle, rgba(249,115,22,0.30), transparent 70%); }
-.rf-metric.yellow::after { background: radial-gradient(circle, rgba(245,158,11,0.24), transparent 70%); }
-.rf-metric.green::after  { background: radial-gradient(circle, rgba(16,185,129,0.26), transparent 70%); }
-.rf-metric.blue::after   { background: radial-gradient(circle, rgba(61,127,255,0.30), transparent 70%); }
-.rf-metric.red .value    { text-shadow: 0 0 22px rgba(230,57,74,0.55); }
-.rf-metric.orange .value { text-shadow: 0 0 22px rgba(249,115,22,0.5); }
-.rf-metric.yellow .value { text-shadow: 0 0 22px rgba(245,158,11,0.45); }
-.rf-metric.green .value  { text-shadow: 0 0 22px rgba(16,185,129,0.45); }
-.rf-metric.blue .value   { text-shadow: 0 0 22px rgba(61,127,255,0.5); }
+.rf-metric.red::after    { background: radial-gradient(circle, rgba(255,59,95,0.34), transparent 70%); }
+.rf-metric.orange::after { background: radial-gradient(circle, rgba(255,120,73,0.30), transparent 70%); }
+.rf-metric.yellow::after { background: radial-gradient(circle, rgba(251,191,36,0.24), transparent 70%); }
+.rf-metric.green::after  { background: radial-gradient(circle, rgba(45,212,160,0.26), transparent 70%); }
+.rf-metric.blue::after   { background: radial-gradient(circle, rgba(139,92,246,0.30), transparent 70%); }
+.rf-metric.red .value    { text-shadow: 0 0 22px rgba(255,59,95,0.55); }
+.rf-metric.orange .value { text-shadow: 0 0 22px rgba(255,120,73,0.5); }
+.rf-metric.yellow .value { text-shadow: 0 0 22px rgba(251,191,36,0.45); }
+.rf-metric.green .value  { text-shadow: 0 0 22px rgba(45,212,160,0.45); }
+.rf-metric.blue .value   { text-shadow: 0 0 22px rgba(139,92,246,0.5); }
 .rf-metric:hover {
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.08), 0 16px 44px rgba(0,0,0,0.6) !important;
 }
@@ -673,8 +691,8 @@ st.markdown("""
     background: rgba(12,20,34,0.74) !important;
     backdrop-filter: blur(9px) saturate(115%);
     -webkit-backdrop-filter: blur(9px) saturate(115%);
-    box-shadow: inset 0 1px 0 rgba(61,127,255,0.10), 0 8px 26px rgba(0,0,0,0.42),
-                0 0 34px rgba(61,127,255,0.05);
+    box-shadow: inset 0 1px 0 rgba(139,92,246,0.10), 0 8px 26px rgba(0,0,0,0.42),
+                0 0 34px rgba(139,92,246,0.05);
 }
 
 /* ── Finding + mini cards: subtle glass depth at rest ── */
@@ -696,7 +714,7 @@ st.markdown("""
     box-shadow: 0 22px 54px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04);
 }
 .dk-alert {
-    box-shadow: 0 0 44px rgba(230,57,74,0.10), inset 0 1px 0 rgba(255,255,255,0.04);
+    box-shadow: 0 0 44px rgba(255,59,95,0.10), inset 0 1px 0 rgba(255,255,255,0.04);
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
 }
 .rf-prescan-card {
@@ -711,7 +729,7 @@ st.markdown("""
 
 /* ── Active tab: soft electric glow ── */
 [data-testid="stTabs"] button[role="tab"][aria-selected="true"] {
-    text-shadow: 0 0 16px rgba(61,127,255,0.5);
+    text-shadow: 0 0 16px rgba(139,92,246,0.5);
 }
 
 /* ── Expanders: lift off the page ── */
@@ -723,14 +741,162 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 
+
+# ── Design System v6 — COMMAND RAIL layout layer ────────────────────────────────
+# Sidebar rail, command strip, editorial hero, and deal-verdict banner styles.
+st.markdown("""
+<style>
+/* ── SIDEBAR command rail ── */
+[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0b0917 0%, #07060f 100%) !important;
+    border-right: 1px solid #1d1735 !important;
+    min-width: 304px !important;
+}
+[data-testid="stSidebar"]::after {
+    content: ''; position: absolute; top: 0; right: 0; bottom: 0; width: 1px;
+    background: linear-gradient(180deg, rgba(139,92,246,0.35), transparent 40%);
+    pointer-events: none;
+}
+.rf-side-brand {
+    display: flex; align-items: center; gap: 12px;
+    padding: 8px 2px 16px; border-bottom: 1px solid #1d1735; margin-bottom: 16px;
+}
+.rf-side-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.57rem; font-weight: 700;
+    letter-spacing: 0.22em; text-transform: uppercase; color: #4d4274; margin: 6px 0 8px;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"] details {
+    background: #0b0917 !important; border: 1px solid #1d1735 !important;
+    border-radius: 10px !important;
+}
+[data-testid="stSidebar"] [data-testid="stExpander"] summary {
+    padding: 10px 14px !important; font-size: 0.76rem !important;
+}
+[data-testid="stSidebar"] [data-testid="stFileUploader"] section {
+    background: #07060f !important;
+}
+.rf-side-engines { margin-top: 22px; padding-top: 16px; border-top: 1px solid #1d1735; }
+.rf-engine-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+.rf-engine-grid span {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; font-weight: 600;
+    letter-spacing: 0.04em; text-transform: uppercase; color: #5b4e85;
+    background: #130f23; border: 1px solid #261d46; border-radius: 6px;
+    padding: 5px 0; text-align: center;
+}
+.rf-side-status {
+    display: flex; align-items: center; gap: 4px; margin-top: 14px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.62rem;
+    color: #2dd4a0; font-weight: 600; letter-spacing: 0.05em;
+}
+
+/* ── COMMAND STRIP ── */
+.rf-cmdstrip {
+    display: flex; align-items: center; gap: 10px;
+    padding: 12px 18px; margin: 12px 0 18px;
+    background: rgba(19,15,35,0.6); border: 1px solid #1d1735; border-radius: 12px;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.rf-cmd-crumb {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.64rem; font-weight: 700;
+    letter-spacing: 0.14em; text-transform: uppercase; color: #5b4e85;
+}
+.rf-cmd-sep { color: #372b64; }
+.rf-cmd-target { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; color: #d8d2f0; }
+.rf-cmd-chip {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.56rem; font-weight: 700;
+    letter-spacing: 0.18em; color: #5b4e85;
+    background: #130f23; border: 1px solid #261d46; border-radius: 20px; padding: 4px 12px;
+}
+.rf-cmd-chip.live { color: #2dd4a0; background: rgba(45,212,160,0.07); border-color: rgba(45,212,160,0.25); }
+
+/* ── HERO v2 — editorial pre-scan ── */
+.rf-hero2 { padding: 52px 8px 34px; max-width: 920px; }
+.rf-hero2-kicker {
+    font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; font-weight: 700;
+    letter-spacing: 0.32em; color: #8b5cf6; margin-bottom: 20px;
+}
+.rf-hero2-title {
+    font-family: 'Space Grotesk', sans-serif; font-size: 3.6rem; font-weight: 700;
+    line-height: 1.05; letter-spacing: -0.03em; color: #f1edfe; margin: 0 0 20px;
+}
+.rf-hero2-title .grad {
+    background: linear-gradient(100deg, #ff3b5f, #8b5cf6 70%);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+}
+.rf-hero2-sub { font-size: 0.96rem; color: #6c5f97; line-height: 1.75; max-width: 660px; margin-bottom: 36px; }
+.rf-hero2-steps { display: flex; align-items: stretch; gap: 10px; flex-wrap: wrap; }
+.rf-hero2-steps .step {
+    display: flex; flex-direction: column; gap: 3px;
+    background: rgba(19,15,35,0.7); border: 1px solid #261d46; border-radius: 12px;
+    padding: 12px 16px; min-width: 158px;
+}
+.rf-hero2-steps .n { font-family: 'IBM Plex Mono', monospace; font-size: 0.6rem; font-weight: 700; color: #8b5cf6; letter-spacing: 0.18em; }
+.rf-hero2-steps .t { font-size: 0.84rem; font-weight: 700; color: #d8d2f0; }
+.rf-hero2-steps .d { font-size: 0.7rem; color: #5b4e85; }
+.rf-hero2-steps .arrow { align-self: center; color: #372b64; }
+
+/* ── FEATURE CARDS (pre-scan) ── */
+.rf-feat {
+    background: linear-gradient(165deg, rgba(28,22,48,0.6), rgba(11,9,23,0.9));
+    border: 1px solid #261d46; border-radius: 16px; padding: 22px 20px; height: 100%;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 10px 30px rgba(0,0,0,0.42);
+}
+.rf-feat .num { font-family: 'IBM Plex Mono', monospace; font-size: 2rem; font-weight: 700; line-height: 1; margin-bottom: 12px; display: block; }
+.rf-feat .ttl { font-size: 0.88rem; font-weight: 700; color: #d8d2f0; margin-bottom: 7px; }
+.rf-feat .bod { font-size: 0.76rem; color: #5b4e85; line-height: 1.7; }
+.rf-feat.violet .num  { color: #8b5cf6; }
+.rf-feat.crimson .num { color: #ff3b5f; }
+.rf-feat.green .num   { color: #2dd4a0; }
+
+/* ── DEAL VERDICT banner ── */
+.rf-verdict {
+    display: flex; align-items: center; gap: 26px;
+    padding: 22px 28px; margin: 4px 0 20px;
+    border-radius: 18px; border: 1px solid #261d46;
+    background: linear-gradient(135deg, rgba(19,15,35,0.92), rgba(11,9,23,0.96));
+    position: relative; overflow: hidden;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 14px 40px rgba(0,0,0,0.5);
+}
+.rf-verdict::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.rf-verdict.dk::before   { background: linear-gradient(180deg, #ff3b5f, #c1124d); }
+.rf-verdict.crit::before { background: #ff7849; }
+.rf-verdict.mod::before  { background: #fbbf24; }
+.rf-verdict.man::before  { background: #2dd4a0; }
+.rf-verdict-score { text-align: center; min-width: 96px; padding-right: 26px; border-right: 1px solid #1d1735; }
+.rf-verdict-score .v { font-family: 'IBM Plex Mono', monospace; font-size: 3rem; font-weight: 700; line-height: 1; display: block; }
+.rf-verdict.dk .v   { color: #ff3b5f; text-shadow: 0 0 26px rgba(255,59,95,0.5); }
+.rf-verdict.crit .v { color: #ff7849; text-shadow: 0 0 26px rgba(255,120,73,0.4); }
+.rf-verdict.mod .v  { color: #fbbf24; text-shadow: 0 0 26px rgba(251,191,36,0.35); }
+.rf-verdict.man .v  { color: #2dd4a0; text-shadow: 0 0 26px rgba(45,212,160,0.35); }
+.rf-verdict-score .cap { font-family: 'IBM Plex Mono', monospace; font-size: 0.55rem; letter-spacing: 0.18em; text-transform: uppercase; color: #4d4274; }
+.rf-verdict-main { flex: 1; }
+.rf-verdict-kicker { font-family: 'IBM Plex Mono', monospace; font-size: 0.58rem; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: #4d4274; margin-bottom: 4px; }
+.rf-verdict-label { font-family: 'Space Grotesk', sans-serif; font-size: 1.7rem; font-weight: 700; letter-spacing: -0.01em; line-height: 1.1; }
+.rf-verdict.dk .rf-verdict-label   { color: #ff3b5f; }
+.rf-verdict.crit .rf-verdict-label { color: #ff7849; }
+.rf-verdict.mod .rf-verdict-label  { color: #fbbf24; }
+.rf-verdict.man .rf-verdict-label  { color: #2dd4a0; }
+.rf-verdict-msg { font-size: 0.78rem; color: #6c5f97; margin-top: 4px; }
+.rf-verdict-stats { display: flex; gap: 24px; }
+.rf-verdict-stats > div { text-align: center; }
+.rf-verdict-stats .num { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; font-weight: 700; display: block; line-height: 1; }
+.rf-verdict-stats .lbl { font-family: 'IBM Plex Mono', monospace; font-size: 0.52rem; letter-spacing: 0.16em; text-transform: uppercase; color: #4d4274; }
+.c-dk   { color: #ff3b5f; }
+.c-crit { color: #ff7849; }
+.c-mod  { color: #fbbf24; }
+.c-man  { color: #2dd4a0; }
+</style>
+""", unsafe_allow_html=True)
+
+
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
 TIER_COLOR = {
-    "deal_killer": "#e6394a",
-    "critical":    "#f97316",
-    "moderate":    "#f59e0b",
-    "manageable":  "#10b981",
-    "unscored":    "#6b7280",
+    "deal_killer": "#ff3b5f",
+    "critical":    "#ff7849",
+    "moderate":    "#fbbf24",
+    "manageable":  "#2dd4a0",
+    "unscored":    "#7d7795",
 }
 
 def tier_badge_html(tier):
@@ -752,25 +918,25 @@ def metric_card(label, value, color_class):
     </div>"""
 
 def score_color(score):
-    if score >= 75: return "#e6394a"
-    if score >= 50: return "#f97316"
-    if score >= 25: return "#f59e0b"
-    return "#10b981"
+    if score >= 75: return "#ff3b5f"
+    if score >= 50: return "#ff7849"
+    if score >= 25: return "#fbbf24"
+    return "#2dd4a0"
 
 def format_label(value):
     if value is None: return "—"
     return str(value).replace("_", " ").title()
 
 _TIER_DOT_COLORS = {
-    "deal_killer": "#e6394a",
-    "critical":    "#f97316",
-    "moderate":    "#f59e0b",
-    "manageable":  "#10b981",
+    "deal_killer": "#ff3b5f",
+    "critical":    "#ff7849",
+    "moderate":    "#fbbf24",
+    "manageable":  "#2dd4a0",
 }
 
 def tier_dot_html(tier_val: str, size: int = 9) -> str:
     """Return a small glowing dot as an HTML span — replaces emoji tier icons."""
-    c = _TIER_DOT_COLORS.get(tier_val, "#6b7280")
+    c = _TIER_DOT_COLORS.get(tier_val, "#7d7795")
     return (
         f'<span style="display:inline-block;width:{size}px;height:{size}px;'
         f'border-radius:50%;background:{c};flex-shrink:0;'
@@ -823,8 +989,8 @@ def _build_attack_graph_html(graph_data) -> str | None:
     net = Network(
         height="680px",
         width="100%",
-        bgcolor="#070b12",
-        font_color="#c8daf5",
+        bgcolor="#070510",
+        font_color="#d8d2f0",
         directed=True,
         notebook=False,
     )
@@ -838,17 +1004,17 @@ def _build_attack_graph_html(graph_data) -> str | None:
             title=node.title,
             color={
                 "background": node.color,
-                "border":     "#ffffff33" if not is_inet else "#6fa3ff",
+                "border":     "#ffffff33" if not is_inet else "#b39dfb",
                 "highlight":  {"background": node.color, "border": "#ffffff"},
                 "hover":      {"background": node.color, "border": "#ffffff88"},
             },
             size=SIZE[lyr],
             font={
                 "size":        FSIZE[lyr],
-                "color":       "#e8f0ff",
+                "color":       "#f1edfe",
                 "face":        "monospace",
                 "strokeWidth": 4,
-                "strokeColor": "#070b12",
+                "strokeColor": "#070510",
             },
             shape="diamond" if is_inet else "dot",
             shadow={"enabled": True, "color": node.color + "55", "size": 18, "x": 0, "y": 0},
@@ -906,17 +1072,17 @@ def _build_attack_graph_html(graph_data) -> str | None:
     # ── Patch styles so everything matches Design System v4 ───────────────────
     _css = """
 <style>
-  html, body { background: #070b12 !important; margin: 0; padding: 0; }
+  html, body { background: #070510 !important; margin: 0; padding: 0; }
   #mynetwork {
-    background: radial-gradient(ellipse at 50% 0%, #0d1a2e 0%, #070b12 70%) !important;
-    border: 1px solid #1a2640 !important;
+    background: radial-gradient(ellipse at 50% 0%, #141036 0%, #070510 70%) !important;
+    border: 1px solid #261d46 !important;
     border-radius: 14px !important;
   }
   div.vis-tooltip {
-    background: #0f1623 !important;
-    border: 1px solid #1a2640 !important;
-    color: #c8daf5 !important;
-    font-family: 'Inter', -apple-system, sans-serif !important;
+    background: #130f23 !important;
+    border: 1px solid #261d46 !important;
+    color: #d8d2f0 !important;
+    font-family: 'Space Grotesk', -apple-system, sans-serif !important;
     font-size: 12px !important;
     border-radius: 10px !important;
     padding: 10px 14px !important;
@@ -930,167 +1096,72 @@ def _build_attack_graph_html(graph_data) -> str | None:
     return html.replace("</head>", _css + "</head>")
 
 
-# ── Header ────────────────────────────────────────────────────────────────────
+# ── Sidebar — command rail ────────────────────────────────────────────────────
 
-st.markdown("""
-<div class="rf-topnav">
-  <!-- Brand -->
-  <div class="rf-brand">
-    <div class="rf-brand-icon">RF</div>
-    <div class="rf-brand-text">
-      <span class="rf-brand-name">RedFlag</span>
-      <span class="rf-brand-sub">M&amp;A Cyber Due Diligence</span>
-    </div>
-  </div>
-
-  <!-- Spacer -->
-  <div style="flex:1"></div>
-
-  <!-- Scanner engine list (compact text, not pills) -->
-  <div class="rf-engines-text">
-    Nmap &nbsp;&middot;&nbsp; Shodan &nbsp;&middot;&nbsp; OpenVAS &nbsp;&middot;&nbsp;
-    ZAP &nbsp;&middot;&nbsp; Vulners &nbsp;&middot;&nbsp; DNS &nbsp;&middot;&nbsp;
-    TLS &nbsp;&middot;&nbsp; Breach
-  </div>
-
-  <!-- System status -->
-  <div class="rf-nav-right">
-    <div class="rf-status-dot-wrap">
-      <span class="rf-dot ok" style="width:7px;height:7px;"></span>
-      <span style="font-size:0.62rem;font-family:'JetBrains Mono',monospace;color:#10b981;
-                   font-weight:600;letter-spacing:0.06em;">All systems operational</span>
-    </div>
+with st.sidebar:
+    st.markdown("""
+<div class="rf-side-brand">
+  <div class="rf-brand-icon">RF</div>
+  <div class="rf-brand-text">
+    <span class="rf-brand-name">RedFlag</span>
+    <span class="rf-brand-sub">M&amp;A Cyber Due Diligence</span>
   </div>
 </div>
 """, unsafe_allow_html=True)
 
-# ── Scan controls ─────────────────────────────────────────────────────────────
-
-# Scan hero area — network SVG background
-st.markdown("""
-<div class="rf-scan-hero">
-
-  <!-- Decorative SVG network graph (right side) -->
-  <svg class="rf-hero-svg" viewBox="0 0 480 160" xmlns="http://www.w3.org/2000/svg"
-       fill="none" aria-hidden="true">
-    <!-- Connection lines -->
-    <line x1="60"  y1="40"  x2="160" y2="80"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="60"  y1="40"  x2="200" y2="20"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="160" y1="80"  x2="280" y2="50"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="160" y1="80"  x2="240" y2="130" stroke="#1e3050" stroke-width="1"/>
-    <line x1="200" y1="20"  x2="280" y2="50"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="280" y1="50"  x2="380" y2="30"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="280" y1="50"  x2="360" y2="100" stroke="#1e3050" stroke-width="1"/>
-    <line x1="240" y1="130" x2="360" y2="100" stroke="#1e3050" stroke-width="1"/>
-    <line x1="380" y1="30"  x2="450" y2="70"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="360" y1="100" x2="450" y2="70"  stroke="#1e3050" stroke-width="1"/>
-    <line x1="160" y1="80"  x2="200" y2="20"  stroke="#253555" stroke-width="0.5"/>
-    <line x1="60"  y1="40"  x2="100" y2="120" stroke="#1a2640" stroke-width="1"/>
-    <line x1="100" y1="120" x2="240" y2="130" stroke="#1a2640" stroke-width="1"/>
-    <!-- Highlighted path (blue) -->
-    <line x1="60"  y1="40"  x2="160" y2="80"  stroke="#3d7fff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
-    <line x1="160" y1="80"  x2="280" y2="50"  stroke="#3d7fff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
-    <line x1="280" y1="50"  x2="380" y2="30"  stroke="#3d7fff" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.4"/>
-    <!-- Red threat path -->
-    <line x1="240" y1="130" x2="360" y2="100" stroke="#e6394a" stroke-width="1" opacity="0.35"/>
-    <!-- Nodes — outer ring -->
-    <circle cx="60"  cy="40"  r="5"   fill="#0f1623" stroke="#2a3f60" stroke-width="1.5"/>
-    <circle cx="200" cy="20"  r="4"   fill="#0f1623" stroke="#1e3050" stroke-width="1"/>
-    <circle cx="100" cy="120" r="3.5" fill="#0f1623" stroke="#1e3050" stroke-width="1"/>
-    <circle cx="380" cy="30"  r="4"   fill="#0f1623" stroke="#1e3050" stroke-width="1"/>
-    <circle cx="450" cy="70"  r="5"   fill="#0f1623" stroke="#2a3f60" stroke-width="1.5"/>
-    <!-- Nodes — inner -->
-    <circle cx="160" cy="80"  r="7"   fill="#0f1623" stroke="#3d7fff" stroke-width="1.5"/>
-    <circle cx="280" cy="50"  r="7"   fill="#0f1623" stroke="#3d7fff" stroke-width="1.5"/>
-    <!-- Threat node (red) -->
-    <circle cx="240" cy="130" r="6"   fill="#120a0e"  stroke="#e6394a" stroke-width="1.5"/>
-    <circle cx="360" cy="100" r="5"   fill="#120a0e"  stroke="#e6394a" stroke-width="1"/>
-    <!-- Glow on primary nodes -->
-    <circle cx="160" cy="80"  r="14"  fill="#3d7fff" opacity="0.05"/>
-    <circle cx="280" cy="50"  r="14"  fill="#3d7fff" opacity="0.05"/>
-    <circle cx="240" cy="130" r="12"  fill="#e6394a" opacity="0.07"/>
-    <!-- Node dots (inner fill) -->
-    <circle cx="60"  cy="40"  r="2"   fill="#3d7fff" opacity="0.7"/>
-    <circle cx="160" cy="80"  r="3"   fill="#3d7fff"/>
-    <circle cx="280" cy="50"  r="3"   fill="#3d7fff"/>
-    <circle cx="450" cy="70"  r="2"   fill="#4a6080"/>
-    <circle cx="200" cy="20"  r="1.5" fill="#4a6080"/>
-    <circle cx="380" cy="30"  r="1.5" fill="#4a6080"/>
-    <circle cx="100" cy="120" r="1.5" fill="#4a6080"/>
-    <circle cx="240" cy="130" r="2.5" fill="#e6394a"/>
-    <circle cx="360" cy="100" r="2"   fill="#e6394a" opacity="0.8"/>
-  </svg>
-
-  <!-- Glow blobs -->
-  <div class="rf-hero-glow rf-hero-glow-blue"></div>
-  <div class="rf-hero-glow rf-hero-glow-red"></div>
-
-  <!-- Content -->
-  <div class="rf-hero-content">
-    <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;
-                color:#2d4060;font-family:'JetBrains Mono',monospace;margin-bottom:12px;">
-      M&amp;A Cybersecurity Intelligence &nbsp;·&nbsp; Scan Target
-    </div>
-""", unsafe_allow_html=True)
-
-scan_col1, scan_col2, scan_col3 = st.columns([6, 2, 1])
-with scan_col1:
+    st.markdown('<div class="rf-side-label">Scan target</div>', unsafe_allow_html=True)
     target = st.text_input(
         "TARGET_LABEL",
         value="scanme.nmap.org",
-        placeholder="Target Domain or IP... (e.g., scanme.nmap.org)",
+        placeholder="domain or IP — e.g. scanme.nmap.org",
         label_visibility="collapsed",
     )
-with scan_col2:
     run_scan = st.button("Run Comprehensive Scan", width="stretch", type="primary")
-with scan_col3:
-    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
     fast_mode = st.checkbox("Fast Scan Mode", value=False,
                             help="Top 200 ports · version-intensity 3 · ~2x faster. May miss uncommon ports.")
 
-st.markdown("</div></div>", unsafe_allow_html=True)
+    st.markdown('<div class="rf-side-label" style="margin-top:20px;">Intelligence uploads</div>',
+                unsafe_allow_html=True)
 
-# Upload section — single collapsible panel
-with st.expander("Advanced Intelligence Sources  —  optional uploads to enrich the scan"):
-    u1, u2, u3, u4 = st.columns(4)
-
-    with u1:
-        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
-                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
-                    "text-transform:uppercase;margin-bottom:4px;'>Shodan JSON</div>"
-                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
-                    "font-family:\"Inter\",sans-serif;'>Target-provided Shodan export."
-                    " Replaces live API — 0 credits.</div>", unsafe_allow_html=True)
+    with st.expander("Shodan JSON — 0 credits"):
+        st.caption("Target-provided Shodan export. Replaces the live API call.")
         shodan_json_file = st.file_uploader(
             "Shodan JSON", type=["json"], label_visibility="collapsed", key="shodan_json_upload"
         )
-
-    with u2:
-        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
-                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
-                    "text-transform:uppercase;margin-bottom:4px;'>OpenVAS XML</div>"
-                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
-                    "font-family:\"Inter\",sans-serif;'>Verified CVE findings with"
-                    " CONFIRMED evidence strength.</div>", unsafe_allow_html=True)
+    with st.expander("OpenVAS XML — verified CVEs"):
+        st.caption("Verified CVE findings with CONFIRMED evidence strength.")
         openvas_file = st.file_uploader("OpenVAS XML", type=["xml"], label_visibility="collapsed", key="ov_upload")
-
-    with u3:
-        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
-                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
-                    "text-transform:uppercase;margin-bottom:4px;'>OWASP ZAP XML</div>"
-                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
-                    "font-family:\"Inter\",sans-serif;'>Web application layer findings"
-                    " — SQLi, XSS, misconfigs.</div>", unsafe_allow_html=True)
+    with st.expander("OWASP ZAP XML — web layer"):
+        st.caption("Web application findings — SQLi, XSS, misconfigurations.")
         zap_file = st.file_uploader("ZAP XML", type=["xml"], label_visibility="collapsed", key="zap_upload")
-
-    with u4:
-        st.markdown("<div style='font-size:0.62rem;font-weight:700;color:#3d7fff;"
-                    "font-family:\"JetBrains Mono\",monospace;letter-spacing:0.1em;"
-                    "text-transform:uppercase;margin-bottom:4px;'>Asset Inventory</div>"
-                    "<div style='font-size:0.72rem;color:#2d4060;margin-bottom:8px;"
-                    "font-family:\"Inter\",sans-serif;'>Map hosts to Crown Jewel / Regulated"
-                    " tiers. Unlocks deal-killer rules.</div>", unsafe_allow_html=True)
+    with st.expander("Asset inventory — Excel"):
+        st.caption("Maps hosts to Crown Jewel / Regulated tiers. Unlocks deal-killer rules.")
         asset_file = st.file_uploader("Asset Inventory Excel", type=["xlsx", "xls"], label_visibility="collapsed", key="asset_upload")
+
+    st.markdown("""
+<div class="rf-side-engines">
+  <div class="rf-side-label">Engines</div>
+  <div class="rf-engine-grid">
+    <span>Nmap</span><span>Shodan</span><span>OpenVAS</span><span>ZAP</span>
+    <span>Vulners</span><span>DNS</span><span>TLS</span><span>Breach</span>
+  </div>
+  <div class="rf-side-status"><span class="rf-dot ok"></span>&nbsp; All systems operational</div>
+</div>
+""", unsafe_allow_html=True)
+
+# ── Command strip (main-area header) ──────────────────────────────────────────
+
+_strip_live = "findings" in st.session_state
+_strip_tgt  = st.session_state.get("clean_target", "no target scanned yet")
+st.markdown(f"""
+<div class="rf-cmdstrip">
+  <span class="rf-cmd-crumb">RedFlag console</span>
+  <span class="rf-cmd-sep">/</span>
+  <span class="rf-cmd-target">{_strip_tgt}</span>
+  <span style="flex:1"></span>
+  <span class="rf-cmd-chip {'live' if _strip_live else ''}">{'ASSESSMENT LIVE' if _strip_live else 'STANDBY'}</span>
+</div>
+""", unsafe_allow_html=True)
 
 # ── Scan execution ────────────────────────────────────────────────────────────
 
@@ -1253,62 +1324,48 @@ if run_scan:
 # ── Pre-scan welcome state ───────────────────────────────────────────────────
 
 if "findings" not in st.session_state:
-    st.markdown(
-        "<div style='font-size:0.57rem;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;"
-        "color:#2d4060;font-family:\"JetBrains Mono\",monospace;margin:8px 0 14px;"
-        "display:flex;align-items:center;gap:10px;'>"
-        "What you get after running a scan"
-        "<div style='flex:1;height:1px;background:linear-gradient(90deg,#141d2e,transparent);'></div>"
-        "</div>",
-        unsafe_allow_html=True,
-    )
+    st.markdown("""
+<div class="rf-hero2">
+  <div class="rf-hero2-kicker">M&amp;A CYBERSECURITY DUE DILIGENCE</div>
+  <h1 class="rf-hero2-title">Know exactly what<br>you're <span class="grad">acquiring</span>.</h1>
+  <div class="rf-hero2-sub">Eight scanners, one weighted risk model, a single deal-room verdict.
+  Point RedFlag at a target in the left rail and get an evidence-backed picture of the cyber
+  liability you are about to buy — before the ink dries.</div>
+  <div class="rf-hero2-steps">
+    <div class="step"><span class="n">01</span><span class="t">Enter target</span><span class="d">Domain or IP in the left rail</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><span class="n">02</span><span class="t">Run the sweep</span><span class="d">Nmap · Shodan · DNS · TLS · Breach</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><span class="n">03</span><span class="t">Read the verdict</span><span class="d">Deal-killer rules &amp; weighted scores</span></div>
+    <div class="arrow">→</div>
+    <div class="step"><span class="n">04</span><span class="t">Export the report</span><span class="d">CSV · PDF · cost model</span></div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
     pc1, pc2, pc3 = st.columns(3)
-
-    _card_base = (
-        "background:#0f1623;border:1px solid #1a2640;border-radius:14px;"
-        "padding:20px 18px;position:relative;overflow:hidden;"
-    )
-
     with pc1:
         st.markdown(
-            f"<div style='{_card_base}border-top:2px solid #3d7fff;'>"
-            "<div style='font-size:2.2rem;font-weight:700;font-family:\"JetBrains Mono\",monospace;"
-            "color:#3d7fff;line-height:1;margin-bottom:10px;'>8</div>"
-            "<div style='font-size:0.84rem;font-weight:700;color:#c8daf5;"
-            "font-family:\"Inter\",sans-serif;margin-bottom:8px;'>Scanners Running in Parallel</div>"
-            "<div style='font-size:0.76rem;color:#3a5070;font-family:\"Inter\",sans-serif;line-height:1.65;'>"
-            "Nmap, Shodan, OpenVAS, ZAP, Vulners, CISA KEV, DNS security, and TLS certificate checks "
-            "all run simultaneously and merge into a single unified finding list."
-            "</div></div>",
+            '<div class="rf-feat violet"><span class="num">8</span>'
+            '<div class="ttl">Scanners, one risk picture</div>'
+            '<div class="bod">Nmap, Shodan, OpenVAS, ZAP, Vulners, CISA KEV, DNS security and TLS '
+            'certificate checks merge into a single unified finding list.</div></div>',
             unsafe_allow_html=True,
         )
-
     with pc2:
         st.markdown(
-            f"<div style='{_card_base}border-top:2px solid #e6394a;'>"
-            "<div style='font-size:2.2rem;font-weight:700;font-family:\"JetBrains Mono\",monospace;"
-            "color:#e6394a;line-height:1;margin-bottom:10px;'>0&#8211;100</div>"
-            "<div style='font-size:0.84rem;font-weight:700;color:#c8daf5;"
-            "font-family:\"Inter\",sans-serif;margin-bottom:8px;'>Weighted Risk Score Per Finding</div>"
-            "<div style='font-size:0.76rem;color:#3a5070;font-family:\"Inter\",sans-serif;line-height:1.65;'>"
-            "Every finding is scored on CVE severity, exposure level, data sensitivity, and exploit "
-            "availability. Deal-killer conditions bypass scoring and flag immediately."
-            "</div></div>",
+            '<div class="rf-feat crimson"><span class="num">0–100</span>'
+            '<div class="ttl">Weighted risk score per finding</div>'
+            '<div class="bod">CVE severity, exposure, data sensitivity and exploit availability. '
+            'Deal-killer conditions bypass scoring and flag immediately.</div></div>',
             unsafe_allow_html=True,
         )
-
     with pc3:
         st.markdown(
-            f"<div style='{_card_base}border-top:2px solid #10b981;'>"
-            "<div style='font-size:2.2rem;font-weight:700;font-family:\"JetBrains Mono\",monospace;"
-            "color:#10b981;line-height:1;margin-bottom:10px;'>5</div>"
-            "<div style='font-size:0.84rem;font-weight:700;color:#c8daf5;"
-            "font-family:\"Inter\",sans-serif;margin-bottom:8px;'>Report Tabs Generated</div>"
-            "<div style='font-size:0.76rem;color:#3a5070;font-family:\"Inter\",sans-serif;line-height:1.65;'>"
-            "Overview, Findings, Maturity Assessment, Cost &amp; Budget, and Export. "
-            "Includes a What-If simulator to quantify pre-close remediation value."
-            "</div></div>",
+            '<div class="rf-feat green"><span class="num">6</span>'
+            '<div class="ttl">Deal-room report tabs</div>'
+            '<div class="bod">Overview, Findings, Attack Path, Maturity, Cost &amp; Budget and Export — '
+            'including a What-If simulator to price pre-close remediation.</div></div>',
             unsafe_allow_html=True,
         )
 
@@ -1333,6 +1390,33 @@ if "findings" in st.session_state:
     n_crit  = tier_counts.get("critical", 0)
     n_mod   = tier_counts.get("moderate", 0)
     n_man   = tier_counts.get("manageable", 0)
+
+    # ── Deal verdict banner ───────────────────────────────────────────────────
+    _avg_all = sum(f.risk_score for f in findings) / len(findings) if findings else 0.0
+    if n_dk:
+        _v_lbl, _v_cls, _v_msg = "DEAL KILLER", "dk", "Active blockers detected — escalate before any close."
+    elif _avg_all >= 75:
+        _v_lbl, _v_cls, _v_msg = "CRITICAL", "crit", "Severe exposure — price protection and pre-close remediation required."
+    elif _avg_all >= 50:
+        _v_lbl, _v_cls, _v_msg = "MODERATE", "mod", "Material gaps — negotiate remediation commitments into the deal."
+    else:
+        _v_lbl, _v_cls, _v_msg = "MANAGEABLE", "man", "Risk absorbable within a standard post-close integration budget."
+    st.markdown(f"""
+<div class="rf-verdict {_v_cls}">
+  <div class="rf-verdict-score"><span class="v">{_avg_all:.0f}</span><span class="cap">avg risk</span></div>
+  <div class="rf-verdict-main">
+    <div class="rf-verdict-kicker">Deal verdict — {clean_target} · {resolved_ip}</div>
+    <div class="rf-verdict-label">{_v_lbl}</div>
+    <div class="rf-verdict-msg">{_v_msg}</div>
+  </div>
+  <div class="rf-verdict-stats">
+    <div><span class="num c-dk">{n_dk}</span><span class="lbl">killers</span></div>
+    <div><span class="num c-crit">{n_crit}</span><span class="lbl">critical</span></div>
+    <div><span class="num c-mod">{n_mod}</span><span class="lbl">moderate</span></div>
+    <div><span class="num c-man">{n_man}</span><span class="lbl">manageable</span></div>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
     # ── Tabs ──────────────────────────────────────────────────────────────────────
 
@@ -1390,29 +1474,29 @@ if "findings" in st.session_state:
         if _breach_sum.get("breach_found"):
             _n_breach = _breach_sum.get("total", 0)
             st.markdown(f"""
-            <div style="background:linear-gradient(135deg,rgba(230,57,74,0.07),rgba(159,18,57,0.04));
-                        border:1px solid rgba(230,57,74,0.25);border-left:4px solid #e6394a;
+            <div style="background:linear-gradient(135deg,rgba(255,59,95,0.07),rgba(193,18,77,0.04));
+                        border:1px solid rgba(255,59,95,0.25);border-left:4px solid #ff3b5f;
                         border-radius:12px;padding:14px 18px;margin-bottom:14px;
                         display:flex;align-items:center;gap:14px;">
-              <div style="width:36px;height:36px;background:rgba(230,57,74,0.1);border-radius:9px;
+              <div style="width:36px;height:36px;background:rgba(255,59,95,0.1);border-radius:9px;
                           display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none"
-                     stroke="#e6394a" stroke-width="2" stroke-linecap="round">
+                     stroke="#ff3b5f" stroke-width="2" stroke-linecap="round">
                   <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>
                 </svg>
               </div>
               <div style="flex:1;">
-                <div style="font-size:0.84rem;font-weight:700;color:#e6394a;
-                            font-family:'Inter',sans-serif;margin-bottom:2px;">
+                <div style="font-size:0.84rem;font-weight:700;color:#ff3b5f;
+                            font-family:'Space Grotesk',sans-serif;margin-bottom:2px;">
                   Breach Exposure Detected — Target Indexed in Public Breach Database
                 </div>
-                <div style="font-size:0.77rem;color:rgba(230,57,74,0.6);
-                            font-family:'Inter',sans-serif;">
+                <div style="font-size:0.77rem;color:rgba(255,59,95,0.6);
+                            font-family:'Space Grotesk',sans-serif;">
                   {_n_breach} live exposure(s) found via LeakIX — these are already known to attackers
                 </div>
               </div>
-              <div style="font-family:'JetBrains Mono',monospace;font-size:2rem;
-                          font-weight:700;color:#e6394a;line-height:1;flex-shrink:0;">{_n_breach}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:2rem;
+                          font-weight:700;color:#ff3b5f;line-height:1;flex-shrink:0;">{_n_breach}</div>
             </div>""", unsafe_allow_html=True)
 
         _asset_hosts_loaded = st.session_state.get("asset_hosts", 0)
@@ -1428,7 +1512,7 @@ if "findings" in st.session_state:
             <div class="inv-notice warn">
                 <span>⚠</span>
                 <span><strong>Data Sensitivity Unclassified</strong> &nbsp;—&nbsp;
-                All findings default to <code style="font-family:'JetBrains Mono',monospace;font-size:0.77rem;">UNKNOWN</code>.
+                All findings default to <code style="font-family:'IBM Plex Mono',monospace;font-size:0.77rem;">UNKNOWN</code>.
                 Upload an asset inventory to unlock the most impactful deal-killer rules.</span>
             </div>""", unsafe_allow_html=True)
 
@@ -1449,24 +1533,24 @@ if "findings" in st.session_state:
             if values:
                 fig = go.Figure(go.Pie(
                     labels=labels, values=values, hole=0.72,
-                    marker=dict(colors=colors, line=dict(color="#080c14", width=3)),
+                    marker=dict(colors=colors, line=dict(color="#07060f", width=3)),
                     textinfo="label+percent",
-                    textfont=dict(size=10, color="#4a6080", family="JetBrains Mono"),
+                    textfont=dict(size=10, color="#6c5f97", family="IBM Plex Mono"),
                     hovertemplate="<b>%{label}</b><br>%{value} findings (%{percent})<extra></extra>",
                 ))
                 fig.update_layout(
                     showlegend=True,
                     legend=dict(
-                        font=dict(color="#4a6080", size=11, family="Inter"),
+                        font=dict(color="#6c5f97", size=11, family="Space Grotesk"),
                         bgcolor="rgba(0,0,0,0)", x=0.5, xanchor="center", y=-0.05,
                         orientation="h",
                     ),
                     paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)",
                     margin=dict(t=8, b=32, l=8, r=8), height=260,
                     annotations=[dict(
-                        text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#2d4060'>total</span>",
-                        x=0.5, y=0.5, font_size=28, font_color="#c8daf5",
-                        font=dict(family="JetBrains Mono"), showarrow=False,
+                        text=f"<b>{n_total}</b><br><span style='font-size:10px;color:#4d4274'>total</span>",
+                        x=0.5, y=0.5, font_size=28, font_color="#d8d2f0",
+                        font=dict(family="IBM Plex Mono"), showarrow=False,
                     )],
                 )
                 st.plotly_chart(fig, width="stretch", config={"displayModeBar": False})
@@ -1480,22 +1564,22 @@ if "findings" in st.session_state:
             )
             with st.expander("Risk Profile Summary", expanded=False):
                 st.markdown(f"""
-                <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;">
-                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:9px;padding:12px;">
+                    <div style="background:#07060f;border:1px solid #1d1735;border-radius:9px;padding:12px;">
                       <div style="font-size:0.56rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
-                                  color:#2d4060;font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Avg Risk Score</div>
+                                  color:#4d4274;font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">Avg Risk Score</div>
                       <div style="font-size:1.5rem;font-weight:700;color:{score_color(avg_score)};
-                                  font-family:'JetBrains Mono',monospace;">{avg_score:.1f}</div>
+                                  font-family:'IBM Plex Mono',monospace;">{avg_score:.1f}</div>
                     </div>
-                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:9px;padding:12px;">
+                    <div style="background:#07060f;border:1px solid #1d1735;border-radius:9px;padding:12px;">
                       <div style="font-size:0.56rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;
-                                  color:#2d4060;font-family:'JetBrains Mono',monospace;margin-bottom:4px;">Max Exposure</div>
-                      <div style="font-size:0.82rem;font-weight:600;color:#c8daf5;
-                                  font-family:'JetBrains Mono',monospace;margin-top:4px;">{top_exposure.replace("_"," ").upper()}</div>
+                                  color:#4d4274;font-family:'IBM Plex Mono',monospace;margin-bottom:4px;">Max Exposure</div>
+                      <div style="font-size:0.82rem;font-weight:600;color:#d8d2f0;
+                                  font-family:'IBM Plex Mono',monospace;margin-top:4px;">{top_exposure.replace("_"," ").upper()}</div>
                     </div>
                   </div>
-                  <div style="color:#3a5070;font-size:0.79rem;line-height:1.7;">
+                  <div style="color:#5b4e85;font-size:0.79rem;line-height:1.7;">
                     {n_dk} deal-killer · {n_crit} critical · {n_mod} moderate · {n_man} manageable across {n_total} total findings.
                   </div>
                 </div>""", unsafe_allow_html=True)
@@ -1508,21 +1592,21 @@ if "findings" in st.session_state:
             _scanners_active = sum([1, bool(_vul_c), bool(st.session_state.get("shodan_result", {}).get("success")),
                                     bool(_ov_count), bool(_zap_c)])
             _posture   = "High Risk" if n_dk else ("Elevated" if n_crit >= 3 else ("Moderate" if n_mod >= 3 else "Low Risk"))
-            _posture_c = "#e6394a" if n_dk else ("#f97316" if n_crit >= 3 else ("#f59e0b" if n_mod >= 3 else "#10b981"))
+            _posture_c = "#ff3b5f" if n_dk else ("#ff7849" if n_crit >= 3 else ("#fbbf24" if n_mod >= 3 else "#2dd4a0"))
 
             with st.expander("Deployment Status", expanded=False):
                 st.markdown(f"""
-                <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
                   <div style="display:flex;align-items:center;justify-content:space-between;
                               margin-bottom:10px;padding:10px 14px;
-                              background:#080c14;border:1px solid #141d2e;border-radius:9px;">
-                    <span style="font-size:0.78rem;color:#3a5070;font-family:'Inter',sans-serif;">Overall Posture</span>
+                              background:#07060f;border:1px solid #1d1735;border-radius:9px;">
+                    <span style="font-size:0.78rem;color:#5b4e85;font-family:'Space Grotesk',sans-serif;">Overall Posture</span>
                     <span style="font-size:0.86rem;font-weight:700;color:{_posture_c};
-                                 font-family:'JetBrains Mono',monospace;">{_posture}</span>
+                                 font-family:'IBM Plex Mono',monospace;">{_posture}</span>
                   </div>
-                  <div style="color:#2d4060;font-size:0.76rem;line-height:1.8;">
-                    <span style="color:#10b981;">●</span> {_scanners_active} of 5 scanners active &nbsp;·&nbsp;
-                    <span style="color:{'#10b981' if _asset_c else '#f59e0b'};">●</span>
+                  <div style="color:#4d4274;font-size:0.76rem;line-height:1.8;">
+                    <span style="color:#2dd4a0;">●</span> {_scanners_active} of 5 scanners active &nbsp;·&nbsp;
+                    <span style="color:{'#2dd4a0' if _asset_c else '#fbbf24'};">●</span>
                     Asset inventory {'loaded' if _asset_c else 'not uploaded'}
                   </div>
                 </div>""", unsafe_allow_html=True)
@@ -1570,12 +1654,12 @@ if "findings" in st.session_state:
 
             # Target intel + source chip
             source_chip = (
-                '<span style="font-size:0.55rem;font-family:\'JetBrains Mono\',monospace;'
-                'color:#a78bfa;background:rgba(167,139,250,0.1);border:1px solid rgba(167,139,250,0.25);'
+                '<span style="font-size:0.55rem;font-family:\'IBM Plex Mono\',monospace;'
+                'color:#22d3ee;background:rgba(34,211,238,0.1);border:1px solid rgba(34,211,238,0.25);'
                 'border-radius:4px;padding:2px 7px;font-weight:700;letter-spacing:0.1em;">TARGET-PROVIDED</span>'
                 if shodan_source == "external_json" else
-                '<span style="font-size:0.55rem;font-family:\'JetBrains Mono\',monospace;'
-                'color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.25);'
+                '<span style="font-size:0.55rem;font-family:\'IBM Plex Mono\',monospace;'
+                'color:#2dd4a0;background:rgba(45,212,160,0.1);border:1px solid rgba(45,212,160,0.25);'
                 'border-radius:4px;padding:2px 7px;font-weight:700;letter-spacing:0.1em;">LIVE API</span>'
             )
 
@@ -1613,14 +1697,14 @@ if "findings" in st.session_state:
             <div class="rf-pipeline-h" style="margin-bottom:14px;">
               <div class="rf-pipeline-header">
                 Scanner Status
-                <span style="margin-left:auto;font-size:0.6rem;color:#2d4060;">
+                <span style="margin-left:auto;font-size:0.6rem;color:#4d4274;">
                   {clean_target} &nbsp;·&nbsp; {resolved_ip}
                 </span>
               </div>
               <div class="rf-pipeline-flow">
                 {nmap_ps}{vuln_ps}{shod_ps}{ov_ps}{zap_ps}
               </div>
-              <div style="height:1px;background:#0d1828;margin:10px 0 8px;"></div>
+              <div style="height:1px;background:#161129;margin:10px 0 8px;"></div>
               <div class="rf-pipeline-flow" style="justify-content:space-evenly;">
                 {dns_ps}{tls_ps}{breach_ps}
               </div>
@@ -1635,12 +1719,12 @@ if "findings" in st.session_state:
                 isp        = shodan_result.get("isp") or "Unknown"
                 country    = shodan_result.get("country") or "Unknown"
                 city       = shodan_result.get("city") or "Unknown"
-                cve_color  = "#e6394a" if vuln_count else "#10b981"
+                cve_color  = "#ff3b5f" if vuln_count else "#2dd4a0"
 
                 st.markdown(f"""
                 <div class="rf-shodan" style="margin-bottom:14px;">
-                  <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
-                              letter-spacing:0.18em;text-transform:uppercase;color:#3d7fff;
+                  <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:700;
+                              letter-spacing:0.18em;text-transform:uppercase;color:#8b5cf6;
                               margin-bottom:12px;display:flex;align-items:center;gap:8px;">
                     SHODAN SNAPSHOT {source_chip}
                   </div>
@@ -1659,21 +1743,21 @@ if "findings" in st.session_state:
                     </div>
                     <div class="rf-shodan-row" style="margin-bottom:6px;">
                       <span class="rf-shodan-label">Open Ports</span>
-                      <span class="rf-shodan-value" style="font-family:'JetBrains Mono',monospace;font-size:0.74rem;color:#6fa3ff;">{ports_str}</span>
+                      <span class="rf-shodan-value" style="font-family:'IBM Plex Mono',monospace;font-size:0.74rem;color:#b39dfb;">{ports_str}</span>
                     </div>
                     <div class="rf-shodan-row">
                       <span class="rf-shodan-label">CVEs</span>
-                      <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'JetBrains Mono',monospace;">{vuln_count}</span>
+                      <span class="rf-shodan-value" style="color:{cve_color};font-weight:700;font-family:'IBM Plex Mono',monospace;">{vuln_count}</span>
                     </div>
                   </div>
-                  {('<div style="margin-top:10px;border-top:1px solid #1e3050;padding-top:10px;">'
+                  {('<div style="margin-top:10px;border-top:1px solid #30255b;padding-top:10px;">'
                     + '<div style="font-size:0.56rem;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;'
-                    + 'color:#2d4060;font-family:\'JetBrains Mono\',monospace;margin-bottom:6px;">CVE Lists</div>'
+                    + 'color:#4d4274;font-family:\'IBM Plex Mono\',monospace;margin-bottom:6px;">CVE Lists</div>'
                     + "<div style='display:flex;flex-wrap:wrap;gap:5px;'>"
-                    + "".join(f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.62rem;color:#4a6080;'
-                              f'background:#080c14;border:1px solid #1e2d45;border-radius:4px;padding:2px 8px;">{c}</span>'
+                    + "".join(f'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.62rem;color:#6c5f97;'
+                              f'background:#07060f;border:1px solid #2c2253;border-radius:4px;padding:2px 8px;">{c}</span>'
                               for c in shodan_result["vulns"][:8])
-                    + (f'<span style="font-size:0.62rem;color:#2d4060;padding:2px 8px;">+{len(shodan_result["vulns"])-8} more</span>'
+                    + (f'<span style="font-size:0.62rem;color:#4d4274;padding:2px 8px;">+{len(shodan_result["vulns"])-8} more</span>'
                        if len(shodan_result["vulns"]) > 8 else "")
                     + "</div></div>") if shodan_result.get("vulns") else ""}
                 </div>
@@ -1685,32 +1769,32 @@ if "findings" in st.session_state:
             _dns_findings_list = st.session_state.get("dns_findings", [])
             if _dns_sum.get("success") is not None:
                 _dns_ok  = not bool(_dns_findings_list)
-                _dns_col = "#10b981" if _dns_ok else "#f59e0b"
+                _dns_col = "#2dd4a0" if _dns_ok else "#fbbf24"
                 _dns_lbl = "All Checks Passed" if _dns_ok else f"{len(_dns_findings_list)} Gap(s) Found"
                 _dns_rows = ""
                 for _df in _dns_findings_list[:4]:
                     _check = (_df.raw_data or {}).get("check", "dns")
                     _dns_rows += (
                         f'<div style="display:flex;justify-content:space-between;'
-                        f'align-items:center;padding:5px 0;border-bottom:1px solid #0d1828;">'
-                        f'<span style="font-size:0.76rem;color:#4a6080;font-family:\'Inter\',sans-serif;">'
+                        f'align-items:center;padding:5px 0;border-bottom:1px solid #161129;">'
+                        f'<span style="font-size:0.76rem;color:#6c5f97;font-family:\'Inter\',sans-serif;">'
                         f'{_df.title[:55]}{"…" if len(_df.title)>55 else ""}</span>'
-                        f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;'
-                        f'color:#f59e0b;font-weight:700;">{_df.cvss_score}</span></div>'
+                        f'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;'
+                        f'color:#fbbf24;font-weight:700;">{_df.cvss_score}</span></div>'
                     )
                 st.markdown(f"""
-                <div style="background:#0c1422;border:1px solid #1e3050;border-left:3px solid {_dns_col};
+                <div style="background:#110d24;border:1px solid #30255b;border-left:3px solid {_dns_col};
                             border-radius:12px;padding:14px 16px;margin-bottom:12px;">
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:700;
                                 letter-spacing:0.18em;text-transform:uppercase;color:{_dns_col};">
                       DNS &amp; EMAIL SECURITY
                     </div>
                     <span style="font-size:0.65rem;font-weight:700;color:{_dns_col};
-                                 font-family:'JetBrains Mono',monospace;">{_dns_lbl}</span>
+                                 font-family:'IBM Plex Mono',monospace;">{_dns_lbl}</span>
                   </div>
                   {_dns_rows if _dns_rows else
-                   '<div style="font-size:0.76rem;color:#10b981;font-family:\'Inter\',sans-serif;">'
+                   '<div style="font-size:0.76rem;color:#2dd4a0;font-family:\'Inter\',sans-serif;">'
                    '✓ SPF, DMARC, DKIM, and DNSSEC all configured correctly.</div>'}
                 </div>""", unsafe_allow_html=True)
 
@@ -1718,34 +1802,34 @@ if "findings" in st.session_state:
             _tls_findings_list = st.session_state.get("tls_findings", [])
             if _tls_sum:
                 _tls_ok  = not bool(_tls_findings_list)
-                _tls_col = "#10b981" if _tls_ok else ("#e6394a" if _tls_sum.get("expired") else "#f59e0b")
+                _tls_col = "#2dd4a0" if _tls_ok else ("#ff3b5f" if _tls_sum.get("expired") else "#fbbf24")
                 _tls_lbl = "All Checks Passed" if _tls_ok else f"{len(_tls_findings_list)} Issue(s) Found"
                 _tls_rows = ""
                 for _tf in _tls_findings_list[:3]:
                     _tls_rows += (
                         f'<div style="display:flex;justify-content:space-between;'
-                        f'align-items:center;padding:5px 0;border-bottom:1px solid #0d1828;">'
-                        f'<span style="font-size:0.76rem;color:#4a6080;font-family:\'Inter\',sans-serif;">'
+                        f'align-items:center;padding:5px 0;border-bottom:1px solid #161129;">'
+                        f'<span style="font-size:0.76rem;color:#6c5f97;font-family:\'Inter\',sans-serif;">'
                         f'{_tf.title[:55]}{"…" if len(_tf.title)>55 else ""}</span>'
-                        f'<span style="font-family:\'JetBrains Mono\',monospace;font-size:0.7rem;'
-                        f'color:#f59e0b;font-weight:700;">{_tf.cvss_score}</span></div>'
+                        f'<span style="font-family:\'IBM Plex Mono\',monospace;font-size:0.7rem;'
+                        f'color:#fbbf24;font-weight:700;">{_tf.cvss_score}</span></div>'
                     )
                 _ct_count = _tls_sum.get("subdomains_ct", 0)
                 st.markdown(f"""
-                <div style="background:#0c1422;border:1px solid #1e3050;border-left:3px solid {_tls_col};
+                <div style="background:#110d24;border:1px solid #30255b;border-left:3px solid {_tls_col};
                             border-radius:12px;padding:14px 16px;margin-bottom:12px;">
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                    <div style="font-family:'JetBrains Mono',monospace;font-size:0.6rem;font-weight:700;
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:0.6rem;font-weight:700;
                                 letter-spacing:0.18em;text-transform:uppercase;color:{_tls_col};">
                       TLS / CERTIFICATE HEALTH
                     </div>
                     <span style="font-size:0.65rem;font-weight:700;color:{_tls_col};
-                                 font-family:'JetBrains Mono',monospace;">{_tls_lbl}</span>
+                                 font-family:'IBM Plex Mono',monospace;">{_tls_lbl}</span>
                   </div>
                   {_tls_rows if _tls_rows else
-                   '<div style="font-size:0.76rem;color:#10b981;font-family:\'Inter\',sans-serif;">'
+                   '<div style="font-size:0.76rem;color:#2dd4a0;font-family:\'Inter\',sans-serif;">'
                    '✓ No expired certs, no deprecated TLS versions found.</div>'}
-                  {(f'<div style="margin-top:6px;font-size:0.72rem;color:#3a5070;'
+                  {(f'<div style="margin-top:6px;font-size:0.72rem;color:#5b4e85;'
                     f'font-family:\'Inter\',sans-serif;">CT logs: {_ct_count} subdomain(s) found</div>')
                    if _ct_count else ""}
                 </div>""", unsafe_allow_html=True)
@@ -1785,7 +1869,7 @@ if "findings" in st.session_state:
             if len(findings) > 6:
                 st.markdown(
                     f"<div style='text-align:center;padding:8px;font-size:0.72rem;"
-                    f"color:#2d4060;font-family:\"JetBrains Mono\",monospace;'>"
+                    f"color:#4d4274;font-family:\"IBM Plex Mono\",monospace;'>"
                     f"+ {len(findings)-6} more findings — see Findings tab</div>",
                     unsafe_allow_html=True,
                 )
@@ -1910,8 +1994,8 @@ if "findings" in st.session_state:
                           <h4>{row['Title']}</h4>
                           <div class="meta">
                             {tier_html}&nbsp;{exp_html}
-                            &nbsp;<span style="font-family:'JetBrains Mono',monospace;font-size:0.7rem;
-                                              color:#2d4060;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
+                            &nbsp;<span style="font-family:'IBM Plex Mono',monospace;font-size:0.7rem;
+                                              color:#4d4274;">{row['Host']} &nbsp;·&nbsp; :{port_svc} &nbsp;·&nbsp; {row['Scanner']}</span>
                           </div>
                           <hr class="fc-divider">
                           <div style="display:grid; grid-template-columns:1fr 1fr; gap:0 28px;">
@@ -1927,8 +2011,8 @@ if "findings" in st.session_state:
                           <div style="display:flex; gap:24px; margin-top:4px;">
                             <div>
                               <span class="field-label">Evidence</span>&nbsp;
-                              <span style="font-family:'JetBrains Mono',monospace;font-size:0.76rem;
-                                           color:#4a6080;">{evid_label}</span>
+                              <span style="font-family:'IBM Plex Mono',monospace;font-size:0.76rem;
+                                           color:#6c5f97;">{evid_label}</span>
                             </div>
                           </div>
                         </div>
@@ -1945,14 +2029,14 @@ if "findings" in st.session_state:
             # ══════════════════════════════════════════════════════════════
             st.markdown("<div style='height:20px'></div>", unsafe_allow_html=True)
             st.markdown("""
-            <div style="border-top:1px solid #141d2e;padding-top:20px;">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:0.57rem;font-weight:700;
-                          letter-spacing:0.2em;text-transform:uppercase;color:#2d4060;
+            <div style="border-top:1px solid #1d1735;padding-top:20px;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.57rem;font-weight:700;
+                          letter-spacing:0.2em;text-transform:uppercase;color:#4d4274;
                           display:flex;align-items:center;gap:10px;margin-bottom:4px;">
                 What-If Scenario Simulator
-                <div style="flex:1;height:1px;background:linear-gradient(90deg,#141d2e,transparent);"></div>
+                <div style="flex:1;height:1px;background:linear-gradient(90deg,#1d1735,transparent);"></div>
               </div>
-              <div style="font-size:0.78rem;color:#3a5070;font-family:'Inter',sans-serif;
+              <div style="font-size:0.78rem;color:#5b4e85;font-family:'Space Grotesk',sans-serif;
                           margin-bottom:14px;line-height:1.6;">
                 Mark findings as resolved pre-close and instantly see how the risk profile changes.
                 Use this to quantify the value of each remediation demand in M&amp;A negotiations.
@@ -1991,80 +2075,80 @@ if "findings" in st.session_state:
                 # Overall tier before / after
                 def _overall_tier(fs):
                     if any(str(getattr(f.deal_tier,"value",f.deal_tier)) == "deal_killer" for f in fs):
-                        return "DEAL KILLER", "#e6394a"
+                        return "DEAL KILLER", "#ff3b5f"
                     avg = sum(f.risk_score for f in fs) / len(fs) if fs else 0
-                    if avg >= 75: return "CRITICAL", "#f97316"
-                    if avg >= 50: return "MODERATE", "#f59e0b"
-                    return "MANAGEABLE", "#10b981"
+                    if avg >= 75: return "CRITICAL", "#ff7849"
+                    if avg >= 50: return "MODERATE", "#fbbf24"
+                    return "MANAGEABLE", "#2dd4a0"
 
                 _orig_tier_lbl, _orig_tier_col  = _overall_tier(findings)
                 _sim_tier_lbl,  _sim_tier_col   = _overall_tier(_simulated)
 
                 st.html(f"""
-                <div style="background:linear-gradient(135deg,#0a1020,#080c14);
-                            border:1px solid #1a2640;border-radius:14px;padding:20px 24px;
+                <div style="background:linear-gradient(135deg,#110c26,#07060f);
+                            border:1px solid #261d46;border-radius:14px;padding:20px 24px;
                             margin-top:8px;">
                   <div style="font-size:0.6rem;font-weight:700;letter-spacing:0.18em;
-                              text-transform:uppercase;color:#2d4060;
-                              font-family:'JetBrains Mono',monospace;margin-bottom:16px;">
+                              text-transform:uppercase;color:#4d4274;
+                              font-family:'IBM Plex Mono',monospace;margin-bottom:16px;">
                     Simulated Risk Profile — {len(_wi_selected_ids)} finding(s) marked as resolved
                   </div>
                   <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;">
-                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                    <div style="background:#07060f;border:1px solid #1d1735;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
-                                  text-transform:uppercase;color:#2d4060;
-                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Avg Score</div>
-                      <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                                  text-transform:uppercase;color:#4d4274;
+                                  font-family:'IBM Plex Mono',monospace;margin-bottom:6px;">Avg Score</div>
+                      <div style="font-size:1.4rem;font-weight:700;font-family:'IBM Plex Mono',monospace;
                                   color:{score_color(_orig_score)};line-height:1;">{_orig_score:.1f}</div>
-                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
+                      <div style="font-size:0.68rem;color:#5b4e85;margin-top:4px;">
                         → <span style="color:{score_color(_sim_score)};font-weight:700;">{_sim_score:.1f}</span>
-                        &nbsp;<span style="color:#10b981;">▼ {_delta_score:.1f}</span>
+                        &nbsp;<span style="color:#2dd4a0;">▼ {_delta_score:.1f}</span>
                       </div>
                     </div>
-                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                    <div style="background:#07060f;border:1px solid #1d1735;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
-                                  text-transform:uppercase;color:#2d4060;
-                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Deal Killers</div>
-                      <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;
-                                  color:#e6394a;line-height:1;">{_orig_dk}</div>
-                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
-                        → <span style="color:{'#10b981' if _sim_dk == 0 else '#e6394a'};font-weight:700;">{_sim_dk}</span>
-                        {('<span style="color:#10b981;">&nbsp;✓ cleared</span>' if _sim_dk == 0 and _orig_dk > 0 else "")}
+                                  text-transform:uppercase;color:#4d4274;
+                                  font-family:'IBM Plex Mono',monospace;margin-bottom:6px;">Deal Killers</div>
+                      <div style="font-size:1.4rem;font-weight:700;font-family:'IBM Plex Mono',monospace;
+                                  color:#ff3b5f;line-height:1;">{_orig_dk}</div>
+                      <div style="font-size:0.68rem;color:#5b4e85;margin-top:4px;">
+                        → <span style="color:{'#2dd4a0' if _sim_dk == 0 else '#ff3b5f'};font-weight:700;">{_sim_dk}</span>
+                        {('<span style="color:#2dd4a0;">&nbsp;✓ cleared</span>' if _sim_dk == 0 and _orig_dk > 0 else "")}
                       </div>
                     </div>
-                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                    <div style="background:#07060f;border:1px solid #1d1735;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
-                                  text-transform:uppercase;color:#2d4060;
-                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Critical</div>
-                      <div style="font-size:1.4rem;font-weight:700;font-family:'JetBrains Mono',monospace;
-                                  color:#f97316;line-height:1;">{_orig_crit}</div>
-                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
-                        → <span style="color:{'#10b981' if _sim_crit < _orig_crit else '#f97316'};font-weight:700;">{_sim_crit}</span>
+                                  text-transform:uppercase;color:#4d4274;
+                                  font-family:'IBM Plex Mono',monospace;margin-bottom:6px;">Critical</div>
+                      <div style="font-size:1.4rem;font-weight:700;font-family:'IBM Plex Mono',monospace;
+                                  color:#ff7849;line-height:1;">{_orig_crit}</div>
+                      <div style="font-size:0.68rem;color:#5b4e85;margin-top:4px;">
+                        → <span style="color:{'#2dd4a0' if _sim_crit < _orig_crit else '#ff7849'};font-weight:700;">{_sim_crit}</span>
                       </div>
                     </div>
-                    <div style="background:#080c14;border:1px solid #141d2e;border-radius:10px;padding:14px;">
+                    <div style="background:#07060f;border:1px solid #1d1735;border-radius:10px;padding:14px;">
                       <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.14em;
-                                  text-transform:uppercase;color:#2d4060;
-                                  font-family:'JetBrains Mono',monospace;margin-bottom:6px;">Deal Tier</div>
-                      <div style="font-size:0.85rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+                                  text-transform:uppercase;color:#4d4274;
+                                  font-family:'IBM Plex Mono',monospace;margin-bottom:6px;">Deal Tier</div>
+                      <div style="font-size:0.85rem;font-weight:700;font-family:'IBM Plex Mono',monospace;
                                   color:{_orig_tier_col};line-height:1.3;">{_orig_tier_lbl}</div>
-                      <div style="font-size:0.68rem;color:#3a5070;margin-top:4px;">
+                      <div style="font-size:0.68rem;color:#5b4e85;margin-top:4px;">
                         → <span style="color:{_sim_tier_col};font-weight:700;">{_sim_tier_lbl}</span>
-                        {('<span style="color:#10b981;">&nbsp;✓ improved</span>' if _sim_tier_lbl != _orig_tier_lbl else "")}
+                        {('<span style="color:#2dd4a0;">&nbsp;✓ improved</span>' if _sim_tier_lbl != _orig_tier_lbl else "")}
                       </div>
                     </div>
                   </div>
-                  <div style="margin-top:12px;padding-top:12px;border-top:1px solid #141d2e;
-                              font-size:0.74rem;color:#3a5070;font-family:'Inter',sans-serif;line-height:1.6;">
+                  <div style="margin-top:12px;padding-top:12px;border-top:1px solid #1d1735;
+                              font-size:0.74rem;color:#5b4e85;font-family:'Space Grotesk',sans-serif;line-height:1.6;">
                     Remediating the selected {len(_wi_selected_ids)} finding(s) reduces the average risk score
-                    by <strong style="color:#c8daf5;">{_delta_score:.1f} points</strong>
+                    by <strong style="color:#d8d2f0;">{_delta_score:.1f} points</strong>
                     ({len(findings) - len(_simulated)} fewer findings in scope).
                   </div>
                 </div>""")
             else:
                 st.markdown(
-                    "<div style='padding:12px 0;font-size:0.75rem;color:#2d4060;"
-                    "font-family:\"JetBrains Mono\",monospace;'>"
+                    "<div style='padding:12px 0;font-size:0.75rem;color:#4d4274;"
+                    "font-family:\"IBM Plex Mono\",monospace;'>"
                     "Select one or more findings above to simulate the impact of pre-close remediation.</div>",
                     unsafe_allow_html=True,
                 )
@@ -2093,11 +2177,11 @@ if "findings" in st.session_state:
 
         st.markdown("""
         <div style="margin-bottom:20px;">
-          <div style="font-size:1.05rem;font-weight:700;color:#e8f0ff;
-                      font-family:'Inter',sans-serif;letter-spacing:-0.01em;margin-bottom:4px;">
+          <div style="font-size:1.05rem;font-weight:700;color:#f1edfe;
+                      font-family:'Space Grotesk',sans-serif;letter-spacing:-0.01em;margin-bottom:4px;">
             Attack Path Analysis
           </div>
-          <div style="font-size:0.8rem;color:#3a5070;font-family:'Inter',sans-serif;line-height:1.6;">
+          <div style="font-size:0.8rem;color:#5b4e85;font-family:'Space Grotesk',sans-serif;line-height:1.6;">
             Visualises how an attacker moves from the internet through exposed services to reach
             vulnerabilities. Hover any node for full details. Drag to pan &middot; scroll to zoom.
           </div>
@@ -2105,18 +2189,18 @@ if "findings" in st.session_state:
 
         _sc1, _sc2, _sc3, _sc4 = st.columns(4)
         for _col, _lbl, _val, _color in [
-            (_sc1, "Exposed Hosts",    _inet_hosts,  "#3d7fff"),
-            (_sc2, "Total Hosts",      _total_hosts, "#4a6080"),
-            (_sc3, "CVEs on Path",     _cve_count,   "#e6394a" if _cve_count else "#4a6080"),
-            (_sc4, "Deal Killers Exposed", _dk_count, "#e6394a" if _dk_count else "#10b981"),
+            (_sc1, "Exposed Hosts",    _inet_hosts,  "#8b5cf6"),
+            (_sc2, "Total Hosts",      _total_hosts, "#6c5f97"),
+            (_sc3, "CVEs on Path",     _cve_count,   "#ff3b5f" if _cve_count else "#6c5f97"),
+            (_sc4, "Deal Killers Exposed", _dk_count, "#ff3b5f" if _dk_count else "#2dd4a0"),
         ]:
             _col.markdown(f"""
-            <div style="background:#0f1623;border:1px solid #1a2640;border-radius:12px;
+            <div style="background:#130f23;border:1px solid #261d46;border-radius:12px;
                         padding:14px 16px;text-align:center;margin-bottom:16px;">
-              <div style="font-family:'JetBrains Mono',monospace;font-size:0.55rem;font-weight:700;
-                          letter-spacing:0.18em;text-transform:uppercase;color:#2d4060;
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:0.55rem;font-weight:700;
+                          letter-spacing:0.18em;text-transform:uppercase;color:#4d4274;
                           margin-bottom:8px;">{_lbl}</div>
-              <div style="font-size:2.2rem;font-weight:700;font-family:'JetBrains Mono',monospace;
+              <div style="font-size:2.2rem;font-weight:700;font-family:'IBM Plex Mono',monospace;
                           color:{_color};line-height:1;">{_val}</div>
             </div>""", unsafe_allow_html=True)
 
@@ -2133,30 +2217,30 @@ if "findings" in st.session_state:
         # ── Legend ───────────────────────────────────────────────────────────────
         st.markdown("""
         <div style="display:flex;gap:24px;flex-wrap:wrap;align-items:center;
-                    padding:12px 18px;background:#0a0f1c;border:1px solid #141d2e;
+                    padding:12px 18px;background:#0b0917;border:1px solid #1d1735;
                     border-radius:10px;margin-top:4px;">
-          <span style="font-family:'JetBrains Mono',monospace;font-size:0.57rem;font-weight:700;
-                       letter-spacing:0.18em;text-transform:uppercase;color:#2d4060;">Node colour</span>
-          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#e6394a;flex-shrink:0;
-                         box-shadow:0 0 6px #e6394a88;display:inline-block;"></span>Deal Killer
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:0.57rem;font-weight:700;
+                       letter-spacing:0.18em;text-transform:uppercase;color:#4d4274;">Node colour</span>
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#6c5f97;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#ff3b5f;flex-shrink:0;
+                         box-shadow:0 0 6px #ff3b5f88;display:inline-block;"></span>Deal Killer
           </span>
-          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#f97316;flex-shrink:0;
-                         box-shadow:0 0 6px #f9731688;display:inline-block;"></span>Critical
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#6c5f97;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#ff7849;flex-shrink:0;
+                         box-shadow:0 0 6px #ff784988;display:inline-block;"></span>Critical
           </span>
-          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#f59e0b;flex-shrink:0;
-                         box-shadow:0 0 6px #f59e0b88;display:inline-block;"></span>Moderate
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#6c5f97;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#fbbf24;flex-shrink:0;
+                         box-shadow:0 0 6px #fbbf2488;display:inline-block;"></span>Moderate
           </span>
-          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#4a6080;">
-            <span style="width:10px;height:10px;border-radius:50%;background:#10b981;flex-shrink:0;
-                         box-shadow:0 0 6px #10b98188;display:inline-block;"></span>Manageable
+          <span style="display:flex;align-items:center;gap:7px;font-size:0.74rem;color:#6c5f97;">
+            <span style="width:10px;height:10px;border-radius:50%;background:#2dd4a0;flex-shrink:0;
+                         box-shadow:0 0 6px #2dd4a088;display:inline-block;"></span>Manageable
           </span>
-          <span style="margin-left:12px;font-family:'JetBrains Mono',monospace;font-size:0.57rem;
-                       font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#2d4060;">Shapes</span>
-          <span style="font-size:0.74rem;color:#4a6080;">◆ Internet entry &nbsp;● Host / Service / CVE</span>
-          <span style="margin-left:auto;font-size:0.72rem;color:#2d4060;font-family:'Inter',sans-serif;">
+          <span style="margin-left:12px;font-family:'IBM Plex Mono',monospace;font-size:0.57rem;
+                       font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:#4d4274;">Shapes</span>
+          <span style="font-size:0.74rem;color:#6c5f97;">◆ Internet entry &nbsp;● Host / Service / CVE</span>
+          <span style="margin-left:auto;font-size:0.72rem;color:#4d4274;font-family:'Space Grotesk',sans-serif;">
             Hover any node for details &nbsp;·&nbsp; Drag to pan &nbsp;·&nbsp; Scroll to zoom
           </span>
         </div>""", unsafe_allow_html=True)
@@ -2165,7 +2249,7 @@ if "findings" in st.session_state:
 
         st.markdown('<div class="rf-section-label">Inside-Out Maturity Assessment</div>', unsafe_allow_html=True)
         st.markdown(
-            "<div style='font-size:0.82rem;color:#4a6080;font-family:\"Inter\",sans-serif;"
+            "<div style='font-size:0.82rem;color:#6c5f97;font-family:\"Space Grotesk\",sans-serif;"
             "line-height:1.7;margin-bottom:20px;'>"
             "Complete the questionnaire below to assess the target's internal security programme maturity. "
             "Scores are compared against a corporate acquisition standard to identify gaps and deal-blockers. "
@@ -2182,7 +2266,7 @@ if "findings" in st.session_state:
                 questions = get_domain_questions(domain_key)
                 st.markdown(
                     f"<div style='font-size:0.7rem;font-weight:700;letter-spacing:0.15em;"
-                    f"text-transform:uppercase;color:#e6394a;font-family:\"JetBrains Mono\",monospace;"
+                    f"text-transform:uppercase;color:#ff3b5f;font-family:\"IBM Plex Mono\",monospace;"
                     f"margin:18px 0 6px;'>{domain_label}</div>",
                     unsafe_allow_html=True,
                 )
@@ -2220,23 +2304,23 @@ if "findings" in st.session_state:
         if assessment:
             # Overall score banner
             overall = assessment.overall_score
-            ov_color = "#e6394a" if assessment.is_deal_blocker else ("#f59e0b" if assessment.has_gaps else "#10b981")
+            ov_color = "#ff3b5f" if assessment.is_deal_blocker else ("#fbbf24" if assessment.has_gaps else "#2dd4a0")
             ov_label = "DEAL-BLOCKER" if assessment.is_deal_blocker else ("GAPS PRESENT" if assessment.has_gaps else "ACCEPTABLE")
 
             st.markdown(f"""
-            <div style="background:linear-gradient(160deg,#0f1623,#0a0f1c);border:1px solid {ov_color}33;
+            <div style="background:linear-gradient(160deg,#130f23,#0b0917);border:1px solid {ov_color}33;
                         border-radius:14px;padding:20px 24px;margin-bottom:24px;
                         display:flex;align-items:center;gap:24px;">
               <div style="text-align:center;min-width:80px;">
                 <div style="font-size:3rem;font-weight:700;color:{ov_color};
-                            font-family:'JetBrains Mono',monospace;line-height:1;">{overall:.1f}<span style="font-size:1.2rem;color:#2d4060;">/5</span></div>
+                            font-family:'IBM Plex Mono',monospace;line-height:1;">{overall:.1f}<span style="font-size:1.2rem;color:#4d4274;">/5</span></div>
                 <div style="font-size:0.55rem;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
-                            color:{ov_color};font-family:'JetBrains Mono',monospace;margin-top:4px;">{ov_label}</div>
+                            color:{ov_color};font-family:'IBM Plex Mono',monospace;margin-top:4px;">{ov_label}</div>
               </div>
               <div style="flex:1;">
-                <div style="font-size:0.9rem;font-weight:700;color:#c8daf5;
-                            font-family:'Inter',sans-serif;margin-bottom:6px;">Overall Maturity Score</div>
-                <div style="font-size:0.78rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.6;">
+                <div style="font-size:0.9rem;font-weight:700;color:#d8d2f0;
+                            font-family:'Space Grotesk',sans-serif;margin-bottom:6px;">Overall Maturity Score</div>
+                <div style="font-size:0.78rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.6;">
                   {assessment.completion_pct:.0f}% of questions answered &nbsp;&middot;&nbsp;
                   {len(assessment.domain_scores)} domains assessed
                 </div>
@@ -2247,47 +2331,47 @@ if "findings" in st.session_state:
             st.markdown('<div class="rf-section-label">Domain Scores</div>', unsafe_allow_html=True)
 
             _SEV_COLORS = {
-                "deal_blocker": ("#e6394a", "DEAL-BLOCKER"),
-                "below_min":    ("#f59e0b", "BELOW MIN"),
-                "acceptable":   ("#6fa3ff", "ACCEPTABLE"),
-                "at_target":    ("#10b981", "AT TARGET"),
+                "deal_blocker": ("#ff3b5f", "DEAL-BLOCKER"),
+                "below_min":    ("#fbbf24", "BELOW MIN"),
+                "acceptable":   ("#b39dfb", "ACCEPTABLE"),
+                "at_target":    ("#2dd4a0", "AT TARGET"),
             }
 
             domain_cols = st.columns(2)
             for di, ds in enumerate(assessment.domain_scores):
                 sev_val   = str(ds.gap_severity.value if hasattr(ds.gap_severity, "value") else ds.gap_severity)
-                sev_color, sev_label = _SEV_COLORS.get(sev_val, ("#4a6080", "N/A"))
+                sev_color, sev_label = _SEV_COLORS.get(sev_val, ("#6c5f97", "N/A"))
                 bar_pct = int(ds.score / 5 * 100)
                 with domain_cols[di % 2]:
                     st.markdown(f"""
-                    <div style="background:linear-gradient(160deg,#0f1623,#0a0f1c);
-                                border:1px solid #1a2640;border-radius:12px;
+                    <div style="background:linear-gradient(160deg,#130f23,#0b0917);
+                                border:1px solid #261d46;border-radius:12px;
                                 padding:16px 18px;margin-bottom:12px;">
                       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
-                        <div style="font-size:0.8rem;font-weight:700;color:#c7d8f5;
-                                    font-family:'Inter',sans-serif;">{ds.label}</div>
+                        <div style="font-size:0.8rem;font-weight:700;color:#d7d0ef;
+                                    font-family:'Space Grotesk',sans-serif;">{ds.label}</div>
                         <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.14em;
                                     text-transform:uppercase;color:{sev_color};
-                                    font-family:'JetBrains Mono',monospace;">{sev_label}</div>
+                                    font-family:'IBM Plex Mono',monospace;">{sev_label}</div>
                       </div>
                       <div style="display:flex;align-items:center;gap:12px;">
-                        <div style="flex:1;height:6px;background:#0d1828;border-radius:3px;">
+                        <div style="flex:1;height:6px;background:#161129;border-radius:3px;">
                           <div style="width:{bar_pct}%;height:6px;background:{sev_color};
                                       border-radius:3px;transition:width 0.3s;"></div>
                         </div>
                         <div style="font-size:1.1rem;font-weight:700;color:{sev_color};
-                                    font-family:'JetBrains Mono',monospace;min-width:36px;
+                                    font-family:'IBM Plex Mono',monospace;min-width:36px;
                                     text-align:right;">{ds.score:.1f}</div>
                       </div>
                       <div style="margin-top:8px;display:flex;gap:16px;">
-                        <span style="font-size:0.7rem;color:#2d4060;font-family:'JetBrains Mono',monospace;">
-                          Min acceptable: <span style="color:#4a6080;">{ds.acceptable_min}</span>
+                        <span style="font-size:0.7rem;color:#4d4274;font-family:'IBM Plex Mono',monospace;">
+                          Min acceptable: <span style="color:#6c5f97;">{ds.acceptable_min}</span>
                         </span>
-                        <span style="font-size:0.7rem;color:#2d4060;font-family:'JetBrains Mono',monospace;">
-                          Target: <span style="color:#4a6080;">{ds.recommended}</span>
+                        <span style="font-size:0.7rem;color:#4d4274;font-family:'IBM Plex Mono',monospace;">
+                          Target: <span style="color:#6c5f97;">{ds.recommended}</span>
                         </span>
-                        <span style="font-size:0.7rem;color:#2d4060;font-family:'JetBrains Mono',monospace;">
-                          Answered: <span style="color:#4a6080;">{ds.answered}/{ds.total_questions}</span>
+                        <span style="font-size:0.7rem;color:#4d4274;font-family:'IBM Plex Mono',monospace;">
+                          Answered: <span style="color:#6c5f97;">{ds.answered}/{ds.total_questions}</span>
                         </span>
                       </div>
                     </div>""", unsafe_allow_html=True)
@@ -2298,27 +2382,27 @@ if "findings" in st.session_state:
                 mat_narrative = build_maturity_narrative(assessment)
                 if mat_narrative:
                     st.markdown(
-                        f"<div style='font-size:0.85rem;color:#c7d8f5;font-family:\"Inter\",sans-serif;"
-                        f"line-height:1.75;padding:16px;background:#0a0f1c;border-radius:10px;"
-                        f"border-left:3px solid #f59e0b;margin-bottom:16px;'>{mat_narrative}</div>",
+                        f"<div style='font-size:0.85rem;color:#d7d0ef;font-family:\"Space Grotesk\",sans-serif;"
+                        f"line-height:1.75;padding:16px;background:#0b0917;border-radius:10px;"
+                        f"border-left:3px solid #fbbf24;margin-bottom:16px;'>{mat_narrative}</div>",
                         unsafe_allow_html=True,
                     )
 
                 for gap in gap_report.deal_blocker_gaps + gap_report.below_min_gaps:
                     st.markdown(f"""
-                    <div style="background:#0a0f1c;border:1px solid #e6394a33;border-radius:10px;
-                                border-left:3px solid #e6394a;padding:14px 18px;margin-bottom:10px;">
-                      <div style="font-size:0.82rem;font-weight:700;color:#e6394a;
-                                  font-family:'Inter',sans-serif;margin-bottom:4px;">
+                    <div style="background:#0b0917;border:1px solid #ff3b5f33;border-radius:10px;
+                                border-left:3px solid #ff3b5f;padding:14px 18px;margin-bottom:10px;">
+                      <div style="font-size:0.82rem;font-weight:700;color:#ff3b5f;
+                                  font-family:'Space Grotesk',sans-serif;margin-bottom:4px;">
                         {gap.label} — Score {gap.current_score:.1f} (need {gap.acceptable_min})
                       </div>
-                      <div style="font-size:0.78rem;color:#4a6080;font-family:'Inter',sans-serif;
+                      <div style="font-size:0.78rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;
                                   line-height:1.65;">{gap.rationale}</div>
                     </div>""", unsafe_allow_html=True)
         else:
             st.markdown(
-                "<div style='padding:40px;text-align:center;color:#2d4060;"
-                "font-family:\"JetBrains Mono\",monospace;font-size:0.78rem;'>"
+                "<div style='padding:40px;text-align:center;color:#4d4274;"
+                "font-family:\"IBM Plex Mono\",monospace;font-size:0.78rem;'>"
                 "Complete the questionnaire above and click Run Maturity Assessment to see results.</div>",
                 unsafe_allow_html=True,
             )
@@ -2331,7 +2415,7 @@ if "findings" in st.session_state:
 
         st.markdown('<div class="rf-section-label">Remediation Cost & Budget</div>', unsafe_allow_html=True)
         st.markdown(
-            "<div style='font-size:0.82rem;color:#4a6080;font-family:\"Inter\",sans-serif;"
+            "<div style='font-size:0.82rem;color:#6c5f97;font-family:\"Space Grotesk\",sans-serif;"
             "line-height:1.7;margin-bottom:20px;'>"
             "Cost estimates are generated from scanner findings and maturity gaps using industry benchmark "
             "pricing.  All figures are shown as low / base / high scenarios.  CapEx and OpEx are separated. "
@@ -2366,9 +2450,9 @@ if "findings" in st.session_state:
             cost_narrative = build_cost_narrative(rollup)
             if cost_narrative:
                 st.markdown(
-                    f"<div style='font-size:0.85rem;color:#c7d8f5;font-family:\"Inter\",sans-serif;"
-                    f"line-height:1.75;padding:16px;background:#0a0f1c;border-radius:10px;"
-                    f"border-left:3px solid #6fa3ff;margin-bottom:20px;'>{cost_narrative}</div>",
+                    f"<div style='font-size:0.85rem;color:#d7d0ef;font-family:\"Space Grotesk\",sans-serif;"
+                    f"line-height:1.75;padding:16px;background:#0b0917;border-radius:10px;"
+                    f"border-left:3px solid #b39dfb;margin-bottom:20px;'>{cost_narrative}</div>",
                     unsafe_allow_html=True,
                 )
 
@@ -2380,29 +2464,29 @@ if "findings" in st.session_state:
 
             sc_col1, sc_col2, sc_col3 = st.columns(3)
             for sc_col, sc, sc_label, sc_color in [
-                (sc_col1, sc_low,  "Low Scenario",  "#10b981"),
-                (sc_col2, sc_base, "Base Scenario", "#6fa3ff"),
-                (sc_col3, sc_high, "High Scenario", "#e6394a"),
+                (sc_col1, sc_low,  "Low Scenario",  "#2dd4a0"),
+                (sc_col2, sc_base, "Base Scenario", "#b39dfb"),
+                (sc_col3, sc_high, "High Scenario", "#ff3b5f"),
             ]:
                 with sc_col:
                     if sc:
                         st.markdown(f"""
-                        <div style="background:linear-gradient(160deg,#0f1623,#0a0f1c);
-                                    border:1px solid #1a2640;border-radius:14px;padding:20px 16px;">
+                        <div style="background:linear-gradient(160deg,#130f23,#0b0917);
+                                    border:1px solid #261d46;border-radius:14px;padding:20px 16px;">
                           <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.18em;
-                                      text-transform:uppercase;color:#2d4060;
-                                      font-family:'JetBrains Mono',monospace;margin-bottom:10px;">{sc_label}</div>
+                                      text-transform:uppercase;color:#4d4274;
+                                      font-family:'IBM Plex Mono',monospace;margin-bottom:10px;">{sc_label}</div>
                           <div style="font-size:2.2rem;font-weight:700;color:{sc_color};
-                                      font-family:'JetBrains Mono',monospace;line-height:1;">
+                                      font-family:'IBM Plex Mono',monospace;line-height:1;">
                             ${sc.total_usd:,.0f}
                           </div>
                           <div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:6px;">
-                            <div style="font-size:0.72rem;color:#4a6080;font-family:'Inter',sans-serif;">
-                              <span style="color:#f59e0b;font-weight:700;">CapEx</span><br>
+                            <div style="font-size:0.72rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;">
+                              <span style="color:#fbbf24;font-weight:700;">CapEx</span><br>
                               ${sc.capex_usd:,.0f}
                             </div>
-                            <div style="font-size:0.72rem;color:#4a6080;font-family:'Inter',sans-serif;">
-                              <span style="color:#10b981;font-weight:700;">OpEx</span><br>
+                            <div style="font-size:0.72rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;">
+                              <span style="color:#2dd4a0;font-weight:700;">OpEx</span><br>
                               ${sc.opex_usd:,.0f}
                             </div>
                           </div>
@@ -2414,13 +2498,13 @@ if "findings" in st.session_state:
             if rollup.has_flagged_items:
                 flagged_items = [i for i in rollup.line_items if i.needs_review]
                 st.markdown(f"""
-                <div style="background:#0a0610;border:1px solid #e6394a44;border-radius:12px;
-                            border-left:3px solid #e6394a;padding:16px 20px;margin-bottom:16px;">
-                  <div style="font-size:0.82rem;font-weight:700;color:#e6394a;
-                              font-family:'Inter',sans-serif;margin-bottom:6px;">
+                <div style="background:#150a1d;border:1px solid #ff3b5f44;border-radius:12px;
+                            border-left:3px solid #ff3b5f;padding:16px 20px;margin-bottom:16px;">
+                  <div style="font-size:0.82rem;font-weight:700;color:#ff3b5f;
+                              font-family:'Space Grotesk',sans-serif;margin-bottom:6px;">
                     ⚠  {len(flagged_items)} Item(s) Require Human Review Before Export
                   </div>
-                  <div style="font-size:0.78rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.65;">
+                  <div style="font-size:0.78rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.65;">
                     The highlighted items below have high cost variance, zero estimates, or are linked to
                     deal-killer findings.  Review and acknowledge before downloading the cost report.
                   </div>
@@ -2507,8 +2591,8 @@ if "findings" in st.session_state:
 
         else:
             st.markdown(
-                "<div style='padding:40px;text-align:center;color:#2d4060;"
-                "font-family:\"JetBrains Mono\",monospace;font-size:0.78rem;'>"
+                "<div style='padding:40px;text-align:center;color:#4d4274;"
+                "font-family:\"IBM Plex Mono\",monospace;font-size:0.78rem;'>"
                 "Click Generate Cost Estimate to build the remediation budget.</div>",
                 unsafe_allow_html=True,
             )
@@ -2523,8 +2607,8 @@ if "findings" in st.session_state:
         with exp_col:
             st.markdown('<div class="rf-section-label">Report Summary</div>', unsafe_allow_html=True)
 
-            dk_color  = "#f87171" if n_dk   else "#10b981"
-            crt_color = "#f97316" if n_crit else "#2d4060"
+            dk_color  = "#ff8298" if n_dk   else "#2dd4a0"
+            crt_color = "#ff7849" if n_crit else "#4d4274"
 
             st.markdown(f"""
             <div class="rf-target-panel" style="margin-bottom:16px;">
@@ -2538,7 +2622,7 @@ if "findings" in st.session_state:
               </div>
               <div class="rf-tp-row">
                 <span class="rf-tp-label">Findings</span>
-                <span class="rf-tp-value" style="color:#c7d8f5;">{n_total}</span>
+                <span class="rf-tp-value" style="color:#d7d0ef;">{n_total}</span>
               </div>
               <div class="rf-tp-row">
                 <span class="rf-tp-label">Deal Killers</span>
@@ -2550,11 +2634,11 @@ if "findings" in st.session_state:
               </div>
               <div class="rf-tp-row">
                 <span class="rf-tp-label">Moderate</span>
-                <span class="rf-tp-value" style="color:#364060;">{n_mod}</span>
+                <span class="rf-tp-value" style="color:#453a6b;">{n_mod}</span>
               </div>
               <div class="rf-tp-row">
                 <span class="rf-tp-label">Manageable</span>
-                <span class="rf-tp-value" style="color:#364060;">{n_man}</span>
+                <span class="rf-tp-value" style="color:#453a6b;">{n_man}</span>
               </div>
             </div>
             """, unsafe_allow_html=True)
@@ -2617,7 +2701,7 @@ if "findings" in st.session_state:
 # ══════════════════════════════════════════════════════════════════════════════
 
 st.markdown(
-    "<hr style='border:none;border-top:1px solid #141d2e;margin:48px 0 0;'>",
+    "<hr style='border:none;border-top:1px solid #1d1735;margin:48px 0 0;'>",
     unsafe_allow_html=True,
 )
 
@@ -2627,59 +2711,59 @@ with _fp_col:
     with st.expander("\U0001f4c4  Privacy Policy"):
         st.markdown(
             """<div style="padding:6px 0 4px;">
-  <div style="font-size:1rem;font-weight:800;color:#c8daf5;
-              font-family:'Inter',sans-serif;margin-bottom:3px;">Privacy Policy</div>
-  <div style="font-size:0.65rem;color:#2d4060;font-family:'JetBrains Mono',monospace;
+  <div style="font-size:1rem;font-weight:800;color:#d8d2f0;
+              font-family:'Space Grotesk',sans-serif;margin-bottom:3px;">Privacy Policy</div>
+  <div style="font-size:0.65rem;color:#4d4274;font-family:'IBM Plex Mono',monospace;
               margin-bottom:16px;">Effective: May 2026 &middot; RedFlag v3</div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">01 &middot; Data We Process</div>
-    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#ff3b5f;font-family:'IBM Plex Mono',monospace;margin-bottom:5px;">01 &middot; Data We Process</div>
+    <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
       RedFlag processes only data you explicitly provide: scan targets, uploaded files (OpenVAS, ZAP,
       Shodan JSON, Asset Excel), and scan outputs stored locally in
-      <code style="font-family:'JetBrains Mono',monospace;color:#6fa3ff;">data/results/</code>.
-      <strong style="color:#7a93b8;">No personal data</strong> is collected.
+      <code style="font-family:'IBM Plex Mono',monospace;color:#b39dfb;">data/results/</code>.
+      <strong style="color:#988cbb;">No personal data</strong> is collected.
     </div>
   </div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">02 &middot; How Data Is Processed</div>
-    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
-      All processing is <strong style="color:#7a93b8;">local</strong>. Outbound API calls enrich
-      findings only &mdash; <strong style="color:#7a93b8;">Shodan</strong> (1 credit/scan),
-      <strong style="color:#7a93b8;">NVD/NIST</strong> (public CVSS),
-      <strong style="color:#7a93b8;">CISA KEV</strong> (public feed),
-      <strong style="color:#7a93b8;">Vulners</strong> (NSE exploit metadata).
+                color:#ff3b5f;font-family:'IBM Plex Mono',monospace;margin-bottom:5px;">02 &middot; How Data Is Processed</div>
+    <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
+      All processing is <strong style="color:#988cbb;">local</strong>. Outbound API calls enrich
+      findings only &mdash; <strong style="color:#988cbb;">Shodan</strong> (1 credit/scan),
+      <strong style="color:#988cbb;">NVD/NIST</strong> (public CVSS),
+      <strong style="color:#988cbb;">CISA KEV</strong> (public feed),
+      <strong style="color:#988cbb;">Vulners</strong> (NSE exploit metadata).
       Each request contains only the IP or CVE ID queried.
     </div>
   </div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">03 &middot; Data Retention</div>
-    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#ff3b5f;font-family:'IBM Plex Mono',monospace;margin-bottom:5px;">03 &middot; Data Retention</div>
+    <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
       No data is retained on remote servers. Scan files live only in your local
-      <code style="font-family:'JetBrains Mono',monospace;color:#6fa3ff;">data/results/</code> folder.
+      <code style="font-family:'IBM Plex Mono',monospace;color:#b39dfb;">data/results/</code> folder.
       In-session state clears on restart.
     </div>
   </div>
 
   <div style="margin-bottom:14px;">
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">04 &middot; Responsible Use</div>
-    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#ff3b5f;font-family:'IBM Plex Mono',monospace;margin-bottom:5px;">04 &middot; Responsible Use</div>
+    <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
       Use RedFlag only against systems you own or have
-      <strong style="color:#7a93b8;">explicit written authorisation</strong> to assess.
+      <strong style="color:#988cbb;">explicit written authorisation</strong> to assess.
       The developers accept no liability for misuse.
     </div>
   </div>
 
   <div>
     <div style="font-size:0.58rem;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;
-                color:#e6394a;font-family:'JetBrains Mono',monospace;margin-bottom:5px;">05 &middot; Changes &amp; Contact</div>
-    <div style="font-size:0.82rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.75;">
+                color:#ff3b5f;font-family:'IBM Plex Mono',monospace;margin-bottom:5px;">05 &middot; Changes &amp; Contact</div>
+    <div style="font-size:0.82rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.75;">
       Material changes will be reflected in an updated effective date above.
       Questions? Use the Contact panel.
     </div>
@@ -2692,45 +2776,45 @@ with _fc_col:
     with st.expander("✉️  Contact"):
         st.markdown(
             """<div style="padding:6px 0 4px;">
-  <div style="font-size:1rem;font-weight:800;color:#c8daf5;
-              font-family:'Inter',sans-serif;margin-bottom:3px;">Get in Touch</div>
-  <div style="font-size:0.65rem;color:#2d4060;font-family:'JetBrains Mono',monospace;
+  <div style="font-size:1rem;font-weight:800;color:#d8d2f0;
+              font-family:'Space Grotesk',sans-serif;margin-bottom:3px;">Get in Touch</div>
+  <div style="font-size:0.65rem;color:#4d4274;font-family:'IBM Plex Mono',monospace;
               margin-bottom:14px;">RedFlag &middot; M&amp;A Cybersecurity Intelligence</div>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:16px;">
-    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
-                border:1px solid #1a2640;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#130f23,#0b0917);
+                border:1px solid #261d46;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#128737;&#65039;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
-                  font-family:'Inter',sans-serif;margin-bottom:3px;">Security Questions</div>
-      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.77rem;font-weight:700;color:#d8d2f0;
+                  font-family:'Space Grotesk',sans-serif;margin-bottom:3px;">Security Questions</div>
+      <div style="font-size:0.75rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.55;">
         Methodology, scoring, M&amp;A interpretation.
       </div>
     </div>
-    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
-                border:1px solid #1a2640;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#130f23,#0b0917);
+                border:1px solid #261d46;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#129309;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
-                  font-family:'Inter',sans-serif;margin-bottom:3px;">Partnerships</div>
-      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.77rem;font-weight:700;color:#d8d2f0;
+                  font-family:'Space Grotesk',sans-serif;margin-bottom:3px;">Partnerships</div>
+      <div style="font-size:0.75rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.55;">
         Enterprise, white-label, advisory.
       </div>
     </div>
-    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
-                border:1px solid #1a2640;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#130f23,#0b0917);
+                border:1px solid #261d46;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#128027;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
-                  font-family:'Inter',sans-serif;margin-bottom:3px;">Bug Reports</div>
-      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.77rem;font-weight:700;color:#d8d2f0;
+                  font-family:'Space Grotesk',sans-serif;margin-bottom:3px;">Bug Reports</div>
+      <div style="font-size:0.75rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.55;">
         Unexpected behaviour or feature ideas.
       </div>
     </div>
-    <div style="background:linear-gradient(145deg,#0f1623,#0a0f1c);
-                border:1px solid #1a2640;border-radius:9px;padding:12px;">
+    <div style="background:linear-gradient(145deg,#130f23,#0b0917);
+                border:1px solid #261d46;border-radius:9px;padding:12px;">
       <div style="font-size:1rem;margin-bottom:5px;">&#128203;</div>
-      <div style="font-size:0.77rem;font-weight:700;color:#c8daf5;
-                  font-family:'Inter',sans-serif;margin-bottom:3px;">Privacy Enquiries</div>
-      <div style="font-size:0.75rem;color:#4a6080;font-family:'Inter',sans-serif;line-height:1.55;">
+      <div style="font-size:0.77rem;font-weight:700;color:#d8d2f0;
+                  font-family:'Space Grotesk',sans-serif;margin-bottom:3px;">Privacy Enquiries</div>
+      <div style="font-size:0.75rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;line-height:1.55;">
         Questions about how RedFlag handles data.
       </div>
     </div>
@@ -2738,20 +2822,20 @@ with _fc_col:
 
   <a href="&#109;&#97;&#105;&#108;&#116;&#111;&#58;&#97;&#100;&#105;&#116;&#121;&#97;&#97;&#118;&#101;&#108;&#48;&#48;&#55;&#64;&#103;&#109;&#97;&#105;&#108;&#46;&#99;&#111;&#109;"
      style="display:block;text-align:center;
-            background:linear-gradient(160deg,#e6394a,#9f1239);
-            color:#fff;text-decoration:none;font-family:'Inter',sans-serif;
+            background:linear-gradient(160deg,#ff3b5f,#c1124d);
+            color:#fff;text-decoration:none;font-family:'Space Grotesk',sans-serif;
             font-weight:700;font-size:0.83rem;letter-spacing:0.05em;
             padding:11px 20px;border-radius:10px;
-            box-shadow:0 4px 22px rgba(244,63,94,0.4);margin-bottom:14px;">
+            box-shadow:0 4px 22px rgba(255,59,95,0.4);margin-bottom:14px;">
     &#9993;&nbsp; Send Message
   </a>
 
   <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-    <div style="font-size:0.76rem;color:#4a6080;font-family:'Inter',sans-serif;">
-      <span style="color:#10b981;font-weight:700;">General enquiries</span><br>Within 2 business days
+    <div style="font-size:0.76rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;">
+      <span style="color:#2dd4a0;font-weight:700;">General enquiries</span><br>Within 2 business days
     </div>
-    <div style="font-size:0.76rem;color:#4a6080;font-family:'Inter',sans-serif;">
-      <span style="color:#f59e0b;font-weight:700;">Security / critical</span><br>Within 24 hours
+    <div style="font-size:0.76rem;color:#6c5f97;font-family:'Space Grotesk',sans-serif;">
+      <span style="color:#fbbf24;font-weight:700;">Security / critical</span><br>Within 24 hours
     </div>
   </div>
 </div>""",
@@ -2762,8 +2846,8 @@ with _copy_col:
     st.markdown(
         "<div style='display:flex;align-items:center;justify-content:flex-end;"
         "padding-top:18px;'>"
-        "<span style='font-size:0.6rem;font-family:\"JetBrains Mono\",monospace;"
-        "color:#182236;letter-spacing:0.1em;'>"
+        "<span style='font-size:0.6rem;font-family:\"IBM Plex Mono\",monospace;"
+        "color:#221a3d;letter-spacing:0.1em;'>"
         "&#169; 2026 RedFlag &nbsp;&middot;&nbsp; M&amp;A Cybersecurity Intelligence"
         "</span></div>",
         unsafe_allow_html=True,

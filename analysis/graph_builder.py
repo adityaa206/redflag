@@ -7,14 +7,14 @@ from analysis.schema import Finding, ExposureLevel, DealTier
 
 # ── Colour palette (matches Design System v4) ─────────────────────────────────
 _TIER_COLORS: dict[str, str] = {
-    "deal_killer": "#e6394a",
-    "critical":    "#f97316",
-    "moderate":    "#f59e0b",
-    "manageable":  "#10b981",
-    "unscored":    "#3a5070",
+    "deal_killer": "#ff3b5f",
+    "critical":    "#ff7849",
+    "moderate":    "#fbbf24",
+    "manageable":  "#2dd4a0",
+    "unscored":    "#5b4e85",
 }
-_INTERNET_COLOR = "#3d7fff"
-_EDGE_DEFAULT   = "#1a2640"
+_INTERNET_COLOR = "#8b5cf6"
+_EDGE_DEFAULT   = "#261d46"
 
 
 def _tier_val(finding: Finding) -> str:
@@ -43,7 +43,7 @@ class GraphNode:
     color: str
     size: int
     shape: str = "dot"
-    font_color: str = "#c8daf5"
+    font_color: str = "#d8d2f0"
 
 
 @dataclass
@@ -92,7 +92,7 @@ def build_attack_graph(findings: list[Finding]) -> AttackGraph:
         color=_INTERNET_COLOR,
         size=28,
         shape="diamond",
-        font_color="#6fa3ff",
+        font_color="#b39dfb",
     ))
 
     # ── Collect per-host and per-service metadata ─────────────────────────────
