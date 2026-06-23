@@ -4,7 +4,7 @@ import pandas as pd
 import plotly.graph_objects as go
 
 from reports.generator import export_findings_csv
-from reports.pdf_report import generate_pdf_report, generate_cost_section
+from reports.pdf_report import generate_pdf_report, generate_cost_section, generate_day1_section
 from scanners.nmap_scan import run_nmap_scan, vulners_nse_available
 from analysis.parser import analyze_nmap_file
 from analysis.triage import triage_all
@@ -15,9 +15,10 @@ from scanners.zap_scan import parse_zap_xml, merge_zap_with_nmap
 from analysis.parsers.excel_assets import parse_asset_excel, apply_sensitivity_to_findings
 from analysis.maturity import run_assessment, get_all_domains, get_domain_questions, MaturityGapSeverity
 from analysis.standards_compare import compare_to_standard
+from analysis.day1 import build_day1_blueprint
 from cost.rollup import run_cost_pipeline
 from cost.schema import ScenarioType, ReviewFlag
-from narrative.engine import build_executive_summary, build_maturity_narrative, build_cost_narrative
+from narrative.engine import build_executive_summary, build_maturity_narrative, build_cost_narrative, build_day1_narrative
 from scanners.dns_scan import run_dns_scan
 from scanners.tls_scan import run_tls_scan
 from scanners.breach_scan import run_breach_scan
@@ -951,6 +952,163 @@ def _hex_to_rgba(hex_color: str, alpha: float) -> str:
     return f"rgba({r},{g},{b},{alpha})"
 
 
+# ── Day 1 Blueprint render helpers ──────────────────────────────────────────────
+# Each returns a single concatenated HTML string (no triple-quoted literals, no
+# internal blank lines) so they pass the test_no_raw_html guard and render via a
+# plain st.markdown(var, unsafe_allow_html=True) call.
+
+_MODEL_ACCENT = {
+    "isolate":   "#ff3b5f",
+    "broker":    "#ff7849",
+    "federate":  "#8b5cf6",
+    "integrate": "#2dd4a0",
+}
+_PILLAR_RAG = {
+    "green":   ("#2dd4a0", "READY"),
+    "amber":   ("#fbbf24", "NEEDS WORK"),
+    "red":     ("#ff3b5f", "BLOCKER"),
+    "unknown": ("#7d7795", "NOT ASSESSED"),
+}
+_DAY1_PHASE_COLOR = {
+    "p0_pre_connect":     "#ff3b5f",
+    "p1_contain":         "#ff7849",
+    "p2_stabilise":       "#fbbf24",
+    "p3_integrate_ready": "#2dd4a0",
+}
+
+
+def _esc(text) -> str:
+    return str(text).replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
+def _status_val(s) -> str:
+    return str(getattr(s, "value", s))
+
+
+def day1_recommendation_html(bp) -> str:
+    accent = _MODEL_ACCENT.get(bp.recommended_model, "#8b5cf6")
+    order  = ["isolate", "broker", "federate", "integrate"]
+    labels = {"isolate": "Isolate", "broker": "Broker", "federate": "Federate", "integrate": "Integrate"}
+    rec_rank = order.index(bp.recommended_model) if bp.recommended_model in order else 0
+    pips = ""
+    for i, k in enumerate(order):
+        on  = i <= rec_rank
+        col = accent if i == rec_rank else ("#3e316e" if on else "#1d1735")
+        txt = "#f1edfe" if i == rec_rank else "#4d4274"
+        pips += (
+            f"<div style='flex:1;text-align:center;'>"
+            f"<div style='height:4px;border-radius:2px;background:{col};margin-bottom:6px;'></div>"
+            f"<span style='font-family:\"IBM Plex Mono\",monospace;font-size:0.58rem;font-weight:700;"
+            f"letter-spacing:0.1em;text-transform:uppercase;color:{txt};'>{labels[k]}</span></div>"
+        )
+    return (
+        f"<div class='rf-verdict' style='display:block;'>"
+        f"<div style='display:flex;align-items:center;gap:24px;margin-bottom:16px;'>"
+        f"<div style='min-width:96px;text-align:center;padding-right:24px;border-right:1px solid #1d1735;'>"
+        f"<div style='font-family:\"IBM Plex Mono\",monospace;font-size:0.52rem;letter-spacing:0.18em;"
+        f"text-transform:uppercase;color:#4d4274;margin-bottom:6px;'>Day-1 Posture</div>"
+        f"<div style='font-size:1.4rem;font-weight:700;color:{accent};font-family:\"Space Grotesk\",sans-serif;"
+        f"line-height:1.1;text-shadow:0 0 22px {accent}55;'>{_esc(bp.recommended_label)}</div></div>"
+        f"<div style='flex:1;'>"
+        f"<div class='rf-verdict-kicker'>Recommended connectivity architecture — {_esc(bp.target)}</div>"
+        f"<div class='rf-verdict-msg' style='font-size:0.83rem;line-height:1.65;'>{_esc(bp.recommendation_rationale)}</div>"
+        f"</div></div>"
+        f"<div style='display:flex;gap:8px;align-items:flex-end;'>{pips}</div></div>"
+    )
+
+
+def day1_pillar_html(p) -> str:
+    color, badge = _PILLAR_RAG.get(_status_val(p.status), ("#7d7795", "N/A"))
+    ev = "".join(f"<li style='margin-bottom:3px;'>{_esc(e)}</li>" for e in p.evidence)
+    return (
+        f"<div style='background:linear-gradient(160deg,#130f23,#0b0917);border:1px solid #261d46;"
+        f"border-left:3px solid {color};border-radius:12px;padding:16px 18px;margin-bottom:12px;height:100%;'>"
+        f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>"
+        f"<span style='font-size:0.84rem;font-weight:700;color:#d7d0ef;font-family:\"Space Grotesk\",sans-serif;'>{_esc(p.label)}</span>"
+        f"<span style='font-size:0.52rem;font-weight:700;letter-spacing:0.12em;color:{color};"
+        f"font-family:\"IBM Plex Mono\",monospace;border:1px solid {color}44;border-radius:5px;padding:3px 8px;'>{badge}</span></div>"
+        f"<ul style='margin:0 0 10px;padding-left:16px;font-size:0.73rem;color:#6c5f97;"
+        f"font-family:\"Space Grotesk\",sans-serif;line-height:1.5;'>{ev}</ul>"
+        f"<div style='font-size:0.75rem;color:#968ab8;font-family:\"Space Grotesk\",sans-serif;"
+        f"line-height:1.6;border-top:1px solid #1d1735;padding-top:8px;'>{_esc(p.recommendation)}</div></div>"
+    )
+
+
+def day1_gate_html(g) -> str:
+    color      = "#2dd4a0" if g.passed else "#ff7849"
+    status_txt = "UNLOCKED" if g.passed else "LOCKED"
+    crits = ""
+    for c in g.criteria:
+        ic     = "#2dd4a0" if c.passed else "#ff3b5f"
+        mark   = "&#10003;" if c.passed else "&#10007;"
+        detail = f" &mdash; <span style='color:#4d4274;'>{_esc(c.detail)}</span>" if c.detail else ""
+        crits += (
+            f"<div style='display:flex;align-items:flex-start;gap:8px;margin-bottom:4px;'>"
+            f"<span style='color:{ic};font-family:\"IBM Plex Mono\",monospace;font-size:0.78rem;'>{mark}</span>"
+            f"<span style='font-size:0.75rem;color:#968ab8;font-family:\"Space Grotesk\",sans-serif;line-height:1.5;'>{_esc(c.label)}{detail}</span></div>"
+        )
+    if not g.criteria:
+        crits = "<div style='font-size:0.73rem;color:#4d4274;font-family:\"Space Grotesk\",sans-serif;'>Baseline posture &mdash; always available.</div>"
+    return (
+        f"<div style='background:#0b0917;border:1px solid #261d46;border-left:3px solid {color};"
+        f"border-radius:10px;padding:13px 16px;margin-bottom:8px;'>"
+        f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;'>"
+        f"<span style='font-size:0.82rem;font-weight:700;color:#d7d0ef;font-family:\"Space Grotesk\",sans-serif;'>{_esc(g.label)}</span>"
+        f"<span style='font-size:0.54rem;font-weight:700;letter-spacing:0.14em;color:{color};"
+        f"font-family:\"IBM Plex Mono\",monospace;'>{status_txt}</span></div>{crits}</div>"
+    )
+
+
+def day1_action_html(it) -> str:
+    color     = _DAY1_PHASE_COLOR.get(it.phase, "#7d7795")
+    src_badge = "MATURITY" if it.source == "maturity" else "FINDING"
+    loc = ""
+    if it.host:
+        svc = f":{it.service}" if it.service else ""
+        loc = (
+            f"<div style='margin-top:6px;'><span style='font-family:\"IBM Plex Mono\",monospace;"
+            f"font-size:0.67rem;color:#4d4274;'>{_esc(it.host)}{_esc(svc)}</span></div>"
+        )
+    return (
+        f"<div class='finding-card' style='border-left-color:{color};margin-bottom:6px;padding:12px 16px;'>"
+        f"<div style='display:flex;justify-content:space-between;align-items:flex-start;gap:12px;'>"
+        f"<div style='flex:1;min-width:0;'>"
+        f"<div style='font-size:0.85rem;font-weight:600;color:#d8d2f0;font-family:\"Space Grotesk\",sans-serif;margin-bottom:4px;'>{_esc(it.title)}</div>"
+        f"<div style='font-size:0.74rem;color:#6c5f97;font-family:\"Space Grotesk\",sans-serif;line-height:1.5;'>{_esc(it.rationale)}</div></div>"
+        f"<div style='text-align:right;flex-shrink:0;'>"
+        f"<div style='font-family:\"IBM Plex Mono\",monospace;font-size:1.05rem;font-weight:700;color:{color};line-height:1;'>{it.risk_score:.0f}</div>"
+        f"<div style='font-family:\"IBM Plex Mono\",monospace;font-size:0.48rem;letter-spacing:0.12em;color:#4d4274;margin-top:3px;'>{src_badge}</div></div></div>{loc}</div>"
+    )
+
+
+def day1_model_card_html(m) -> str:
+    accent   = _MODEL_ACCENT.get(m.get("key"), "#8b5cf6")
+    rec      = bool(m.get("recommended"))
+    controls = "".join(f"<li style='margin-bottom:2px;'>{_esc(c)}</li>" for c in m.get("controls", []))
+    sources  = m.get("sources", []) or []
+    src_html = ""
+    if sources:
+        src_html = (
+            "<div style='margin-top:8px;font-size:0.6rem;color:#4d4274;font-family:\"IBM Plex Mono\",monospace;line-height:1.55;'>"
+            + "<br>".join("&middot; " + _esc(s) for s in sources) + "</div>"
+        )
+    ring = f"box-shadow:0 0 0 1px {accent}, 0 8px 30px {accent}33;" if rec else ""
+    rec_badge = (
+        f"<span style='font-size:0.48rem;font-weight:700;letter-spacing:0.14em;color:{accent};"
+        f"font-family:\"IBM Plex Mono\",monospace;border:1px solid {accent}66;border-radius:5px;padding:2px 7px;'>RECOMMENDED</span>"
+        if rec else ""
+    )
+    summary = " ".join(str(m.get("summary", "")).split())
+    return (
+        f"<div style='background:linear-gradient(165deg,rgba(28,22,48,0.6),rgba(11,9,23,0.9));"
+        f"border:1px solid #261d46;border-top:2px solid {accent};border-radius:14px;padding:16px 16px 14px;height:100%;{ring}'>"
+        f"<div style='display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;gap:8px;'>"
+        f"<span style='font-size:0.88rem;font-weight:700;color:{accent};font-family:\"Space Grotesk\",sans-serif;'>{_esc(m.get('label'))}</span>{rec_badge}</div>"
+        f"<div style='font-size:0.72rem;color:#6c5f97;font-family:\"Space Grotesk\",sans-serif;line-height:1.6;margin-bottom:8px;'>{_esc(summary)}</div>"
+        f"<ul style='margin:0;padding-left:15px;font-size:0.69rem;color:#968ab8;font-family:\"Space Grotesk\",sans-serif;line-height:1.45;'>{controls}</ul>{src_html}</div>"
+    )
+
+
 def _embed_html(html: str, height: int = 0, scrolling: bool = False):
     """Render raw HTML + JS inside a sandboxed iframe.
 
@@ -1420,8 +1578,8 @@ if "findings" in st.session_state:
 
     # ── Tabs ──────────────────────────────────────────────────────────────────────
 
-    tab_overview, tab_findings, tab_attack, tab_maturity, tab_cost, tab_export = st.tabs(
-        ["  Overview  ", "  Findings  ", "  Attack Path  ", "  Maturity Assessment  ", "  Cost & Budget  ", "  Export  "]
+    tab_overview, tab_findings, tab_attack, tab_maturity, tab_day1, tab_cost, tab_export = st.tabs(
+        ["  Overview  ", "  Findings  ", "  Attack Path  ", "  Maturity Assessment  ", "  Day 1 Plan  ", "  Cost & Budget  ", "  Export  "]
     )
 
     # ══════════════════════════════════════════════════════════════════════════════
@@ -2408,6 +2566,114 @@ if "findings" in st.session_state:
             )
 
     # ══════════════════════════════════════════════════════════════════════════════
+    # Tab: Day 1 Plan
+    # ══════════════════════════════════════════════════════════════════════════════
+
+    with tab_day1:
+
+        st.markdown('<div class="rf-section-label">Day 1 Safe Harbor Blueprint</div>', unsafe_allow_html=True)
+        st.markdown(
+            "<div style='font-size:0.82rem;color:#6c5f97;font-family:\"Space Grotesk\",sans-serif;"
+            "line-height:1.7;margin-bottom:18px;'>"
+            "On Day 1 you do not merge the networks. This blueprint sequences "
+            "<strong style='color:#988cbb;'>what to fix first</strong> and recommends a "
+            "<strong style='color:#988cbb;'>connectivity architecture</strong> that lets the acquired business "
+            "stay productive without exposing the parent network. Derived from the scan findings and "
+            "(if completed) the Maturity Assessment &mdash; no re-scan.</div>",
+            unsafe_allow_html=True,
+        )
+
+        _d1_assessment = st.session_state.get("maturity_assessment")
+        _d1_gap_report = st.session_state.get("gap_report")
+        blueprint = build_day1_blueprint(
+            findings,
+            assessment=_d1_assessment,
+            gap_report=_d1_gap_report,
+            target=clean_target,
+        )
+
+        # ── Recommendation banner + narrative ─────────────────────────────────
+        st.markdown(day1_recommendation_html(blueprint), unsafe_allow_html=True)
+
+        _d1_narr = build_day1_narrative(blueprint)
+        if _d1_narr:
+            _d1_accent = _MODEL_ACCENT.get(blueprint.recommended_model, "#8b5cf6")
+            st.markdown(
+                f"<div style='font-size:0.85rem;color:#d7d0ef;font-family:\"Space Grotesk\",sans-serif;"
+                f"line-height:1.75;padding:14px 16px;background:#0b0917;border-radius:10px;"
+                f"border-left:3px solid {_d1_accent};margin:6px 0 18px;'>{_esc(_d1_narr)}</div>",
+                unsafe_allow_html=True,
+            )
+
+        if not blueprint.has_maturity:
+            st.markdown(
+                "<div class='inv-notice warn'>Maturity Assessment not completed &mdash; identity and network "
+                "pillars show as <em>not assessed</em> and the Federate / Integrate tiers cannot be unlocked. "
+                "Complete the Maturity Assessment tab to evaluate the full blueprint.</div>",
+                unsafe_allow_html=True,
+            )
+
+        # ── Three review pillars ──────────────────────────────────────────────
+        st.markdown('<div class="rf-section-label">Review &mdash; Identity &middot; Network &middot; Remote Access</div>', unsafe_allow_html=True)
+        _pcols = st.columns(3)
+        for _i, _p in enumerate(blueprint.pillars):
+            with _pcols[_i % 3]:
+                st.markdown(day1_pillar_html(_p), unsafe_allow_html=True)
+
+        # ── Connectivity tier gates ───────────────────────────────────────────
+        st.markdown('<div class="rf-section-label">Connectivity Tier Gates</div>', unsafe_allow_html=True)
+        st.markdown(
+            "<div style='font-size:0.76rem;color:#6c5f97;font-family:\"Space Grotesk\",sans-serif;"
+            "line-height:1.6;margin-bottom:10px;'>Each tier unlocks only when its entry criteria pass. "
+            "The highest unlocked tier is the recommended Day-1 posture above.</div>",
+            unsafe_allow_html=True,
+        )
+        for _g in blueprint.gates:
+            st.markdown(day1_gate_html(_g), unsafe_allow_html=True)
+
+        # ── Fix-first roadmap ─────────────────────────────────────────────────
+        st.markdown('<div class="rf-section-label">Fix-First Roadmap</div>', unsafe_allow_html=True)
+        if blueprint.total_actions == 0:
+            st.markdown(
+                "<div style='padding:24px;text-align:center;color:#4d4274;"
+                "font-family:\"IBM Plex Mono\",monospace;font-size:0.78rem;'>"
+                "No findings or maturity gaps to sequence.</div>",
+                unsafe_allow_html=True,
+            )
+        for _ph in blueprint.phase_meta:
+            _ph_key = _ph["key"]
+            _items  = blueprint.roadmap.get(_ph_key, [])
+            _color  = _DAY1_PHASE_COLOR.get(_ph_key, "#7d7795")
+            st.markdown(
+                f"<div style='display:flex;align-items:center;gap:10px;margin:16px 0 6px;'>"
+                f"<span style='width:9px;height:9px;border-radius:50%;background:{_color};box-shadow:0 0 6px {_color}99;'></span>"
+                f"<span style='font-family:\"IBM Plex Mono\",monospace;font-size:0.62rem;font-weight:700;"
+                f"letter-spacing:0.16em;text-transform:uppercase;color:#d7d0ef;'>{_esc(_ph['label'])}</span>"
+                f"<span style='font-family:\"IBM Plex Mono\",monospace;font-size:0.56rem;color:#4d4274;'>{_esc(_ph.get('window',''))}</span>"
+                f"<span style='font-family:\"IBM Plex Mono\",monospace;font-size:0.56rem;color:{_color};margin-left:auto;'>{len(_items)} item(s)</span></div>",
+                unsafe_allow_html=True,
+            )
+            st.markdown(
+                f"<div style='font-size:0.72rem;color:#5b4e85;font-family:\"Space Grotesk\",sans-serif;"
+                f"line-height:1.55;margin-bottom:8px;'>{_esc(' '.join(str(_ph.get('description','')).split()))}</div>",
+                unsafe_allow_html=True,
+            )
+            if not _items:
+                st.markdown(
+                    "<div style='font-size:0.7rem;color:#372b64;font-family:\"IBM Plex Mono\",monospace;padding:2px 0 6px;'>&mdash; none &mdash;</div>",
+                    unsafe_allow_html=True,
+                )
+            for _it in _items:
+                st.markdown(day1_action_html(_it), unsafe_allow_html=True)
+
+        # ── Architecture catalog ──────────────────────────────────────────────
+        st.markdown('<div class="rf-section-label">Connectivity Architecture Catalog</div>', unsafe_allow_html=True)
+        _mcols = st.columns(4)
+        for _i, _m in enumerate(blueprint.model_catalog):
+            with _mcols[_i % 4]:
+                st.markdown(day1_model_card_html(_m), unsafe_allow_html=True)
+
+    # ══════════════════════════════════════════════════════════════════════════════
     # Tab: Cost & Budget
     # ══════════════════════════════════════════════════════════════════════════════
 
@@ -2663,6 +2929,26 @@ if "findings" in st.session_state:
                     label="Download PDF Report",
                     data=f,
                     file_name=pdf_file.split("\\")[-1].split("/")[-1],
+                    mime="application/pdf",
+                    width="stretch",
+                )
+
+            st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+            _exp_blueprint = build_day1_blueprint(
+                findings,
+                assessment=st.session_state.get("maturity_assessment"),
+                gap_report=st.session_state.get("gap_report"),
+                target=clean_target,
+            )
+            day1_file = generate_day1_section(
+                pdf_file, _exp_blueprint, narrative_text=build_day1_narrative(_exp_blueprint),
+            )
+            with open(day1_file, "rb") as f:
+                st.download_button(
+                    label="Download Day 1 Blueprint (PDF)",
+                    data=f,
+                    file_name=day1_file.split("\\")[-1].split("/")[-1],
                     mime="application/pdf",
                     width="stretch",
                 )

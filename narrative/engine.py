@@ -148,6 +148,27 @@ def _cost_context(rollup) -> dict:
     }
 
 
+def _day1_context(blueprint) -> dict:
+    """Build context dict from a Day1Blueprint."""
+    if not blueprint:
+        return {
+            "recommended_model": "",
+            "recommended_label": "",
+            "p0_count":          0,
+            "has_p0":            False,
+            "total_actions":     0,
+            "has_maturity":      False,
+        }
+    return {
+        "recommended_model": blueprint.recommended_model,
+        "recommended_label": blueprint.recommended_label,
+        "p0_count":          blueprint.p0_count,
+        "has_p0":            blueprint.p0_count > 0,
+        "total_actions":     blueprint.total_actions,
+        "has_maturity":      blueprint.has_maturity,
+    }
+
+
 def _finding_context(finding) -> dict:
     """Build context dict from a single Finding."""
     exploit = str(getattr(finding.exploit_status, "value", finding.exploit_status))
@@ -210,6 +231,15 @@ def build_cost_narrative(rollup) -> str:
     ctx  = _cost_context(rollup)
     text = select_block("cost_summary", ctx)
     return text or "Cost estimation complete."
+
+
+def build_day1_narrative(blueprint) -> str:
+    """Build the Day-1 Safe Harbor Blueprint narrative paragraph."""
+    if not blueprint:
+        return "No Day-1 blueprint has been generated."
+    ctx  = _day1_context(blueprint)
+    text = select_block("day1_summary", ctx)
+    return text or f"Recommended Day-1 connectivity posture: {blueprint.recommended_label}."
 
 
 def build_finding_narrative(finding) -> str:

@@ -116,6 +116,48 @@ cost_summary:
       (base: ${cost_base}).  This is a relatively modest remediation liability
       that can be absorbed within the standard post-close integration budget.
 
+# ── Day-1 Safe Harbor Blueprint blocks ────────────────────────────────────────
+day1_summary:
+
+  - id: d1_isolate
+    priority: 1
+    when: {recommended_model: isolate}
+    text: >
+      Day-1 posture: ISOLATE. The target should remain fully isolated from the
+      parent network — no routed connectivity and no identity federation — until
+      the {p0_count} pre-connection blocker(s) are remediated or formally
+      mitigated. Operate the acquired business standalone under a Transition
+      Service Agreement, exchanging due-diligence data only through a governed
+      clean room.
+
+  - id: d1_broker
+    priority: 2
+    when: {recommended_model: broker}
+    text: >
+      Day-1 posture: BROKER. Provide business productivity through a brokered
+      virtual desktop (VDI/DaaS) so users can reach the apps they need without
+      any network route between the two environments. This contains the target
+      while the {p0_count} highest-priority item(s) and the network and identity
+      posture are addressed before deeper integration.
+
+  - id: d1_federate
+    priority: 3
+    when: {recommended_model: federate}
+    text: >
+      Day-1 posture: FEDERATE. Basic hygiene is in place, so a limited one-way
+      identity trust (or Entra B2B with cross-tenant sync) plus per-application
+      ZTNA access can be established — replacing any legacy VPN/RDP. Continue the
+      post-close hardening roadmap before moving to full integration.
+
+  - id: d1_integrate
+    priority: 4
+    when: {recommended_model: integrate}
+    text: >
+      Day-1 posture: INTEGRATE. The target meets the corporate security standard
+      with no outstanding internet-facing exposure, so directory consolidation
+      and routed, segmented networking can proceed under unified policy and
+      monitoring.
+
 # ── Finding-level narrative blocks ────────────────────────────────────────────
 finding_detail:
 

@@ -64,6 +64,11 @@ def get_narrative_blocks() -> dict:
     return _load("narrative_blocks.yaml")
 
 
+def get_day1_blueprint() -> dict:
+    """Return the parsed day1_blueprint.yaml content."""
+    return _load("day1_blueprint.yaml")
+
+
 # ── Convenience helpers ───────────────────────────────────────────────────────
 
 def get_labour_rate(role: str, scenario: str = "base") -> float:

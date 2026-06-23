@@ -1,0 +1,285 @@
+# config/day1_blueprint.yaml
+# "Day 1" Safe Harbor Blueprint — rules + architecture catalog.
+#
+# Drives analysis/day1.py.  Re-uses the findings + maturity data RedFlag already
+# produces and re-frames them on a temporal integration timeline with a
+# recommended connectivity architecture.  No new scan or API call.
+#
+# Editable knobs:
+#   remote_access_services : what counts as a remote-access pathway
+#   phases                 : the four Day-1 timeline phases (P0..P3)
+#   phase_rules            : ordered finding-attribute -> phase mapping
+#   maturity_gap_phase     : maturity gap severity -> phase mapping
+#   pillars                : the three "Review" pillars (identity / network / remote access)
+#   connectivity_models    : the escalating architecture ladder + cited sources
+#   tier_gates             : entry criteria to safely adopt each connectivity tier
+
+# ── Remote-access pathway detection ────────────────────────────────────────────
+# A finding is treated as a remote-access pathway if its service name OR its port
+# matches.  These are the services that, when internet-facing, are the classic
+# Day-1 ransomware entry points and must be closed before any link to the parent.
+remote_access_services:
+  services:
+    - rdp
+    - ms-wbt-server
+    - ssh
+    - telnet
+    - vnc
+    - ftp
+    - ftps
+    - smb
+    - microsoft-ds
+    - netbios-ssn
+    - winrm
+    - pptp
+    - openvpn
+    - ike
+    - isakmp
+    - l2tp
+  ports:
+    - 3389    # RDP
+    - 22      # SSH
+    - 23      # Telnet
+    - 5900    # VNC
+    - 5901    # VNC
+    - 21      # FTP
+    - 445     # SMB
+    - 139     # NetBIOS
+    - 5985    # WinRM (HTTP)
+    - 5986    # WinRM (HTTPS)
+    - 1723    # PPTP VPN
+    - 1194    # OpenVPN
+    - 500     # IKE / IPsec
+    - 4500    # IPsec NAT-T
+    - 1701    # L2TP
+
+# ── Day-1 timeline phases ──────────────────────────────────────────────────────
+# Ordered earliest-action -> latest.  The roadmap groups every finding and
+# maturity gap into exactly one of these.
+phases:
+  - key: p0_pre_connect
+    label: "Pre-Connection Blocker"
+    window: "Before any link"
+    description: >
+      Must be remediated or formally mitigated BEFORE any network or identity
+      link is established between the target and the parent. These are the
+      Day-1 ransomware entry points and active-compromise indicators.
+  - key: p1_contain
+    label: "Day 1 Containment"
+    window: "At cutover"
+    description: >
+      Address at cutover while the target is held behind an isolation boundary.
+      Internet-facing exposure that must be firewalled, inspected and reduced
+      before the perimeter can be trusted.
+  - key: p2_stabilise
+    label: "Day 1-30 Stabilise"
+    window: "First 30 days"
+    description: >
+      First-month security uplift: partner-exposed services, critical-tier
+      findings and below-minimum maturity gaps that stabilise the inherited
+      environment.
+  - key: p3_integrate_ready
+    label: "Day 30-100 Integration-Ready"
+    window: "Day 30-100"
+    description: >
+      Remaining hardening required to unlock the next connectivity tier and
+      move toward full integration. Internal hygiene and target-state maturity.
+
+# ── Finding-attribute -> phase rules (first match wins) ─────────────────────────
+# Conditions match against a finding context:
+#   exposure | exploit_status | deal_tier | data_sensitivity | service (enum values)
+#   remote_access (bool, computed from remote_access_services above)
+phase_rules:
+  - id: active_exploitation
+    when: {exploit_status: active_exploitation}
+    phase: p0_pre_connect
+  - id: deal_killer
+    when: {deal_tier: deal_killer}
+    phase: p0_pre_connect
+  - id: internet_remote_access
+    when: {exposure: internet_facing, remote_access: true}
+    phase: p0_pre_connect
+  - id: internet_public_exploit
+    when: {exposure: internet_facing, exploit_status: public_exploit}
+    phase: p0_pre_connect
+  - id: internet_facing
+    when: {exposure: internet_facing}
+    phase: p1_contain
+  - id: partner_remote_access
+    when: {exposure: partner, remote_access: true}
+    phase: p1_contain
+  - id: critical_tier
+    when: {deal_tier: critical}
+    phase: p2_stabilise
+  - id: partner_exposed
+    when: {exposure: partner}
+    phase: p2_stabilise
+  - id: default
+    when: {}
+    phase: p3_integrate_ready
+
+# Maturity gap severity -> phase
+maturity_gap_phase:
+  deal_blocker: p0_pre_connect
+  below_min: p2_stabilise
+  acceptable: p3_integrate_ready
+
+# ── The three "Review" pillars ─────────────────────────────────────────────────
+# Each pillar gets a RAG status from its maturity domain (if assessed) combined
+# with the relevant findings.  remote_access_pathways is findings-only.
+pillars:
+  - key: identity_sources
+    label: "Identity Sources"
+    maturity_domain: identity_access
+    description: >
+      Where the target's accounts live and how access is controlled. Determines
+      whether identity can be federated (one-way trust / B2B) or must stay fully
+      separate on Day 1.
+    recommendation_green: "Identity is well-governed; controlled federation (one-way trust / Entra B2B) is viable."
+    recommendation_amber: "Tighten MFA and least-privilege before federating identity; broker access in the interim."
+    recommendation_red: "Do NOT extend the parent directory to the target. Keep identity fully separate until MFA and least-privilege are enforced."
+    recommendation_unknown: "Run the Maturity Assessment to evaluate identity posture before deciding the federation model."
+  - key: network_boundaries
+    label: "Network Boundaries"
+    maturity_domain: network_security
+    description: >
+      Whether the target's network can contain a breach. Determines whether the
+      networks can be routed together or must stay air-gapped behind an
+      inspection boundary.
+    recommendation_green: "Segmentation is adequate; an inspected interconnect zone can be established."
+    recommendation_amber: "Establish a firewalled interconnect and reduce internet-facing exposure before routing any traffic."
+    recommendation_red: "Keep networks fully isolated. Flat/unsegmented network means any compromise spreads to the parent."
+    recommendation_unknown: "Run the Maturity Assessment to evaluate network segmentation before connecting networks."
+  - key: remote_access_pathways
+    label: "Remote Access Pathways"
+    maturity_domain: null
+    description: >
+      Existing VPN / RDP / SSH ingress into the target. These are the highest
+      Day-1 risk: internet-exposed remote access is the leading ransomware entry
+      vector and must be replaced with brokered (VDI) or ZTNA access.
+    recommendation_green: "No internet-facing remote access detected; ZTNA-broker any required access."
+    recommendation_amber: "Partner-exposed remote access present; move behind ZTNA and remove direct exposure."
+    recommendation_red: "Internet-facing remote access detected. Kill it before Day 1 and replace with VDI/ZTNA — never route legacy VPN/RDP to the parent."
+    recommendation_unknown: "No scan data; enumerate remote-access ingress before cutover."
+
+# ── The connectivity architecture ladder ───────────────────────────────────────
+# Escalating integration tiers. The engine recommends the HIGHEST tier whose
+# entry gate (tier_gates below) passes — i.e. the most integrated posture the
+# target's current state safely justifies.
+connectivity_models:
+  - key: isolate
+    rank: 0
+    label: "Isolate (Clean Room)"
+    summary: >
+      No network route between target and parent. The acquired business runs
+      standalone under a Transition Service Agreement (TSA); any data exchange
+      happens through a governed clean room / clean team.
+    when_recommended: >
+      Deal-killers or actively-exploited vulnerabilities are present, or identity
+      and network maturity are too low to trust any connection.
+    controls:
+      - "Air-gapped / no routed connectivity to the parent network"
+      - "Clean room + clean team for due-diligence data exchange"
+      - "Standalone operation under a Transition Service Agreement (TSA)"
+    sources:
+      - "EY — Realize synergies sooner with a clean room"
+      - "Deloitte — Reimagine your M&A clean room"
+  - key: broker
+    rank: 1
+    label: "Broker (VDI / DaaS)"
+    summary: >
+      Users reach the other organisation's apps through a brokered virtual
+      desktop. Data stays inside the parent; there is no network route between
+      the two environments, so a compromised target cannot pivot into the parent.
+    when_recommended: >
+      The business needs app/email access on Day 1, but the target perimeter is
+      not yet trustworthy enough to federate identity or route networks.
+    controls:
+      - "Virtual Desktop Infrastructure (VDI) / Desktop-as-a-Service broker"
+      - "No network route — pixels in, no data egress to the target"
+      - "One device, two environments (avoids hardware re-issue)"
+    sources:
+      - "VMware — M&A IT integration: Day 0 productivity for new employees (VDI)"
+  - key: federate
+    rank: 2
+    label: "Federate (Trust + ZTNA)"
+    summary: >
+      Limited identity federation (one-way AD forest trust or Entra B2B +
+      cross-tenant sync) plus per-application access via ZTNA/SASE, replacing
+      legacy VPN/RDP. Access is least-privilege with no lateral movement.
+    when_recommended: >
+      MFA is enforced, the network is segmented, and there is no internet-facing
+      remote access — the target has basic hygiene but is not yet at target state.
+    controls:
+      - "One-way AD forest trust or Entra B2B + cross-tenant synchronisation"
+      - "Conditional Access enforcing MFA / device compliance on guest access"
+      - "ZTNA / SASE for per-app access (replaces VPN; no lateral movement)"
+    sources:
+      - "Microsoft Entra — Parallel and combined identity options"
+      - "Microsoft Entra — B2B collaboration & trust direction options"
+      - "Cybersecurity Insiders — Accelerating M&A with Zero Trust Network Access"
+  - key: integrate
+    rank: 3
+    label: "Integrate (Full Merge)"
+    summary: >
+      Full directory consolidation and routed networks. The target is treated as
+      part of the parent estate.
+    when_recommended: >
+      The target meets the corporate security standard and all internet-facing
+      exposures have been remediated.
+    controls:
+      - "Directory consolidation / migration into the parent tenant"
+      - "Routed, micro-segmented networks under unified policy"
+      - "Single security operations / monitoring plane"
+    sources: []
+
+# ── Tier entry gates ───────────────────────────────────────────────────────────
+# Criteria that must ALL pass to safely adopt a tier. isolate is the floor (no
+# criteria — always available). A maturity_min criterion fails when the target
+# has not been assessed (you cannot prove the posture).
+# Criterion types:
+#   no_finding   : passes if NO finding matches `when`
+#   maturity_min : passes if `domain` score >= the `level` threshold (acceptable_min|recommended)
+tier_gates:
+  isolate:
+    criteria: []
+  broker:
+    criteria:
+      - type: no_finding
+        when: {exploit_status: active_exploitation}
+        label: "No actively-exploited vulnerabilities on the target"
+  federate:
+    criteria:
+      - type: no_finding
+        when: {exploit_status: active_exploitation}
+        label: "No actively-exploited vulnerabilities"
+      - type: no_finding
+        when: {exposure: internet_facing, remote_access: true}
+        label: "No internet-facing remote-access services (RDP/VPN/SSH/SMB)"
+      - type: maturity_min
+        domain: identity_access
+        level: acceptable_min
+        label: "Identity & Access maturity at/above acceptable minimum (MFA enforced)"
+      - type: maturity_min
+        domain: network_security
+        level: acceptable_min
+        label: "Network Security maturity at/above acceptable minimum (segmentation)"
+  integrate:
+    criteria:
+      - type: no_finding
+        when: {exploit_status: active_exploitation}
+        label: "No actively-exploited vulnerabilities"
+      - type: no_finding
+        when: {exposure: internet_facing, remote_access: true}
+        label: "No internet-facing remote-access services"
+      - type: no_finding
+        when: {exposure: internet_facing, deal_tier: deal_killer}
+        label: "No internet-facing deal-killer findings"
+      - type: maturity_min
+        domain: identity_access
+        level: recommended
+        label: "Identity & Access at recommended target level"
+      - type: maturity_min
+        domain: network_security
+        level: recommended
+        label: "Network Security at recommended target level"

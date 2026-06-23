@@ -277,6 +277,110 @@ def generate_cost_section(
     return out_path
 
 
+_PILLAR_PDF = {"green": _GREEN, "amber": _YELLOW, "red": _RED, "unknown": _MUTED}
+_PHASE_PDF  = {
+    "p0_pre_connect":     _RED,
+    "p1_contain":         _ORANGE,
+    "p2_stabilise":       _YELLOW,
+    "p3_integrate_ready": _GREEN,
+}
+
+
+def generate_day1_section(
+    pdf_path: str,
+    blueprint,
+    narrative_text: str = "",
+) -> str:
+    """
+    Generate a "Day 1 Safe Harbor Blueprint" section PDF.
+
+    Mirrors generate_cost_section: fpdf2 cannot append to an existing PDF, so this
+    produces a separate day1_{original}.pdf and returns its path.
+    """
+    dirname  = os.path.dirname(pdf_path)
+    basename = os.path.basename(pdf_path)
+    out_path = os.path.join(dirname, "day1_" + basename)
+
+    target  = getattr(blueprint, "target", "")
+    scan_dt = datetime.datetime.utcnow().strftime("%Y-%m-%d")
+
+    pdf = _PDF(target, scan_dt)
+    pdf.set_auto_page_break(auto=True, margin=15)
+    pdf.set_fill_color(*_BG)
+    pdf.set_text_color(*_TEXT)
+    pdf.add_page()
+
+    pdf.set_font("Helvetica", "B", 14)
+    pdf.set_text_color(*_RED)
+    pdf.cell(0, 10, "Day 1 Safe Harbor Blueprint", new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.set_draw_color(*_BORDER)
+    pdf.line(10, pdf.get_y(), 200, pdf.get_y())
+    pdf.ln(4)
+
+    # Recommended posture
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_text_color(*_TEXT)
+    pdf.cell(46, 6, "Recommended posture:", new_x=XPos.RIGHT, new_y=YPos.TOP)
+    pdf.set_font("Helvetica", "B", 10)
+    pdf.set_text_color(*_BLUE)
+    pdf.cell(0, 6, _safe(getattr(blueprint, "recommended_label", "")), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+    pdf.ln(2)
+
+    if narrative_text:
+        pdf.set_font("Helvetica", "", 9)
+        pdf.set_text_color(*_TEXT)
+        pdf.multi_cell(190, 5, _safe(narrative_text))
+        pdf.ln(3)
+
+    # Review pillars
+    pdf._section_heading("Review Pillars")
+    for p in getattr(blueprint, "pillars", []):
+        status = str(getattr(p.status, "value", p.status))
+        color  = _PILLAR_PDF.get(status, _MUTED)
+        if pdf.get_y() > 255:
+            pdf.add_page()
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_text_color(*_TEXT)
+        pdf.cell(60, 5, _safe(p.label), new_x=XPos.RIGHT, new_y=YPos.TOP)
+        pdf.set_font("Helvetica", "B", 8)
+        pdf.set_text_color(*color)
+        pdf.cell(0, 5, status.upper(), new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        pdf.set_x(10)
+        pdf.set_font("Helvetica", "", 7.5)
+        pdf.set_text_color(*_MUTED)
+        pdf.multi_cell(190, 4.2, _safe(p.recommendation))
+        pdf.ln(2)
+
+    # Fix-first roadmap
+    pdf._section_heading("Fix-First Roadmap")
+    phase_meta = getattr(blueprint, "phase_meta", [])
+    roadmap    = getattr(blueprint, "roadmap", {})
+    for ph in phase_meta:
+        items = roadmap.get(ph["key"], [])
+        color = _PHASE_PDF.get(ph["key"], _MUTED)
+        if pdf.get_y() > 255:
+            pdf.add_page()
+        pdf.set_font("Helvetica", "B", 9)
+        pdf.set_text_color(*color)
+        pdf.cell(0, 6, _safe(f"{ph['label']}  ({ph.get('window','')})  -  {len(items)} item(s)"),
+                 new_x=XPos.LMARGIN, new_y=YPos.NEXT)
+        for it in items:
+            if pdf.get_y() > 262:
+                pdf.add_page()
+            loc = f"  [{it.host}{(':'+str(it.service)) if it.service else ''}]" if it.host else ""
+            pdf.set_x(12)
+            pdf.set_font("Helvetica", "", 7.5)
+            pdf.set_text_color(*_TEXT)
+            pdf.cell(150, 4.6, _safe(f"- {it.title[:78]}{loc}"), new_x=XPos.RIGHT, new_y=YPos.TOP)
+            pdf.set_font("Helvetica", "B", 7.5)
+            pdf.set_text_color(*_score_color(it.risk_score))
+            pdf.cell(0, 4.6, f"{it.risk_score:.0f}", new_x=XPos.LMARGIN, new_y=YPos.NEXT, align="R")
+        pdf.ln(2)
+
+    pdf.output(out_path)
+    return out_path
+
+
 def generate_pdf_report(
     findings: list,
     target: str,
