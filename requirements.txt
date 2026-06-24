@@ -13,3 +13,5 @@ PyYAML==6.0.3
 python-dotenv==1.2.2
 requests==2.34.2
 pytest==9.0.3
+
+reflex==0.9.5.post2
