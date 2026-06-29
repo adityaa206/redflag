@@ -7,7 +7,7 @@ from redflag_ui.state import (
     RedFlagState, LadderStep, PillarRow, GateRow, CritRow, ModelCard, PhaseGroup, ActionRow,
 )
 from redflag_ui.components.shell import shell
-from redflag_ui.components.ui import section
+from redflag_ui.components.ui import section, empty_state
 
 
 def _ladder_step(step: LadderStep) -> rx.Component:
@@ -64,7 +64,15 @@ def _model(m: ModelCard) -> rx.Component:
         rx.cond(
             m.sources.length() > 0,
             rx.el.div(
-                rx.foreach(m.sources, lambda s: rx.el.a("source ↗", href=s, target="_blank")),
+                rx.el.div("References", class_name="model-src-head"),
+                rx.foreach(
+                    m.sources,
+                    lambda s: rx.el.div(
+                        rx.el.span("·", class_name="model-src-bullet"),
+                        rx.el.span(s),
+                        class_name="model-src-cite",
+                    ),
+                ),
                 class_name="model-sources",
             ),
         ),
@@ -102,9 +110,8 @@ def _phase(p: PhaseGroup) -> rx.Component:
     )
 
 
-def day1() -> rx.Component:
-    return shell(
-        "Day 1 plan",
+def _content() -> rx.Component:
+    return rx.fragment(
         section("Day 1 Safe Harbor Blueprint", "Recommended connectivity posture", rule=True),
         rx.el.div(
             rx.el.div("Recommended posture", class_name="posture-figure"),
@@ -123,4 +130,20 @@ def day1() -> rx.Component:
         rx.foreach(RedFlagState.phases, _phase),
         section("Architecture catalog", "The four connectivity models", rule=True),
         rx.el.div(rx.foreach(RedFlagState.models, _model), class_name="model-grid"),
+    )
+
+
+def day1() -> rx.Component:
+    return shell(
+        "Day 1 plan",
+        rx.cond(
+            RedFlagState.scanned | RedFlagState.mat_done,
+            _content(),
+            empty_state(
+                "Day 1 plan awaits ",
+                "data.",
+                "Run a scan (or fill the Maturity questionnaire) and the Safe Harbor Blueprint — "
+                "posture, ladder, tier gates, pillars and the P0→P3 roadmap — builds automatically.",
+            ),
+        ),
     )

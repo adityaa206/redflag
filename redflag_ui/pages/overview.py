@@ -1,11 +1,11 @@
-"""Overview — the editorial diligence summary (mirrors mockup 05)."""
+"""Overview — the editorial diligence summary (mirrors mockup 05, sans editor's note)."""
 from __future__ import annotations
 
 import reflex as rx
 
-from redflag_ui.state import RedFlagState, FindingRow, LadderStep, PillarRow
+from redflag_ui.state import RedFlagState, FindingRow, DonutSeg
 from redflag_ui.components.shell import shell
-from redflag_ui.components.ui import section
+from redflag_ui.components.ui import section, empty_state
 
 
 def _article_head() -> rx.Component:
@@ -25,8 +25,6 @@ def _article_head() -> rx.Component:
             rx.el.span(rx.el.strong("Prepared by"), " RedFlag engine"),
             rx.el.span("/", class_name="sep"),
             rx.el.span(RedFlagState.scanner_count, " scanners"),
-            rx.el.span("/", class_name="sep"),
-            rx.el.span(RedFlagState.scan_seconds, "-second scan"),
             rx.el.span("/", class_name="sep"),
             rx.el.span(rx.el.strong("For"), " Acquirer M&A team"),
             class_name="byline",
@@ -76,54 +74,29 @@ def _tier_stats() -> rx.Component:
     )
 
 
-def _editors_note() -> rx.Component:
+def _donut_legend(s: DonutSeg) -> rx.Component:
     return rx.el.div(
-        rx.el.p(RedFlagState.exec_summary),
-        rx.el.div("“", RedFlagState.pull_quote, "”", class_name="pullquote"),
-        rx.el.p(RedFlagState.day1_narrative),
-        class_name="article",
+        rx.el.span(class_name="donut-sw", style={"background": s.color}),
+        rx.el.span(s.label, class_name="donut-leg-name"),
+        rx.el.span(s.pct, class_name="donut-leg-pct"),
+        rx.el.span(s.count, class_name="donut-leg-count"),
+        class_name="donut-leg-item",
     )
 
 
-def _ladder_step(step: LadderStep) -> rx.Component:
-    return rx.el.li(
-        rx.el.span(step.num, class_name="step-num mono"),
-        rx.el.div(
-            rx.el.div(step.name, class_name="step-name"),
-            rx.el.div(step.desc, class_name="step-desc"),
-        ),
-        rx.el.span(step.status_label, class_name="step-stat"),
-        class_name=step.li_class,
-    )
-
-
-def _pillar(p: PillarRow) -> rx.Component:
+def _risk_donut() -> rx.Component:
     return rx.el.div(
         rx.el.div(
-            rx.el.div(p.name, class_name="pillar-name"),
-            rx.el.div(p.rag_label, class_name=p.rag_class),
-            class_name="pillar-row",
+            rx.el.div(class_name="donut-ring", style={"background": RedFlagState.donut_gradient}),
+            rx.el.div(
+                rx.el.div(RedFlagState.donut_total, class_name="donut-total"),
+                rx.el.div("total", class_name="donut-cap"),
+                class_name="donut-hole",
+            ),
+            class_name="donut",
         ),
-        rx.el.div(p.evidence, class_name="pillar-evidence"),
-        rx.el.div(p.recommendation, class_name="pillar-rec"),
-        class_name="pillar-block",
-    )
-
-
-def _day1_spread() -> rx.Component:
-    return rx.el.div(
-        rx.el.div(
-            rx.el.div("Recommended posture", class_name="posture-figure"),
-            rx.el.div(RedFlagState.posture_name, class_name="posture-name"),
-            rx.el.div(RedFlagState.posture_desc, class_name="posture-desc"),
-            rx.el.ul(rx.foreach(RedFlagState.ladder, _ladder_step), class_name="ladder-list"),
-            class_name="col-left",
-        ),
-        rx.el.div(
-            rx.foreach(RedFlagState.pillars, _pillar),
-            class_name="col-right",
-        ),
-        class_name="spread",
+        rx.el.div(rx.foreach(RedFlagState.donut_segs, _donut_legend), class_name="donut-legend"),
+        class_name="donut-wrap",
     )
 
 
@@ -156,17 +129,30 @@ def _findings_table() -> rx.Component:
     )
 
 
-def overview() -> rx.Component:
-    return shell(
-        "Overview",
+def _content() -> rx.Component:
+    return rx.fragment(
         _article_head(),
         _verdict(),
         section("By the numbers", "One verdict, four tiers"),
         _tier_stats(),
-        section("Editor’s note", "What this scan tells us", rule=True),
-        _editors_note(),
-        section("Day 1 Safe Harbor Blueprint", "A staged connectivity ladder", rule=True),
-        _day1_spread(),
+        section("Risk breakdown", "How the findings split by tier", rule=True),
+        _risk_donut(),
         section("The findings", "In order of risk"),
         _findings_table(),
+    )
+
+
+def overview() -> rx.Component:
+    return shell(
+        "Overview",
+        rx.cond(
+            RedFlagState.scanned,
+            _content(),
+            empty_state(
+                "Know exactly what you're ",
+                "acquiring.",
+                "Eight scanners, one weighted risk model, a single deal-room verdict — "
+                "plus a Day-1 Safe Harbor connectivity plan, maturity assessment and cost model.",
+            ),
+        ),
     )

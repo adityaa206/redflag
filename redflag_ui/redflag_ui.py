@@ -10,7 +10,11 @@ from redflag_ui.state import RedFlagState
 from redflag_ui.pages.overview import overview
 from redflag_ui.pages.findings import findings
 from redflag_ui.pages.day1 import day1
-from redflag_ui.pages.stubs import attack, maturity, cost, export
+from redflag_ui.pages.attack import attack
+from redflag_ui.pages.maturity import maturity
+from redflag_ui.pages.cost import cost
+from redflag_ui.pages.export import export
+from redflag_ui.pages.legal import privacy, contact
 
 app = rx.App(
     stylesheets=[
@@ -29,6 +33,8 @@ _PAGES = [
     (day1, "/day1", "RedFlag — Day 1 plan"),
     (cost, "/cost", "RedFlag — Cost"),
     (export, "/export", "RedFlag — Export"),
+    (privacy, "/privacy", "RedFlag — Privacy policy"),
+    (contact, "/contact", "RedFlag — Contact us"),
 ]
 
 for _fn, _route, _title in _PAGES:
