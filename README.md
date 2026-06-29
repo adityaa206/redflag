@@ -8,13 +8,13 @@
 RedFlag is an end-to-end cybersecurity assessment platform built for mergers & acquisitions.
 It aggregates evidence from multiple scanners, scores every finding with an SSVC/EPSS-aligned
 risk model, checks DNS/email security, TLS health, and breach exposure, assesses the target's
-internal security maturity, estimates remediation costs, and visualises attack paths — all in a
-single Streamlit application.
+internal security maturity, plans Day-1 connectivity, estimates remediation costs, and reasons
+about attack paths like an attacker — all in a single **Reflex** web application.
 
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
-![Streamlit](https://img.shields.io/badge/Streamlit-1.30%2B-FF4B4B?style=flat-square&logo=streamlit&logoColor=white)
+![Reflex](https://img.shields.io/badge/Reflex-0.9-5b4ee9?style=flat-square&logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-34d399?style=flat-square)
-![Tests](https://img.shields.io/badge/Tests-86%20passing-34d399?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-112%20passing-34d399?style=flat-square)
 
 </div>
 
@@ -28,14 +28,16 @@ RedFlag automates the technical layer of that assessment:
 1. **Scans** the target's internet-facing attack surface (Nmap + Shodan)
 2. **Enriches** findings with exploit intelligence (CISA KEV, NVD, Vulners)
 3. **Merges** uploaded scanner outputs (OpenVAS, ZAP) into a single finding set
-4. **Scores** every finding using a weighted risk model (exploit status, exposure, CVSS, data sensitivity)
+4. **Scores** every finding with a weighted risk model (exploit status, exposure, CVSS, data sensitivity)
 5. **Checks** DNS/email security controls (SPF, DMARC, DKIM, DNSSEC)
 6. **Validates** TLS certificate health and discovers shadow subdomains via CT logs
 7. **Queries** breach databases for prior compromise exposure (LeakIX)
 8. **Assesses** the target's internal security programme maturity across 7 domains
-9. **Estimates** remediation costs with low / base / high scenarios and CapEx/OpEx split
-10. **Visualises** the attack path from internet to vulnerabilities as an interactive graph
-11. **Generates** a deterministic narrative report and downloadable CSV, PDF, and XLSX exports
+9. **Plans** a Day-1 Safe Harbor connectivity model with phase gates
+10. **Estimates** remediation costs with low / base / high scenarios and CapEx/OpEx split
+11. **Reasons** about attack paths like an attacker (MITRE ATT&CK) and renders them as a mind-map
+12. **Learns** from every scan — a self-improving, offline knowledge base that gets sharper over time
+13. **Generates** a deterministic narrative report and downloadable CSV and PDF exports
 
 ---
 
@@ -56,6 +58,10 @@ RedFlag automates the technical layer of that assessment:
 | **TLS Scanner** | Cert health | Expiry, weak TLS versions, CT log subdomain discovery |
 | **Breach Scanner** | OSINT | Prior breach and exposure indexing via LeakIX |
 
+A live scan and any uploaded scanner outputs **fuse into one finding set** — uploads correlate
+into the Nmap layer (upgrading evidence strength), they don't replace it. You can also run with
+**uploads only** (no live target), or enable **Fast Scan Mode** for a quicker top-200-port sweep.
+
 ### 📊 Risk Scoring (SSVC/EPSS-Aligned)
 
 Every finding receives a 0–100 risk score computed from four weighted factors:
@@ -64,40 +70,75 @@ Every finding receives a 0–100 risk score computed from four weighted factors:
 Score = (Exploit Status × 0.30) + (Exposure × 0.25) + (CVSS × 0.25) + (Data Sensitivity × 0.20)
 ```
 
+The base score is then multiplied by an **evidence-strength** factor (Confirmed 1.00 →
+External 0.80), so a verified OpenVAS/ZAP finding outranks a banner-only inference at the same severity.
+
 Findings are classified into four deal tiers:
 - 🔴 **Deal Killer** — Active exploitation or critical asset at risk; blocks deal close
 - 🟠 **Critical** — Remediate within 30 days of close
 - 🟡 **Moderate** — 90-day post-close security roadmap
 - 🟢 **Manageable** — Standard security hygiene backlog
 
+### 🧠 Attacker-Brain & Attack-Path Mind-Map
+
+A dedicated **Attack Path** tab that thinks like an attacker — **no LLM, no API, fully offline, $0**.
+It maps every finding to the **MITRE ATT&CK** techniques it enables, then chains them into a
+kill-chain and renders the result as a radial **mind-map**:
+
+```
+INTERNET entry  →  Exploitation  →  Lateral movement  →  Impact
+```
+
+- A precomputed SVG **mind-map** centred on the target, with stage branches coloured by deal tier
+- An **attacker's playbook** — numbered steps, each mapped to a MITRE technique (e.g. `T1190`,
+  `T1110`, `T1078`) that links straight to its page on attack.mitre.org
+- A reachability **kill-chain** and host→service breakdown showing exactly what is reachable from
+  the public internet
+- Built from the findings' own enriched exploit status (CISA KEV / public exploit), so real
+  attacker intel rides along for free
+
+### 🧬 Self-Improving Brain Memory
+
+RedFlag's attacker-brain gets **smarter with every scan** — not by training a model, but by
+**remembering**. A persistent, offline knowledge base accumulates everything it has seen:
+
+- Stored as a real **Obsidian vault** at `~/RedFlag-Brain` (`brain.json` index + Markdown notes
+  for every Scan / Technique / CVE, wired together with `[[wikilinks]]`). Open that folder in
+  Obsidian and use **Graph View** to literally see the brain.
+- On each scan it **recalls** prior knowledge first — "this CVE has appeared in 3 prior scans · KEV",
+  "this exact kill-chain has been seen before" — then **learns** the new scan, bumping prevalence
+  weights for techniques, CVEs, services and attack paths.
+- A **Refresh threat intel** button pulls the free **CISA KEV** feed into the brain on demand.
+- No GPU, no training loop, no paid API. It improves by accumulating and retrieving, on your machine.
+
 ### 🌐 DNS & Email Security
 
 Automatically checks the target domain for the four essential email security controls:
 
-- **SPF** — Sender Policy Framework; prevents unauthorised mail servers from spoofing the domain
-- **DMARC** — Enforces SPF/DKIM policy and controls failure handling; a missing DMARC record means anyone can impersonate the target's domain
-- **DKIM** — Cryptographic email signing; verifies mail authenticity in transit
-- **DNSSEC** — Protects DNS records from tampering and cache poisoning
+- **SPF** — prevents unauthorised mail servers from spoofing the domain
+- **DMARC** — enforces SPF/DKIM policy; a missing DMARC record means anyone can impersonate the domain
+- **DKIM** — cryptographic email signing; verifies mail authenticity in transit
+- **DNSSEC** — protects DNS records from tampering and cache poisoning
 
-Each missing or misconfigured record is converted to a scored Finding and contributes to the overall deal tier. A missing DMARC policy is flagged as Critical exposure because it represents an active, exploitable spoofing risk that becomes the acquirer's liability on day one.
+Each missing or misconfigured record becomes a scored Finding. A missing DMARC policy is flagged
+as Critical exposure — an active, exploitable spoofing risk that becomes the acquirer's liability on day one.
 
 ### 🔒 TLS Certificate Health
 
-Connects to all HTTPS ports discovered by Nmap and checks:
+Connects to every HTTPS port Nmap discovers and checks:
 
-- **Certificate expiry** — flags anything expiring within 30 days as Moderate, within 7 days as Critical
-- **TLS version** — TLS 1.0 and 1.1 are deprecated and a compliance violation under PCI-DSS; their presence is flagged immediately
-- **Shadow subdomain discovery** — queries the crt.sh certificate transparency log (free, public) for every certificate ever issued for the target domain, revealing forgotten subdomains that may be running unpatched, unmonitored services
+- **Certificate expiry** — flags anything expiring within 30 days (Moderate) / 7 days (Critical)
+- **TLS version** — TLS 1.0/1.1 are deprecated and a PCI-DSS violation; flagged immediately
+- **Shadow subdomain discovery** — queries the free crt.sh certificate-transparency log for every
+  cert ever issued for the domain, revealing forgotten, unmonitored subdomains
 
 ### 🕵️ Breach Exposure Check
 
-Queries LeakIX — a free internet-wide security scanner — for any indexed exposure associated with the target's domain and IP addresses. Returns findings for:
-
-- Exposed databases (MongoDB, Elasticsearch, Redis instances accessible without authentication)
-- Leaked configuration files and credential dumps
-- Known-compromised services indexed by the security research community
-
-A confirmed breach hit is classified as DEAL_KILLER and surfaced with a prominent alert banner in the Overview tab. This answers the single most important question in any acquisition: **has this company already been compromised?**
+Queries LeakIX — a free internet-wide security scanner — for indexed exposure on the target's
+domain and IPs: exposed databases (MongoDB/Elasticsearch/Redis without auth), leaked config and
+credential dumps, and known-compromised services. A confirmed breach hit is classified as a
+**Deal Killer** and surfaced prominently. It answers the single most important acquisition
+question: **has this company already been compromised?**
 
 ### 🏛️ Maturity Assessment
 
@@ -107,45 +148,31 @@ A 23-question inside-out assessment across 7 security domains:
 > Data Protection · Incident Response · Third-Party Risk
 
 Each domain is scored 0–5 and compared against a configurable corporate acquisition standard.
-Gaps below the deal-blocker threshold are flagged separately from technical scan findings. Every maturity gap also feeds into the Cost Engine — the gap between current score and required score drives a separate set of remediation cost line items.
+Gaps below the deal-blocker threshold are flagged separately from technical scan findings, and
+every gap feeds the Cost Engine as its own remediation line items.
+
+### 🛡️ Day-1 Safe Harbor Blueprint
+
+A dedicated **Day 1 plan** tab that turns the assessment into a connectivity decision for the
+moment the deal closes. It recommends a posture on the integration ladder —
+**Isolate → Broker → Federate → Integrate** — backed by control pillars, pass/blocked phase
+gates, and a phased (P0–P3) remediation roadmap, so you know exactly what must be true before
+the two networks touch.
 
 ### 💰 Cost & Budget Engine
 
 - Estimates remediation cost per finding and per maturity gap using a YAML-driven pricing catalog
-- Deduplicates identical remediations across multiple findings (e.g. 10 SSH findings → 1 line item)
+- Deduplicates identical remediations across findings (e.g. 10 SSH findings → 1 line item)
 - Outputs **low / base / high** scenarios with full **CapEx vs OpEx** breakdown
-- Human review gate: flagged items (high-variance estimates, deal-killer findings) must be acknowledged before export
-- Exports as CSV or XLSX
-
-### 🎯 What-If Scenario Simulator
-
-An interactive negotiation tool in the Findings tab. Select any combination of findings and mark them as "pre-close remediation" — the simulator instantly recalculates the full risk profile without those findings:
-
-- New average risk score and delta from current
-- Whether any deal-killers are cleared
-- Whether the overall deal tier improves
-
-Turns security findings into quantified negotiating leverage. You can tell the seller exactly which issues to fix and show the precise risk reduction if they do — backed by the same scoring model that produced the original assessment.
-
-### 🗺️ Attack Path Visualisation
-
-A dedicated **Attack Path** tab displaying an interactive vis.js graph of how an attacker moves from the open internet through exposed services to reach specific vulnerabilities. Built with four hierarchical layers:
-
-```
-INTERNET  →  Exposed Hosts  →  Services (port/protocol)  →  CVEs
-```
-
-- Every node is coloured by its worst deal tier (red → orange → amber → green)
-- Internal-only hosts are shown but have no edge from INTERNET — immediately visible isolation
-- Hover any node for full details: CVE ID, CVSS score, risk score, exposure level, service info
-- Fully interactive: zoom, pan, drag — powered by vis.js hierarchical layout
-- Stat cards at the top show: Exposed Hosts / Total Hosts / CVEs on Path / Deal Killers Exposed
+- A human-review gate flags high-variance and deal-killer items before export
+- **What-If** controls: switch scenario, scope to deal-killers/criticals, and toggle whether
+  maturity gaps are included — the totals recompute live
 
 ### 📝 Narrative Template Engine
 
-Deterministic narrative text generated from 25+ YAML-backed template blocks — no LLM required.
-Same input always produces the same output. Covers executive summary, maturity gaps, cost rationale,
-per-finding context, and remediation priority guidance.
+Deterministic narrative text generated from YAML-backed template blocks — **no LLM required**.
+Same input always produces the same output. Covers executive summary, maturity gaps, cost
+rationale, per-finding context, and remediation priority guidance.
 
 ---
 
@@ -156,198 +183,147 @@ per-finding context, and remediation priority guidance.
 | Requirement | Windows | macOS |
 |-------------|---------|-------|
 | Python 3.11+ | [python.org/downloads](https://www.python.org/downloads/) | `brew install python` or [python.org](https://www.python.org/downloads/) |
-| Git | [git-scm.com](https://git-scm.com/download/win) | Pre-installed on macOS, or `brew install git` |
+| Git | [git-scm.com](https://git-scm.com/download/win) | Pre-installed, or `brew install git` |
 | Nmap | [nmap.org/download](https://nmap.org/download.html#windows) | `brew install nmap` |
+| Node.js 18+ | Installed automatically by Reflex on first run, or [nodejs.org](https://nodejs.org) | Same |
 | Shodan API key | Optional — free tier at [shodan.io](https://shodan.io) | Same |
 | Vulners API key | Optional — free tier at [vulners.com](https://vulners.com) | Same |
 
-> **No API keys?** You can still run a full assessment without them — see the [No API Keys](#no-api-keys) section below.
+> **No API keys?** You can still run a full assessment — see [No API Keys](#no-api-keys) below.
+
+> Reflex compiles a small Next.js frontend on first launch (one-time, ~1 min) and needs Node.js;
+> it will offer to install it automatically if it isn't found.
 
 ---
 
 ### Installation — Windows
 
-Open **Command Prompt** or **PowerShell** and follow these steps exactly.
+Open **PowerShell** and follow these steps exactly.
 
-#### Step 1 — Verify Python is installed
-
+#### Step 1 — Verify Python
 ```powershell
 python --version
 ```
-
-You should see `Python 3.11.x` or higher. If you see an error, download and install Python from [python.org/downloads](https://www.python.org/downloads/). During installation, **tick the "Add Python to PATH" checkbox** on the first screen.
+You should see `Python 3.11.x` or higher. If not, install from [python.org/downloads](https://www.python.org/downloads/) and **tick "Add Python to PATH"**.
 
 #### Step 2 — Install Nmap
-
-1. Go to [nmap.org/download.html](https://nmap.org/download.html#windows)
-2. Download the **Latest stable release self-installer** (e.g. `nmap-7.x-setup.exe`)
-3. Run the installer with default options
-4. Verify it worked:
-
+Download the **stable self-installer** from [nmap.org/download.html](https://nmap.org/download.html#windows), run it with defaults, then verify:
 ```powershell
 nmap --version
 ```
 
-You should see `Nmap version 7.x`. If you see an error, add Nmap to your PATH manually:
-`C:\Program Files (x86)\Nmap` (or `C:\Program Files\Nmap` on 64-bit installs).
-
 #### Step 3 — Clone the repository
-
 ```powershell
 git clone https://github.com/adityaa206/redflag.git
 cd redflag
 ```
 
-#### Step 4 — Create a virtual environment
-
+#### Step 4 — Create and activate a virtual environment
 ```powershell
 python -m venv venv
-```
-
-#### Step 5 — Activate the virtual environment
-
-```powershell
 venv\Scripts\activate
 ```
+Your prompt will show `(venv)`. **Activate it every time you open a new terminal.**
 
-Your prompt will change to show `(venv)` at the start. **You must do this every time you open a new terminal before running the app.**
-
-#### Step 6 — Install dependencies
-
+#### Step 5 — Install dependencies
 ```powershell
 pip install -r requirements.txt
 ```
 
-This installs all required packages. It will take 1–3 minutes on first run.
-
-#### Step 7 — Set up your API keys
-
+#### Step 6 — Set up your API keys
 ```powershell
 copy .env.example .env
 notepad .env
 ```
+Fill in your keys (see [Configuration](#configuration)), then save and close.
 
-In Notepad, fill in your API keys (see [Configuration](#configuration) below). Save and close.
-
-#### Step 8 — Launch the app
-
+#### Step 7 — Launch the app
 ```powershell
-streamlit run app.py
+python -m reflex run
 ```
-
-The app opens automatically at **http://localhost:8501** in your browser.
+Open **http://localhost:3000** in your browser. (First run compiles the frontend — give it a minute.)
 
 ---
 
 ### Installation — macOS
 
-Open **Terminal** and follow these steps exactly.
+Open **Terminal** and follow these steps.
 
-#### Step 1 — Install Homebrew (if not already installed)
-
+#### Step 1 — Install Homebrew (if needed)
 ```bash
 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 ```
 
-Skip this step if `brew --version` already works.
-
 #### Step 2 — Install Python, Git, and Nmap
-
 ```bash
 brew install python git nmap
-```
-
-Verify everything installed correctly:
-
-```bash
-python3 --version   # Should show Python 3.11 or higher
-git --version       # Should show git version 2.x
-nmap --version      # Should show Nmap version 7.x
+python3 --version   # 3.11+
+nmap --version
 ```
 
 #### Step 3 — Clone the repository
-
 ```bash
 git clone https://github.com/adityaa206/redflag.git
 cd redflag
 ```
 
-#### Step 4 — Create a virtual environment
-
+#### Step 4 — Create and activate a virtual environment
 ```bash
 python3 -m venv venv
-```
-
-#### Step 5 — Activate the virtual environment
-
-```bash
 source venv/bin/activate
 ```
 
-Your prompt will change to show `(venv)` at the start. **You must do this every time you open a new terminal before running the app.**
-
-#### Step 6 — Install dependencies
-
+#### Step 5 — Install dependencies
 ```bash
 pip install -r requirements.txt
 ```
 
-This installs all required packages. It will take 1–3 minutes on first run.
-
-#### Step 7 — Set up your API keys
-
+#### Step 6 — Set up your API keys
 ```bash
 cp .env.example .env
-nano .env          # or: open -e .env  (opens in TextEdit)
+nano .env          # or: open -e .env
 ```
 
-Fill in your API keys (see [Configuration](#configuration) below). Save and close (`Ctrl+X → Y → Enter` in nano).
-
-#### Step 8 — Launch the app
-
+#### Step 7 — Launch the app
 ```bash
-streamlit run app.py
+python -m reflex run
 ```
-
-The app opens automatically at **http://localhost:8501** in your browser.
+Open **http://localhost:3000** in your browser.
 
 ---
 
 ### Running the App After First Install
 
-Once installed, you only need two commands each time:
-
 **Windows:**
 ```powershell
 cd redflag
 venv\Scripts\activate
-streamlit run app.py
+python -m reflex run
 ```
 
 **macOS:**
 ```bash
 cd redflag
 source venv/bin/activate
-streamlit run app.py
+python -m reflex run
 ```
 
 ---
 
 ### Configuration
 
-Edit the `.env` file in the project root to add your API keys:
+Edit `.env` in the project root:
 
 ```env
-# Required for live Shodan lookups (1 credit per IP queried)
+# Optional — live Shodan lookups (1 credit per IP queried)
 SHODAN_API_KEY=your_shodan_api_key_here
 
-# Optional — enables per-CVE exploit confirmation via Vulners
+# Optional — per-CVE exploit confirmation via Vulners
 VULNERS_API_KEY=your_vulners_api_key_here
 ```
 
-Get your keys here:
-- **Shodan** — [account.shodan.io](https://account.shodan.io) → API Key (free tier available)
-- **Vulners** — [vulners.com/userinfo](https://vulners.com/userinfo) → API Keys (free tier available)
+- **Shodan** — [account.shodan.io](https://account.shodan.io) → API Key (free tier)
+- **Vulners** — [vulners.com/userinfo](https://vulners.com/userinfo) → API Keys (free tier)
 
 #### No API Keys?
 
@@ -355,7 +331,7 @@ You can run a complete assessment with zero API keys:
 
 | What you lose | Workaround |
 |---------------|------------|
-| Live Shodan lookups | Upload a Shodan JSON export instead (target-provided or exported from your account) |
+| Live Shodan lookups | Upload a Shodan JSON export instead (target-provided or from your account) |
 | Vulners exploit confirmation | Findings still score; exploit status defaults to UNKNOWN |
 | Nothing else | NVD, CISA KEV, DNS, TLS, and breach checks all work with no keys |
 
@@ -363,24 +339,21 @@ You can run a complete assessment with zero API keys:
 
 ### Troubleshooting
 
-**`nmap: command not found` (macOS) or `'nmap' is not recognized` (Windows)**
-- macOS: run `brew install nmap`
-- Windows: reinstall Nmap from [nmap.org](https://nmap.org/download.html#windows) and ensure the installer adds it to PATH
+**`'nmap' is not recognized` / `nmap: command not found`**
+- Reinstall Nmap and ensure it's on PATH (`C:\Program Files (x86)\Nmap` on Windows; `brew install nmap` on macOS).
 
-**`python: command not found` (macOS)**
-- macOS uses `python3` by default. Replace `python` with `python3` in all commands, or run `brew install python` which aliases `python3` as `python`.
+**`python: command not found` (macOS)** — use `python3`, or `brew install python` to alias it.
 
-**`ModuleNotFoundError` when running the app**
-- Your virtual environment is not active. Run `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (macOS) first.
+**`ModuleNotFoundError` when launching** — your virtual environment isn't active. Activate it first.
 
-**Port 8501 already in use**
-- Another Streamlit instance is running. Stop it, or launch on a different port:
-  ```bash
-  streamlit run app.py --server.port 8502
-  ```
+**Port 3000 or 8000 already in use** — another Reflex instance is running. Stop it, or run on alternate ports:
+```bash
+python -m reflex run --frontend-port 3001 --backend-port 8001
+```
 
-**Streamlit opens but the scan fails immediately**
-- Nmap is not on your PATH. Verify with `nmap --version`. See the Nmap install step above.
+**The scan starts but returns no findings** — Nmap isn't on PATH. Verify with `nmap --version`.
+
+**First launch is slow / asks to install Node** — Reflex builds the frontend once and needs Node.js; let it install or install Node 18+ yourself.
 
 ---
 
@@ -388,20 +361,22 @@ You can run a complete assessment with zero API keys:
 
 ### Running a Scan
 
-1. Open the app at `http://localhost:8501`
-2. Enter the target hostname or IP in the scan bar
-3. (Optional) Upload supplementary scanner outputs using the upload row:
+1. Open **http://localhost:3000**
+2. Enter the target hostname or IP in the scan bar (optional if you only upload files)
+3. (Optional) Stage supplementary scanner outputs in the upload slots — the filename chips show what's staged:
    - **Shodan JSON** — target-provided host export (saves API credits)
    - **OpenVAS XML** — GVM/OpenVAS scan report
    - **ZAP XML** — OWASP ZAP active scan report
    - **Asset Inventory (Excel)** — classifies hosts as Crown Jewel / Regulated / Sensitive
-4. Click **Run Comprehensive Scan**
+4. (Optional) Toggle **Fast Scan Mode** for a quicker top-200-port sweep
+5. Click **Run scan**
 
-DNS, TLS, and breach checks run automatically alongside the Nmap scan — no extra configuration needed.
+DNS, TLS, and breach checks run automatically alongside the Nmap scan. The live scan and every
+staged file fuse into one finding set.
 
 ### Using the Mock Data Files
 
-Test the full pipeline without running a real scan using the included fixtures:
+Test the full pipeline without a live scan using the included fixtures:
 
 | File | Use In |
 |------|--------|
@@ -409,20 +384,22 @@ Test the full pipeline without running a real scan using the included fixtures:
 | `tests/fixtures/mock_zap.xml` | ZAP XML upload |
 | `tests/fixtures/sample_assessment.json` | Reference / integration tests |
 
-The mock OpenVAS file includes: EternalBlue, PrintNightmare, Log4Shell, default credentials, Telnet, Redis exposure, TLS misconfiguration, and missing security headers.
-
-The mock ZAP file includes: SQL injection, reflected XSS, IDOR, CSRF absence, directory listing, cookie flags, vulnerable jQuery, and exposed Spring Actuator endpoints.
+The mock OpenVAS file includes EternalBlue, PrintNightmare, Log4Shell, default credentials,
+Telnet, Redis exposure, TLS misconfiguration, and missing security headers. The mock ZAP file
+includes SQL injection, reflected XSS, IDOR, missing CSRF protection, directory listing, cookie
+flags, vulnerable jQuery, and exposed Spring Actuator endpoints.
 
 ### Tab Guide
 
 | Tab | What You Do |
 |-----|------------|
-| **Overview** | Risk dashboard — metric cards, donut chart, DNS/TLS/breach summary cards, target intel, scanner pipeline status |
-| **Findings** | Filter and drill into individual findings; What-If simulator to quantify pre-close remediation value |
-| **Attack Path** | Interactive vis.js graph of attacker movement from internet to vulnerabilities; stat cards showing exposed hosts and CVE counts |
-| **Maturity Assessment** | Complete the 23-question security programme questionnaire; see domain scores vs. acquisition standard |
-| **Cost & Budget** | Generate remediation cost model; review flagged items; download CSV or XLSX |
-| **Export** | Download full CSV report and PDF report |
+| **Overview** | Risk dashboard — verdict, tier counts, risk-breakdown donut, findings table |
+| **Findings** | Filter and drill into individual findings |
+| **Attack Path** | Attacker-brain mind-map, MITRE playbook, kill-chain, and the self-improving brain-memory panel |
+| **Maturity** | Complete the 23-question questionnaire; see domain scores vs. acquisition standard |
+| **Day 1 Plan** | Recommended connectivity model, control pillars, phase gates, and P0–P3 roadmap |
+| **Cost** | Generate the remediation cost model; What-If controls; review flagged items |
+| **Export** | Download the CSV report and PDF reports (full / Day-1 / cost) |
 
 ---
 
@@ -430,103 +407,70 @@ The mock ZAP file includes: SQL injection, reflected XSS, IDOR, CSRF absence, di
 
 ```
 RedFlag/
-├── app.py                      Streamlit UI + scan orchestration pipeline
+├── rxconfig.py                 Reflex config (app_name="redflag_ui")
+│
+├── redflag_ui/                 ← Reflex presentation layer (no business logic)
+│   ├── redflag_ui.py           rx.App + 9 routed pages
+│   ├── state.py                RedFlagState — run_scan pipeline, view-models, brain learn/recall, exports
+│   ├── components/             shell (nav + scan bar + 4 upload slots + footer), ui helpers
+│   └── pages/                  overview, findings, attack, maturity, day1, cost, export, legal
 │
 ├── scanners/
-│   ├── nmap_scan.py            Nmap runner + Vulners NSE parser
+│   ├── nmap_scan.py            Nmap runner (full / fast mode)
 │   ├── shodan_scan.py          Shodan live lookup + parse_shodan_json()
-│   ├── openvas_parse.py        OpenVAS XML parser
-│   ├── zap_scan.py             OWASP ZAP XML parser
+│   ├── openvas_parse.py        OpenVAS XML parse + correlation merge
+│   ├── zap_scan.py             OWASP ZAP XML parse + correlation merge
 │   ├── vulners_parse.py        Vulners NSE block parser
 │   ├── vulners_enrich.py       Vulners API exploit confirmation
-│   ├── kev_lookup.py           CISA KEV feed (cached per session)
+│   ├── kev_lookup.py           CISA KEV cross-reference
 │   ├── dns_scan.py             SPF / DMARC / DKIM / DNSSEC checks
-│   ├── tls_scan.py             Cert expiry, TLS version, CT log subdomain scan
+│   ├── tls_scan.py             Cert expiry, TLS version, crt.sh CT-log subdomains
 │   └── breach_scan.py          LeakIX breach and exposure check
 │
 ├── analysis/
 │   ├── schema.py               Pydantic Finding model + all enums
 │   ├── parser.py               Nmap XML → Finding objects
 │   ├── triage.py               Weighted risk scoring + deal-tier classification
-│   ├── maturity.py             Inside-Out Maturity Assessment engine
+│   ├── maturity.py             Inside-out maturity assessment engine
 │   ├── standards_compare.py    Gap analysis vs. corporate standard
-│   ├── graph_builder.py        Attack path graph node/edge builder
-│   └── parsers/
-│       └── excel_assets.py     Asset inventory Excel parser
+│   ├── day1.py                 Day-1 Safe Harbor connectivity blueprint
+│   ├── attack_brain.py         ★ Offline MITRE ATT&CK attacker-brain + mind-map SVG
+│   ├── brain_memory.py         ★ Self-improving Obsidian-vault knowledge base
+│   ├── graph_builder.py        Legacy attack-graph builder (superseded by attack_brain)
+│   └── parsers/excel_assets.py Asset-inventory Excel parser
 │
-├── cost/
-│   ├── schema.py               CostTriple, CostLineItem, CostRollup, enums
-│   ├── catalog.py              CVE/service/tier → CostLineItem lookup
-│   ├── estimator.py            Findings + gaps → raw CostLineItems
-│   ├── deduplicator.py         Merge duplicate remediation items
-│   ├── scenario_engine.py      Low / base / high scenario builder
-│   ├── rollup.py               Aggregate + run_cost_pipeline()
-│   └── exporters.py            CSV and XLSX export (review gate enforced)
-│
-├── narrative/
-│   ├── blocks.py               Condition-based YAML block selector
-│   ├── engine.py               Context builders + narrative functions
-│   └── report_builder.py       Full structured report dict
-│
-├── config/
-│   ├── loader.py               Cached YAML loader
-│   ├── maturity_questions.yaml 7 domains, 23 questions (0–5 scale)
-│   ├── corporate_standard.yaml Per-domain deal-blocker thresholds
-│   ├── pricing_benchmarks.yaml Labour rates, tool costs, effort hours
-│   ├── remediation_catalog.yaml CVE/service/tier/maturity cost entries
-│   └── narrative_blocks.yaml   25+ narrative template blocks
-│
-├── reports/
-│   ├── generator.py            CSV export
-│   └── pdf_report.py           PDF export (fpdf2) + cost section
-│
-└── tests/
-    ├── test_triage.py          24 tests — risk scoring engine
-    ├── test_maturity.py        20 tests — maturity assessment
-    ├── test_estimator.py       27 tests — cost estimation pipeline
-    ├── test_narrative_engine.py 19 tests — narrative template engine
-    ├── test_integration.py      7 tests — end-to-end pipeline
-    └── fixtures/
-        ├── sample_assessment.json  Representative scan + maturity answers
-        ├── mock_openvas.xml        8 realistic OpenVAS findings
-        └── mock_zap.xml            8 realistic ZAP web app findings
+├── cost/                       schema · catalog · estimator · deduplicator · scenario_engine · rollup · exporters
+├── narrative/                  blocks · engine · report_builder (deterministic, YAML-backed)
+├── config/                     loader + 6 YAMLs (maturity, corporate standard, pricing, remediation, narrative, day1)
+├── reports/                    generator (CSV) · pdf_report (full / Day-1 / cost PDF)
+├── assets/                     redflag.css (the whole emerald design) + favicon
+└── tests/                      112 engine tests (pytest) + fixtures
 ```
 
 ### Data Flow
 
 ```
 Nmap XML ──→ analyze_nmap_file()
-               │
                ├──→ parse_vulners_from_nmap_xml()
-               │
 Shodan ────────┼──→ enrich_findings_with_shodan()  ←── CISA KEV + NVD
-               │
 OpenVAS XML ───┼──→ merge_openvas_with_nmap()
-               │
 ZAP XML ───────┼──→ merge_zap_with_nmap()
-               │
 Excel ─────────┼──→ apply_sensitivity_to_findings()
-               │
-DNS ───────────┼──→ run_dns_scan()    (SPF / DMARC / DKIM / DNSSEC)
-               │
-TLS ───────────┼──→ run_tls_scan()    (cert expiry / TLS version / CT log)
-               │
-Breach ────────┼──→ run_breach_scan() (LeakIX domain + IP check)
-               │
+DNS/TLS/Breach ┼──→ run_dns_scan() / run_tls_scan() / run_breach_scan()
                ▼
            triage_all()  →  [Finding, risk_score, deal_tier]
                │
-    ┌──────────┼──────────┬──────────────┐
-    ▼          ▼          ▼              ▼
-Maturity    Cost       Attack Path    Narrative
-Assessment  Pipeline   Graph          Engine
-    │          │       build_attack_  build_report()
-    │          │       graph()            │
-    └──────────┴──────────┴──────────────┘
-                          │
-              ┌───────────┴───────────┐
-              ▼                       ▼
-         CSV / PDF               XLSX export
+   ┌───────────┼───────────┬──────────────┬───────────────┐
+   ▼           ▼           ▼              ▼               ▼
+Maturity     Day-1       Cost          Attacker-Brain   Narrative
+Assessment   Blueprint   Pipeline      analyze_attack_  Engine
+   │           │           │            paths() +        │
+   │           │           │            brain_memory     │
+   └───────────┴───────────┴──────────────┴──────────────┘
+                           │
+              ┌────────────┴────────────┐
+              ▼                         ▼
+         CSV / PDF              ~/RedFlag-Brain (Obsidian vault)
 ```
 
 ---
@@ -535,11 +479,11 @@ Assessment  Pipeline   Graph          Engine
 
 | Layer | Library |
 |-------|---------|
-| UI | [Streamlit](https://streamlit.io) |
+| UI | [Reflex](https://reflex.dev) (compiles to Next.js/React) |
 | Data validation | [Pydantic v2](https://docs.pydantic.dev) |
 | Data manipulation | [pandas](https://pandas.pydata.org) |
-| Charts | [Plotly](https://plotly.com/python/) |
-| Attack path graph | [pyvis](https://pyvis.readthedocs.io) (vis.js) |
+| Attack-path mind-map | Precomputed SVG (no JS graph library) |
+| Risk donut | CSS conic-gradient (no chart library) |
 | PDF generation | [fpdf2](https://py-fpdf2.readthedocs.io) |
 | XLSX export | [openpyxl](https://openpyxl.readthedocs.io) |
 | Nmap integration | [python-nmap](https://xael.org/pages/python-nmap-en.html) |
@@ -548,6 +492,7 @@ Assessment  Pipeline   Graph          Engine
 | TLS/cert parsing | [cryptography](https://cryptography.io) |
 | Config | [PyYAML](https://pyyaml.org) |
 | Env vars | [python-dotenv](https://github.com/theskumar/python-dotenv) |
+| Knowledge base | Plain JSON + Markdown ([Obsidian](https://obsidian.md)-compatible vault) |
 | Testing | [pytest](https://pytest.org) |
 
 ---
@@ -555,15 +500,19 @@ Assessment  Pipeline   Graph          Engine
 ## Running Tests
 
 ```bash
-# Run all 86 tests
+# Run all 112 engine tests
 pytest tests/ -v
 
 # Run a specific module
 pytest tests/test_triage.py -v
 pytest tests/test_maturity.py -v
 pytest tests/test_estimator.py -v
+pytest tests/test_day1.py -v
 pytest tests/test_integration.py -v
 ```
+
+The test suite covers the scoring, maturity, cost, narrative, Day-1, and end-to-end engine
+pipelines — all independent of the UI layer.
 
 ---
 
@@ -573,10 +522,10 @@ pytest tests/test_integration.py -v
 
 ```python
 base_score = (
-    (cvss / 10.0 * 100)  * 0.25  +   # CVSS
+    exploit_score         * 0.30  +   # Exploit status (primary signal)
     exposure_score        * 0.25  +   # Exposure level
-    sensitivity_score     * 0.20  +   # Data sensitivity
-    exploit_score         * 0.30      # Exploit status (primary signal)
+    (cvss / 10.0 * 100)   * 0.25  +   # CVSS
+    sensitivity_score     * 0.20      # Data sensitivity
 )
 risk_score = base_score * evidence_multiplier
 ```
@@ -595,36 +544,40 @@ risk_score = base_score * evidence_multiplier
 |---------------|-------|----------------|-------|----------|------------|
 | Internet Facing | 100 | Active Exploitation | 100 | Confirmed | 1.00 |
 | Partner | 60 | Public Exploit | 65 | Correlated | 0.95 |
-| Internal | 30 | Unknown | 30 | Inferred | 0.85 |
-| Unknown | 50 | No Exploit | 10 | External | 0.80 |
+| Internal | 30 | Unknown | 30 | Unknown | 0.90 |
+| Unknown | 50 | No Exploit | 10 | Inferred | 0.85 |
+| | | | | External | 0.80 |
 
 ---
 
 ## Customisation
 
-All thresholds, weights, pricing, and narrative text are YAML-driven — no code changes needed:
+All thresholds, weights, pricing, and narrative text are YAML/config-driven — no code changes needed:
 
 | File | What to Change |
 |------|---------------|
-| `config/__init__.py` | Scoring weights, tier thresholds |
+| `config/__init__.py` | Scoring weights, tier thresholds, Nmap args |
 | `config/corporate_standard.yaml` | Per-domain maturity deal-blocker thresholds |
 | `config/pricing_benchmarks.yaml` | Labour rates, tool costs, effort hours |
 | `config/remediation_catalog.yaml` | CVE/service/tier cost mappings |
 | `config/narrative_blocks.yaml` | Report narrative text |
 | `config/maturity_questions.yaml` | Assessment questions and domain structure |
+| `config/day1_blueprint.yaml` | Day-1 connectivity models, pillars, gates |
+
+The attacker-brain's knowledge base lives at `~/RedFlag-Brain` (override with `REDFLAG_BRAIN_DIR`).
 
 ---
 
 ## Roadmap
 
-- [ ] AI-generated executive summary (plain-English paragraph report for non-technical stakeholders)
+- [x] Day-1 Safe Harbor connectivity blueprint with phase gates
+- [x] Attack-path reasoning that thinks like an attacker (MITRE ATT&CK mind-map)
+- [x] Self-improving, offline knowledge base (learns by remembering across scans)
+- [ ] Optional free-tier LLM layer over the brain for generative narrative (no paid API)
 - [ ] Compliance gap mapping (ISO 27001 / NIST CSF / SOC 2 / GDPR / PCI-DSS)
-- [ ] 30/60/90 day post-acquisition remediation roadmap generator
-- [ ] Public GitHub repository secret scanner (trufflehog integration)
-- [ ] Multi-target comparison view (side-by-side risk, maturity, and cost across acquisition candidates)
+- [ ] Public-repo secret scanning (trufflehog integration)
+- [ ] Multi-target comparison view (risk / maturity / cost across candidates)
 - [ ] Multi-host Shodan (subnet scan support)
-- [ ] Auto-merge cost PDF section into main report
-- [ ] `requirements.txt` with pinned versions
 - [ ] Docker Compose for one-command startup
 
 ---
@@ -641,12 +594,14 @@ RedFlag processes only data you explicitly provide. No scan data is sent to any 
 
 - **Shodan** (1 credit per IP for live lookups) — only the target IP is sent
 - **NVD/NIST** (public CVSS API) — only CVE IDs are sent
-- **CISA KEV** (public feed) — downloaded once per session, no data sent
+- **CISA KEV** (public feed) — downloaded on demand, no data sent
 - **Vulners** (optional NSE/API) — only CVE IDs are sent
 - **LeakIX** (free breach API) — only the target domain and IP are sent
 - **crt.sh** (public CT log API) — only the target domain is sent
 
-All scan outputs are stored locally in `data/results/` and are excluded from version control.
+Scan outputs are written to a local temp directory, and the attacker-brain knowledge base is
+stored locally at `~/RedFlag-Brain` — neither leaves your machine, and both are excluded from
+version control.
 
 ---
 

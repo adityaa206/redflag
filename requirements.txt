@@ -1,8 +1,12 @@
-streamlit==1.57.0
+# RedFlag — Reflex app + shared engine dependencies.
+# The business logic in analysis/, cost/, narrative/, reports/, scanners/ is
+# imported unchanged by the Reflex presentation layer in redflag_ui/.
+
+reflex==0.9.5.post2
+
+# --- engine dependencies ---
 pydantic==2.13.4
 pandas==3.0.3
-plotly==6.7.0
-pyvis==0.3.2
 fpdf2==2.8.7
 openpyxl==3.1.5
 python-nmap==0.7.1
@@ -13,5 +17,3 @@ PyYAML==6.0.3
 python-dotenv==1.2.2
 requests==2.34.2
 pytest==9.0.3
-
-reflex==0.9.5.post2
