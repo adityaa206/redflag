@@ -34,6 +34,7 @@ from __future__ import annotations
 import json
 import os
 import re
+import shutil
 from dataclasses import dataclass
 from datetime import datetime, timezone
 
@@ -64,6 +65,11 @@ def _path_sig(plan) -> str:
 
 # CISA Known Exploited Vulnerabilities — free public feed, no key required.
 _KEV_URL = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
+
+# Repo-bundled seed brain. A fresh clone starts pre-loaded from this instead of
+# empty (see _bootstrap_from_seed). Refresh it from your local brain with:
+#   python -m analysis.brain_memory   (writes a sanitised snapshot here)
+_SEED_PATH = os.path.join(os.path.dirname(__file__), "brain_seed", "brain.json")
 
 
 # ── read-side containers (the UI flattens these into view-models) ─────────────
@@ -110,6 +116,10 @@ class BrainMemory:
         }
 
     def _load(self) -> dict:
+        # First run on a machine: seed from the repo-bundled brain so a fresh
+        # clone starts pre-loaded with accumulated knowledge instead of empty.
+        if not os.path.exists(self.index_path):
+            self._bootstrap_from_seed()
         try:
             with open(self.index_path, "r", encoding="utf-8") as fh:
                 d = json.load(fh)
@@ -119,6 +129,32 @@ class BrainMemory:
             return base
         except Exception:
             return self._blank()
+
+    def _bootstrap_from_seed(self) -> None:
+        """Copy the repo-bundled seed into the local store (best-effort)."""
+        try:
+            if os.path.exists(_SEED_PATH):
+                os.makedirs(self.root, exist_ok=True)
+                shutil.copyfile(_SEED_PATH, self.index_path)
+        except Exception:
+            pass
+
+    def export_seed(self, dest: str | None = None) -> str:
+        """Snapshot this machine's brain into the repo seed, sanitised to share.
+
+        Strips the `targets` map — the only place a scanned host/IP is named — so
+        the shipped seed carries aggregate pattern knowledge (technique / CVE /
+        service / path prevalence + KEV) without revealing who was scanned.
+        """
+        data = json.loads(json.dumps(self.data))   # deep copy
+        data["targets"] = {}                        # drop who-was-scanned
+        dest = dest or _SEED_PATH
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        tmp = dest + ".tmp"
+        with open(tmp, "w", encoding="utf-8") as fh:
+            json.dump(data, fh, indent=2, sort_keys=True)
+        os.replace(tmp, dest)
+        return dest
 
     def _save(self) -> None:
         try:
@@ -348,3 +384,15 @@ class BrainMemory:
     def _put(path: str, text: str):
         with open(path, "w", encoding="utf-8") as fh:
             fh.write(text)
+
+
+if __name__ == "__main__":
+    # Refresh the repo-bundled seed from THIS machine's accumulated brain, so a
+    # fresh clone starts pre-loaded. Sanitised (target names stripped).
+    #   python -m analysis.brain_memory
+    _bm = BrainMemory()
+    _out = _bm.export_seed()
+    _s = _bm.stats()
+    print(f"Brain seed written -> {_out}")
+    print(f"  scans={_s.scans}  techniques={_s.techniques}  cves={_s.cves}  "
+          f"services={_s.services}  paths={_s.paths}  kev={_s.kev_known}  (targets stripped)")

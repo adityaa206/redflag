@@ -109,6 +109,10 @@ RedFlag's attacker-brain gets **smarter with every scan** — not by training a 
   "this exact kill-chain has been seen before" — then **learns** the new scan, bumping prevalence
   weights for techniques, CVEs, services and attack paths.
 - A **Refresh threat intel** button pulls the free **CISA KEV** feed into the brain on demand.
+- **Fresh clones don't start empty.** The repo ships a sanitized seed
+  (`analysis/brain_seed/brain.json`) — aggregate technique/CVE/service/path prevalence + KEV,
+  with target identities stripped — and a new install bootstraps from it on first run. Refresh
+  the shipped seed from your own accumulated brain at any time with `python -m analysis.brain_memory`.
 - No GPU, no training loop, no paid API. It improves by accumulating and retrieving, on your machine.
 
 ### 🌐 DNS & Email Security
@@ -601,7 +605,9 @@ RedFlag processes only data you explicitly provide. No scan data is sent to any 
 
 Scan outputs are written to a local temp directory, and the attacker-brain knowledge base is
 stored locally at `~/RedFlag-Brain` — neither leaves your machine, and both are excluded from
-version control.
+version control. The only brain data committed to the repo is the **sanitized seed**
+(`analysis/brain_seed/brain.json`): aggregate pattern knowledge with all scanned-target
+identities stripped, so shipping it never reveals who was assessed.
 
 ---
 
