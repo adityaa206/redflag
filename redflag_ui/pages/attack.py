@@ -5,6 +5,7 @@ import reflex as rx
 
 from redflag_ui.state import (
     RedFlagState, AttackHostVM, AttackService, AttackStepVM, BrainInsightVM,
+    GraphChokeVM, GraphPathVM,
 )
 from redflag_ui.components.shell import shell
 from redflag_ui.components.ui import section, empty_state
@@ -187,6 +188,79 @@ def _step(s: AttackStepVM) -> rx.Component:
     )
 
 
+def _choke(c: GraphChokeVM) -> rx.Component:
+    return rx.el.div(
+        rx.el.div(
+            rx.el.span(c.label, class_name="choke-label mono"),
+            rx.el.span(c.sub, class_name="choke-sub"),
+            class_name="choke-head",
+        ),
+        rx.el.div(
+            rx.el.div(class_name="choke-bar-fill " + c.tier_class, style={"width": c.bar_w}),
+            class_name="choke-bar",
+        ),
+        class_name="graph-choke",
+    )
+
+
+def _gpath(p: GraphPathVM) -> rx.Component:
+    return rx.el.div(
+        rx.el.div(
+            rx.el.span(p.sens_label, class_name="gpath-badge " + p.sens_class),
+            rx.el.span(p.target, class_name="gpath-target mono"),
+            rx.el.span(p.hops_label, class_name="gpath-hops"),
+            class_name="gpath-head",
+        ),
+        rx.el.div(p.chain, class_name="gpath-chain mono"),
+        class_name="graph-path",
+    )
+
+
+def _graph_panel() -> rx.Component:
+    return rx.fragment(
+        section("Graph analysis", "Chokepoints, blast radius and the path to crown jewels", rule=True),
+        rx.el.div(
+            rx.el.div(
+                rx.el.div(RedFlagState.graph_inet, class_name="gstat-num"),
+                rx.el.div("Internet entry points", class_name="gstat-lbl"),
+                class_name="gstat",
+            ),
+            rx.el.div(
+                rx.el.div(RedFlagState.graph_blast, class_name="gstat-num"),
+                rx.el.div("Assets reachable from the internet", class_name="gstat-lbl"),
+                class_name="gstat",
+            ),
+            rx.el.div(
+                rx.el.div(RedFlagState.graph_nodes, class_name="gstat-num"),
+                rx.el.div("Nodes modelled", class_name="gstat-lbl"),
+                class_name="gstat",
+            ),
+            class_name="graph-stats",
+        ),
+        rx.el.p(RedFlagState.graph_summary, class_name="graph-summary"),
+        rx.el.div(
+            rx.el.div(
+                rx.el.div("Highest-leverage chokepoints", class_name="graph-col-h"),
+                rx.el.div("Fix these first — each severs the most attack paths.",
+                          class_name="graph-col-note"),
+                rx.el.div(rx.foreach(RedFlagState.graph_chokepoints, _choke), class_name="graph-list"),
+                class_name="graph-col",
+            ),
+            rx.cond(
+                RedFlagState.graph_paths.length() > 0,
+                rx.el.div(
+                    rx.el.div("Shortest paths to sensitive data", class_name="graph-col-h"),
+                    rx.el.div("The route an attacker takes from the internet to crown jewels.",
+                              class_name="graph-col-note"),
+                    rx.el.div(rx.foreach(RedFlagState.graph_paths, _gpath), class_name="graph-list"),
+                    class_name="graph-col",
+                ),
+            ),
+            class_name="graph-grid",
+        ),
+    )
+
+
 def _content() -> rx.Component:
     return rx.fragment(
         section(
@@ -199,6 +273,7 @@ def _content() -> rx.Component:
         rx.cond(RedFlagState.brain_active, _brain_memory()),
         _mindmap(),
         _legend(),
+        rx.cond(RedFlagState.graph_active, _graph_panel()),
         section("The attacker's playbook", "Each move, and the technique it maps to", rule=True),
         rx.cond(
             RedFlagState.attack_has_paths,

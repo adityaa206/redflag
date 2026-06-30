@@ -14,7 +14,7 @@ about attack paths like an attacker — all in a single **Reflex** web applicati
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Reflex](https://img.shields.io/badge/Reflex-0.9-5b4ee9?style=flat-square&logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-34d399?style=flat-square)
-![Tests](https://img.shields.io/badge/Tests-112%20passing-34d399?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-128%20passing-34d399?style=flat-square)
 
 </div>
 
@@ -25,17 +25,17 @@ about attack paths like an attacker — all in a single **Reflex** web applicati
 When evaluating a target company for acquisition, security risk is one of the hardest things to price.
 RedFlag automates the technical layer of that assessment:
 
-1. **Scans** the target's internet-facing attack surface (Nmap + Shodan)
-2. **Enriches** findings with exploit intelligence (CISA KEV, NVD, Vulners)
-3. **Merges** uploaded scanner outputs (OpenVAS, ZAP) into a single finding set
-4. **Scores** every finding with a weighted risk model (exploit status, exposure, CVSS, data sensitivity)
+1. **Scans** the target's internet-facing attack surface (Nmap + Shodan + Nuclei)
+2. **Enriches** findings with exploit intelligence (CISA KEV, EPSS, NVD, Vulners)
+3. **Merges** uploaded scanner outputs (OpenVAS, ZAP, Nuclei) into a single finding set
+4. **Scores** every finding with a weighted, EPSS-aware risk model (exploit status, exposure, CVSS, data sensitivity)
 5. **Checks** DNS/email security controls (SPF, DMARC, DKIM, DNSSEC)
 6. **Validates** TLS certificate health and discovers shadow subdomains via CT logs
 7. **Queries** breach databases for prior compromise exposure (LeakIX)
 8. **Assesses** the target's internal security programme maturity across 7 domains
 9. **Plans** a Day-1 Safe Harbor connectivity model with phase gates
 10. **Estimates** remediation costs with low / base / high scenarios and CapEx/OpEx split
-11. **Reasons** about attack paths like an attacker (MITRE ATT&CK) and renders them as a mind-map
+11. **Reasons** about attack paths like an attacker (MITRE ATT&CK mind-map) and **measures** them as a graph (chokepoints, blast radius, paths to crown jewels)
 12. **Learns** from every scan — a self-improving, offline knowledge base that gets sharper over time
 13. **Generates** a deterministic narrative report and downloadable CSV and PDF exports
 
@@ -49,10 +49,12 @@ RedFlag automates the technical layer of that assessment:
 |---------|------|---------------|
 | **Nmap** | Active scan | Open ports, services, banners |
 | **Shodan** | Passive OSINT | Internet-visible attack surface, org/ASN/geo |
+| **Nuclei** | Template DAST | Confirmed vulns, exposed panels, default creds, misconfigs |
 | **OpenVAS / GVM** | Authenticated scan | Verified CVEs, configuration flaws |
 | **OWASP ZAP** | DAST | Web application vulnerabilities (SQLi, XSS, etc.) |
 | **Vulners NSE** | Exploit intel | CVE-to-exploit mapping from Nmap scripts |
 | **CISA KEV** | Active exploitation | Known-exploited CVE cross-reference |
+| **EPSS** | Exploit prediction | Probability each CVE is exploited in the next 30 days |
 | **NVD API** | CVSS enrichment | Real CVSS v3.1 scores for every CVE |
 | **DNS Scanner** | Config audit | SPF, DMARC, DKIM, DNSSEC presence and policy |
 | **TLS Scanner** | Cert health | Expiry, weak TLS versions, CT log subdomain discovery |
@@ -71,7 +73,12 @@ Score = (Exploit Status × 0.30) + (Exposure × 0.25) + (CVSS × 0.25) + (Data S
 ```
 
 The base score is then multiplied by an **evidence-strength** factor (Confirmed 1.00 →
-External 0.80), so a verified OpenVAS/ZAP finding outranks a banner-only inference at the same severity.
+External 0.80), so a verified OpenVAS/ZAP/Nuclei finding outranks a banner-only inference at the same severity.
+
+The model is forward-looking, not just severity-based: **EPSS** (FIRST.org Exploit Prediction
+Scoring System) is fetched for every CVE, and a high exploitation probability promotes an
+otherwise-unknown finding's exploit status — so a "92%-likely-to-be-exploited" CVE is ranked
+like one with a public exploit, even before it lands in CISA KEV.
 
 Findings are classified into four deal tiers:
 - 🔴 **Deal Killer** — Active exploitation or critical asset at risk; blocks deal close
@@ -114,6 +121,20 @@ RedFlag's attacker-brain gets **smarter with every scan** — not by training a 
   with target identities stripped — and a new install bootstraps from it on first run. Refresh
   the shipped seed from your own accumulated brain at any time with `python -m analysis.brain_memory`.
 - No GPU, no training loop, no paid API. It improves by accumulating and retrieving, on your machine.
+
+### 🕸️ Graph Analysis
+
+Where the attacker-brain *narrates* the kill-chain, the **Graph analysis** panel *measures* it.
+The estate is modelled as a directed graph (`INTERNET → host → service`, plus lateral-movement
+pivots) and analysed with [networkx](https://networkx.org/) to answer questions the narrative can't:
+
+- **Chokepoints** — which host/service, if fixed, severs the most attack paths (highest-leverage
+  remediation), ranked by removal impact and betweenness centrality
+- **Blast radius** — how many assets are reachable from the public internet
+- **Shortest path to crown jewels** — the exact route from the internet to crown-jewel / regulated data
+
+Turns the attack path from descriptive into quantitative — *"patch this one box and 6 attack
+paths die."* Fully local, no extra compute concerns.
 
 ### 🌐 DNS & Email Security
 
@@ -371,6 +392,7 @@ python -m reflex run --frontend-port 3001 --backend-port 8001
    - **Shodan JSON** — target-provided host export (saves API credits)
    - **OpenVAS XML** — GVM/OpenVAS scan report
    - **ZAP XML** — OWASP ZAP active scan report
+   - **Nuclei JSONL** — `nuclei -jsonl` output (run it anywhere; no local binary needed)
    - **Asset Inventory (Excel)** — classifies hosts as Crown Jewel / Regulated / Sensitive
 4. (Optional) Toggle **Fast Scan Mode** for a quicker top-200-port sweep
 5. Click **Run scan**
@@ -422,11 +444,13 @@ RedFlag/
 ├── scanners/
 │   ├── nmap_scan.py            Nmap runner (full / fast mode)
 │   ├── shodan_scan.py          Shodan live lookup + parse_shodan_json()
+│   ├── nuclei_scan.py          Nuclei runner + JSONL parser + correlation merge
 │   ├── openvas_parse.py        OpenVAS XML parse + correlation merge
 │   ├── zap_scan.py             OWASP ZAP XML parse + correlation merge
 │   ├── vulners_parse.py        Vulners NSE block parser
 │   ├── vulners_enrich.py       Vulners API exploit confirmation
 │   ├── kev_lookup.py           CISA KEV cross-reference
+│   ├── epss_scan.py            EPSS exploitation-probability enrichment
 │   ├── dns_scan.py             SPF / DMARC / DKIM / DNSSEC checks
 │   ├── tls_scan.py             Cert expiry, TLS version, crt.sh CT-log subdomains
 │   └── breach_scan.py          LeakIX breach and exposure check
@@ -439,6 +463,7 @@ RedFlag/
 │   ├── standards_compare.py    Gap analysis vs. corporate standard
 │   ├── day1.py                 Day-1 Safe Harbor connectivity blueprint
 │   ├── attack_brain.py         ★ Offline MITRE ATT&CK attacker-brain + mind-map SVG
+│   ├── attack_graph.py         ★ networkx chokepoints / blast radius / crown-jewel paths
 │   ├── brain_memory.py         ★ Self-improving Obsidian-vault knowledge base
 │   ├── graph_builder.py        Legacy attack-graph builder (superseded by attack_brain)
 │   └── parsers/excel_assets.py Asset-inventory Excel parser
@@ -448,7 +473,7 @@ RedFlag/
 ├── config/                     loader + 6 YAMLs (maturity, corporate standard, pricing, remediation, narrative, day1)
 ├── reports/                    generator (CSV) · pdf_report (full / Day-1 / cost PDF)
 ├── assets/                     redflag.css (the whole emerald design) + favicon
-└── tests/                      112 engine tests (pytest) + fixtures
+└── tests/                      128 engine tests (pytest) + fixtures
 ```
 
 ### Data Flow
@@ -487,6 +512,7 @@ Assessment   Blueprint   Pipeline      analyze_attack_  Engine
 | Data validation | [Pydantic v2](https://docs.pydantic.dev) |
 | Data manipulation | [pandas](https://pandas.pydata.org) |
 | Attack-path mind-map | Precomputed SVG (no JS graph library) |
+| Graph analytics | [networkx](https://networkx.org) (chokepoints / blast radius / paths) |
 | Risk donut | CSS conic-gradient (no chart library) |
 | PDF generation | [fpdf2](https://py-fpdf2.readthedocs.io) |
 | XLSX export | [openpyxl](https://openpyxl.readthedocs.io) |
@@ -504,13 +530,14 @@ Assessment   Blueprint   Pipeline      analyze_attack_  Engine
 ## Running Tests
 
 ```bash
-# Run all 112 engine tests
+# Run all 128 engine tests
 pytest tests/ -v
 
 # Run a specific module
 pytest tests/test_triage.py -v
-pytest tests/test_maturity.py -v
-pytest tests/test_estimator.py -v
+pytest tests/test_epss.py -v
+pytest tests/test_nuclei.py -v
+pytest tests/test_attack_graph.py -v
 pytest tests/test_day1.py -v
 pytest tests/test_integration.py -v
 ```

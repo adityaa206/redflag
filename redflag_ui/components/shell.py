@@ -22,6 +22,8 @@ UPLOAD_SLOTS = [
      {"application/json": [".json"]}),
     ("openvas", "up_openvas", "OpenVAS XML", "Verified CVEs", XML_ACCEPT),
     ("zap", "up_zap", "OWASP ZAP XML", "Web-app layer", XML_ACCEPT),
+    ("nuclei", "up_nuclei", "Nuclei JSONL", "Confirmed vulns",
+     {"application/json": [".json", ".jsonl"], "text/plain": [".jsonl", ".txt"]}),
     ("asset", "up_asset", "Asset inventory", "Data sensitivity · Excel",
      {"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": [".xlsx"],
       "application/vnd.ms-excel": [".xls"]}),
@@ -90,18 +92,21 @@ UPLOAD_HANDLERS = {
     "shodan": RedFlagState.upload_shodan,
     "openvas": RedFlagState.upload_openvas,
     "zap": RedFlagState.upload_zap,
+    "nuclei": RedFlagState.upload_nuclei,
     "asset": RedFlagState.upload_asset,
 }
 UPLOAD_LABELS = {
     "shodan": RedFlagState.up_shodan_label,
     "openvas": RedFlagState.up_openvas_label,
     "zap": RedFlagState.up_zap_label,
+    "nuclei": RedFlagState.up_nuclei_label,
     "asset": RedFlagState.up_asset_label,
 }
 CLEAR_HANDLERS = {
     "shodan": RedFlagState.clear_shodan,
     "openvas": RedFlagState.clear_openvas,
     "zap": RedFlagState.clear_zap,
+    "nuclei": RedFlagState.clear_nuclei,
     "asset": RedFlagState.clear_asset,
 }
 

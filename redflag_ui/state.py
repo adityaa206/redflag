@@ -26,6 +26,7 @@ import reflex as rx
 from analysis.triage import triage_all
 from analysis.day1 import build_day1_blueprint
 from analysis.attack_brain import analyze_attack_paths, build_mindmap_svg
+from analysis.attack_graph import analyze_graph
 from analysis.maturity import run_assessment
 from analysis.standards_compare import compare_to_standard
 from cost.rollup import run_cost_pipeline
@@ -234,6 +235,23 @@ class BrainInsightVM:
     kind_class: str   # "bi-tech" | "bi-cve"
 
 
+@dataclass
+class GraphChokeVM:
+    label: str
+    sub: str
+    bar_w: str
+    tier_class: str
+
+
+@dataclass
+class GraphPathVM:
+    target: str
+    sens_label: str
+    sens_class: str
+    chain: str
+    hops_label: str
+
+
 # tier → hex (matches assets/redflag.css: dk=clay, cr=ochre, mo=teal, ma=emerald)
 TIER_HEX = {
     "deal_killer": "#b13b2a", "critical": "#a16207",
@@ -269,6 +287,9 @@ def _v(x) -> str:
 
 def _cve_line(f) -> str:
     parts = [f.cve_id or "No CVE", f"CVSS {f.cvss_score:.1f}"]
+    epss = getattr(f, "epss_score", None)
+    if epss is not None:
+        parts.append(f"EPSS {epss * 100:.0f}%")
     if _v(f.exploit_status) == "active_exploitation":
         parts.append("CISA KEV")
     elif _v(f.exploit_status) == "public_exploit":
@@ -328,6 +349,8 @@ def _empty_view() -> dict:
         "attack_inet_hosts": 0, "attack_total_hosts": 0, "attack_entry_services": 0,
         "attack_impact_label": "", "attack_impact_class": "mo",
         "mindmap_svg": "", "attack_summary": "", "attack_steps": [], "attack_has_paths": False,
+        "graph_active": False, "graph_summary": "", "graph_blast": 0, "graph_inet": 0,
+        "graph_nodes": 0, "graph_chokepoints": [], "graph_paths": [],
     }
 
 
@@ -584,6 +607,36 @@ def build_view(findings: list, target: str, assessment=None, gap_report=None) ->
         )
         for s in plan.steps
     ]
+
+    # graph analytics: chokepoints, blast radius, shortest path to crown jewels
+    gr = analyze_graph(findings, target)
+    d["graph_active"] = gr.has_graph
+    d["graph_summary"] = gr.summary
+    d["graph_blast"] = gr.blast_radius
+    d["graph_inet"] = gr.internet_hosts
+    d["graph_nodes"] = gr.n_nodes
+    max_iso = max((c.isolates for c in gr.chokepoints), default=1) or 1
+    d["graph_chokepoints"] = [
+        GraphChokeVM(
+            label=c.label,
+            sub=(f"cuts off {c.isolates} downstream asset" + ("" if c.isolates == 1 else "s")
+                 if c.isolates > 0 else "on the critical path")
+                + (f"  ·  {c.kind}"),
+            bar_w=f"{int(round(c.isolates / max_iso * 100))}%" if c.isolates > 0 else "8%",
+            tier_class=TIER_CLASS.get(c.tier, "ma"),
+        )
+        for c in gr.chokepoints
+    ]
+    d["graph_paths"] = [
+        GraphPathVM(
+            target=p.target_label,
+            sens_label="Crown jewel" if p.sensitivity == "crown_jewel" else "Regulated",
+            sens_class="dk" if p.sensitivity == "crown_jewel" else "cr",
+            chain="  →  ".join(p.hops),
+            hops_label=f"{p.length} hop" + ("" if p.length == 1 else "s"),
+        )
+        for p in gr.crown_paths
+    ]
     return d
 
 
@@ -610,6 +663,7 @@ class RedFlagState(rx.State):
     up_shodan_label: str = ""
     up_openvas_label: str = ""
     up_zap_label: str = ""
+    up_nuclei_label: str = ""
     up_asset_label: str = ""
 
     scanned: bool = False
@@ -671,6 +725,15 @@ class RedFlagState(rx.State):
     brain_known: list[BrainInsightVM] = []
     brain_recall: list[BrainInsightVM] = []
 
+    # ── attack-graph analytics (chokepoints, blast radius, crown-jewel paths) ─
+    graph_active: bool = False
+    graph_summary: str = ""
+    graph_blast: int = 0
+    graph_inet: int = 0
+    graph_nodes: int = 0
+    graph_chokepoints: list[GraphChokeVM] = []
+    graph_paths: list[GraphPathVM] = []
+
     # ── maturity ─────────────────────────────────────────────────────────────
     mat_done: bool = False
     mat_overall: str = "0.0"
@@ -728,7 +791,8 @@ class RedFlagState(rx.State):
     # findings set (uploaded Shodan JSON replaces the live API; OpenVAS/ZAP are
     # correlation-merged against the Nmap layer; assets reclassify sensitivity).
     _UPLOAD_LABELS = {"shodan": "Shodan JSON", "openvas": "OpenVAS XML",
-                      "zap": "OWASP ZAP XML", "asset": "Asset inventory"}
+                      "zap": "OWASP ZAP XML", "nuclei": "Nuclei JSONL",
+                      "asset": "Asset inventory"}
 
     async def upload_shodan(self, files: list[rx.UploadFile]):
         await self._stage(files, "shodan")
@@ -738,6 +802,9 @@ class RedFlagState(rx.State):
 
     async def upload_zap(self, files: list[rx.UploadFile]):
         await self._stage(files, "zap")
+
+    async def upload_nuclei(self, files: list[rx.UploadFile]):
+        await self._stage(files, "nuclei")
 
     async def upload_asset(self, files: list[rx.UploadFile]):
         await self._stage(files, "asset")
@@ -770,6 +837,9 @@ class RedFlagState(rx.State):
 
     def clear_zap(self):
         self._clear_staged("zap")
+
+    def clear_nuclei(self):
+        self._clear_staged("nuclei")
 
     def clear_asset(self):
         self._clear_staged("asset")
@@ -816,6 +886,17 @@ class RedFlagState(rx.State):
                 except OSError:
                     pass
 
+    def _staged_nuclei(self) -> list:
+        """Parse staged Nuclei JSONL text → Finding objects (or [])."""
+        entry = self._staged.get("nuclei")
+        if not entry:
+            return []
+        from scanners.nuclei_scan import parse_nuclei_jsonl
+        try:
+            return parse_nuclei_jsonl(entry["data"].decode("utf-8", "ignore"))
+        except Exception:
+            return []
+
     def _staged_assets(self) -> dict:
         entry = self._staged.get("asset")
         if not entry:
@@ -861,6 +942,7 @@ class RedFlagState(rx.State):
             from scanners.shodan_scan import lookup_host, enrich_findings_with_shodan, create_shodan_findings
             from scanners.openvas_parse import parse_openvas_xml, merge_openvas_with_nmap
             from scanners.zap_scan import parse_zap_xml, merge_zap_with_nmap
+            from scanners.nuclei_scan import run_nuclei_scan, merge_nuclei_with_nmap
             from analysis.parsers.excel_assets import apply_sensitivity_to_findings
             from scanners.dns_scan import run_dns_scan
             from scanners.tls_scan import run_tls_scan
@@ -938,6 +1020,21 @@ class RedFlagState(rx.State):
                 else:
                     all_findings += zap_findings
 
+            # ── Nuclei — live template scan (if installed) + staged JSONL ─────
+            nuclei_findings: list = []
+            if tgt:
+                try:
+                    nuclei_findings += run_nuclei_scan(tgt, fast_mode=self.fast_mode)
+                except Exception:
+                    pass
+            nuclei_findings += self._staged_nuclei()
+            if nuclei_findings:
+                if tgt:
+                    findings = merge_nuclei_with_nmap(findings, nuclei_findings)
+                    all_findings = list(findings) + shodan_standalone
+                else:
+                    all_findings += nuclei_findings
+
             # ── DNS / TLS / Breach — only meaningful against a live target ────
             if tgt:
                 try:
@@ -962,6 +1059,13 @@ class RedFlagState(rx.State):
             if asset_map:
                 all_findings = apply_sensitivity_to_findings(all_findings, asset_map)
 
+            # ── EPSS — attach exploitation probability; promote likely CVEs ───
+            try:
+                from scanners.epss_scan import enrich_findings_with_epss
+                all_findings = enrich_findings_with_epss(all_findings)
+            except Exception:
+                pass
+
             self._findings = triage_all(all_findings)
             self._refresh_all()
             self._learn_and_recall(tgt)
@@ -970,10 +1074,11 @@ class RedFlagState(rx.State):
             sources = []
             if tgt:
                 sources.append("live scan")
-            for k in ("shodan", "openvas", "zap", "asset"):
+            for k in ("shodan", "openvas", "zap", "nuclei", "asset"):
                 if self._staged.get(k):
                     sources.append({"shodan": "Shodan", "openvas": "OpenVAS",
-                                    "zap": "ZAP", "asset": "asset inventory"}[k])
+                                    "zap": "ZAP", "nuclei": "Nuclei",
+                                    "asset": "asset inventory"}[k])
             n = len(self._findings)
             n_dk = sum(1 for f in self._findings if _v(f.deal_tier) == "deal_killer")
             src_txt = (" · sources: " + ", ".join(sources)) if sources else ""

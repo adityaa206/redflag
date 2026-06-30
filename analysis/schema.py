@@ -40,6 +40,7 @@ class ScannerSource(str, Enum):
     SHODAN = "shodan"
     OPENVAS = "openvas"
     ZAP = "zap"
+    NUCLEI = "nuclei"
     VULNERS = "vulners"
     DNS = "dns"
     TLS = "tls"
@@ -67,6 +68,9 @@ class Finding(BaseModel):
     port: Optional[int] = None
     service: Optional[str] = None
     cvss_score: float = Field(default=0.0, ge=0.0, le=10.0)
+    # EPSS (FIRST.org Exploit Prediction Scoring System), 0.0–1.0 when known.
+    epss_score: Optional[float] = None       # probability of exploitation in next 30 days
+    epss_percentile: Optional[float] = None  # rank vs all CVEs (0.0–1.0)
     description: str = ""
     remediation: str = ""
 
