@@ -438,7 +438,7 @@ RedFlag/
 ├── redflag_ui/                 ← Reflex presentation layer (no business logic)
 │   ├── redflag_ui.py           rx.App + 9 routed pages
 │   ├── state.py                RedFlagState — run_scan pipeline, view-models, brain learn/recall, exports
-│   ├── components/             shell (nav + scan bar + 4 upload slots + footer), ui helpers
+│   ├── components/             shell (nav + scan bar + 5 upload slots + footer), ui helpers
 │   └── pages/                  overview, findings, attack, maturity, day1, cost, export, legal
 │
 ├── scanners/
@@ -482,20 +482,23 @@ RedFlag/
 Nmap XML ──→ analyze_nmap_file()
                ├──→ parse_vulners_from_nmap_xml()
 Shodan ────────┼──→ enrich_findings_with_shodan()  ←── CISA KEV + NVD
+Nuclei ────────┼──→ merge_nuclei_with_nmap()        (live binary or JSONL upload)
 OpenVAS XML ───┼──→ merge_openvas_with_nmap()
 ZAP XML ───────┼──→ merge_zap_with_nmap()
 Excel ─────────┼──→ apply_sensitivity_to_findings()
 DNS/TLS/Breach ┼──→ run_dns_scan() / run_tls_scan() / run_breach_scan()
+EPSS ──────────┼──→ enrich_findings_with_epss()     (exploit probability + promote)
                ▼
            triage_all()  →  [Finding, risk_score, deal_tier]
                │
-   ┌───────────┼───────────┬──────────────┬───────────────┐
-   ▼           ▼           ▼              ▼               ▼
-Maturity     Day-1       Cost          Attacker-Brain   Narrative
-Assessment   Blueprint   Pipeline      analyze_attack_  Engine
-   │           │           │            paths() +        │
-   │           │           │            brain_memory     │
-   └───────────┴───────────┴──────────────┴──────────────┘
+   ┌───────────┼───────────┬────────────────────┬─────────────┐
+   ▼           ▼           ▼                    ▼             ▼
+Maturity     Day-1       Cost              Attacker-Brain   Narrative
+Assessment   Blueprint   Pipeline          + Attack-Graph   Engine
+   │           │           │                analyze_attack_  │
+   │           │           │                paths() / graph  │
+   │           │           │                + brain_memory   │
+   └───────────┴───────────┴────────────────────┴────────────┘
                            │
               ┌────────────┴────────────┐
               ▼                         ▼
