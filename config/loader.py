@@ -69,6 +69,11 @@ def get_day1_blueprint() -> dict:
     return _load("day1_blueprint.yaml")
 
 
+def get_day1_cost_catalog() -> dict:
+    """Return the parsed day1_cost_catalog.yaml content (integration budget)."""
+    return _load("day1_cost_catalog.yaml")
+
+
 # ── Convenience helpers ───────────────────────────────────────────────────────
 
 def get_labour_rate(role: str, scenario: str = "base") -> float:

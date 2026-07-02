@@ -1,0 +1,262 @@
+# config/day1_cost_catalog.yaml
+# ─────────────────────────────────────────────────────────────────────────────
+# Day-1 INTEGRATION cost benchmarks (USD, sourced July 2026).
+#
+# Prices the connectivity model that analysis/day1.py recommends — i.e. what it
+# costs to SAFELY CONNECT the acquired company, distinct from the vulnerability
+# remediation the cost engine already prices.
+#
+# Every item cites a real, current source. These are order-of-magnitude
+# benchmarks: replace a `base` with a vendor quote and set confidence: high to
+# tighten the accuracy readout. Consumed by cost/day1_costing.py.
+#
+# Sources (all 2026):
+#   Windows 365 / AVD  — Microsoft Azure pricing; Nerdio/GO-Global 2026 guides
+#   Entra ID / Okta    — Microsoft Entra pricing; softwarepricingguide.com 2026
+#   Cloudflare/Zscaler — Cloudflare Access & Zscaler ZPA pricing 2026
+#   CrowdStrike EDR    — CrowdStrike pricing (Falcon Pro $99.99 / Ent $184.99/dev/yr)
+#   CyberArk/BeyondTrust PAM — vendor pricing 2026 ($9–$400/user/yr)
+#   Microsoft Sentinel — $2.46–$5.20/GB ingested (2026)
+#   NGFW               — Palo Alto / Fortinet NGFW ($2K–$400K appliance)
+#   M365 tenant→tenant — EPC Group / SkyTerra M&A migration 2026 ($300–600/user)
+#   TSA run-rate       — Mayer Brown / M&A Science TSA cost-plus (5–50% markup)
+#   Consulting         — security architect $150–$400/hr (Aristek/Salary.com 2026)
+
+# ── Global assumptions (editable knobs) ───────────────────────────────────────
+assumptions:
+  default_headcount: 250       # acquired-company users, used if none supplied
+  opex_months: 12              # year-1 window for recurring (OpEx) items
+  tsa_months: 12               # default TSA duration (Isolate run-rate)
+  privileged_user_ratio: 0.05  # ~5% of users need privileged (PAM) access
+
+# ── Confidence → ± accuracy band (percent). Drives the UI accuracy readout. ────
+accuracy_bands:
+  high: 15
+  medium: 30
+  low: 50
+assumed_headcount_penalty: 8   # extra ± added when headcount is a default guess
+
+# ── Per connectivity model: the cost items that stand it up on Day 1 ──────────
+# scale:  fixed | per_user | per_user_year | per_user_month | per_priv_user_year | tsa_runrate
+models:
+  isolate:
+    items:
+      - key: cleanroom_setup
+        title: "Clean room / clean team standup"
+        category: process
+        capex_opex: capex
+        scale: fixed
+        low: 25000
+        base: 60000
+        high: 120000
+        confidence: low
+        source: "EY / Deloitte M&A clean-room practice (2026)"
+      - key: perimeter_ngfw
+        title: "Isolation-boundary firewall (NGFW) + inspection"
+        category: architecture
+        capex_opex: capex
+        scale: fixed
+        low: 15000
+        base: 35000
+        high: 90000
+        confidence: medium
+        source: "Palo Alto / Fortinet NGFW $2K–400K; SMB–mid band"
+      - key: tsa_it_runrate
+        title: "TSA IT run-rate (standalone ops under Transition Service Agreement)"
+        category: process
+        capex_opex: opex
+        scale: tsa_runrate
+        low: 120
+        base: 200
+        high: 320
+        confidence: low
+        source: "TSA cost-plus benchmarks (Mayer Brown, M&A Science); +5–50% markup"
+
+  broker:
+    items:
+      - key: perimeter_ngfw
+        title: "Inspected interconnect boundary (NGFW)"
+        category: architecture
+        capex_opex: capex
+        scale: fixed
+        low: 15000
+        base: 35000
+        high: 90000
+        confidence: medium
+        source: "Palo Alto / Fortinet NGFW $2K–400K; SMB–mid band"
+      - key: vdi_daas
+        title: "Brokered VDI / DaaS (Windows 365 / AVD)"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_month
+        low: 31
+        base: 45
+        high: 123
+        confidence: high
+        source: "Windows 365 $31–123/user/mo (Microsoft, 2026); AVD consumption"
+      - key: ztna
+        title: "ZTNA broker for remote access (Zscaler ZPA / Cloudflare)"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_month
+        low: 3
+        base: 7
+        high: 10
+        confidence: high
+        source: "Cloudflare Access $0–7; Zscaler ZPA $6–10/user/mo (2026)"
+      - key: pam
+        title: "Privileged Access Management (broker admin access)"
+        category: credential
+        capex_opex: opex
+        scale: per_priv_user_year
+        low: 100
+        base: 250
+        high: 400
+        confidence: medium
+        source: "CyberArk / BeyondTrust $9–400/user/yr (2026)"
+      - key: siem_day1
+        title: "Day-1 SIEM monitoring standup + ingestion"
+        category: monitoring
+        capex_opex: mixed
+        scale: fixed
+        low: 20000
+        base: 45000
+        high: 90000
+        confidence: medium
+        source: "Microsoft Sentinel $2.46–5.20/GB (2026); setup + 12-mo ingest"
+      - key: broker_services
+        title: "Broker integration engineering (consulting)"
+        category: process
+        capex_opex: capex
+        scale: fixed
+        low: 20000
+        base: 40000
+        high: 80000
+        confidence: medium
+        source: "Security architect $150–400/hr (2026); ~15–30 days"
+
+  federate:
+    items:
+      - key: ztna
+        title: "ZTNA for controlled app access"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_month
+        low: 3
+        base: 7
+        high: 10
+        confidence: high
+        source: "Cloudflare Access $0–7; Zscaler ZPA $6–10/user/mo (2026)"
+      - key: identity_federation
+        title: "Identity federation / SSO (Entra ID P2 / Okta)"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_month
+        low: 6
+        base: 9
+        high: 17
+        confidence: high
+        source: "Entra ID P1 $6 / P2 $9 / Suite $12; Okta $6–17/user/mo (2026)"
+      - key: edr_standardize
+        title: "Endpoint standardization (EDR rollout)"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_year
+        low: 60
+        base: 130
+        high: 185
+        confidence: high
+        source: "CrowdStrike Falcon Pro $99.99 / Enterprise $184.99/device/yr (2026)"
+      - key: pam
+        title: "Privileged Access Management"
+        category: credential
+        capex_opex: opex
+        scale: per_priv_user_year
+        low: 100
+        base: 250
+        high: 400
+        confidence: medium
+        source: "CyberArk / BeyondTrust $9–400/user/yr (2026)"
+      - key: siem_day1
+        title: "Day-1 SIEM monitoring standup + ingestion"
+        category: monitoring
+        capex_opex: mixed
+        scale: fixed
+        low: 20000
+        base: 45000
+        high: 90000
+        confidence: medium
+        source: "Microsoft Sentinel $2.46–5.20/GB (2026); setup + 12-mo ingest"
+      - key: federation_services
+        title: "Federation design + conditional access (consulting)"
+        category: process
+        capex_opex: capex
+        scale: fixed
+        low: 25000
+        base: 55000
+        high: 110000
+        confidence: medium
+        source: "Security architect $150–400/hr (2026); ~20–40 days"
+
+  integrate:
+    items:
+      - key: identity_federation
+        title: "Unified identity / SSO (Entra ID P2 / Okta)"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_month
+        low: 6
+        base: 9
+        high: 17
+        confidence: high
+        source: "Entra ID P1 $6 / P2 $9 / Suite $12; Okta $6–17/user/mo (2026)"
+      - key: edr_standardize
+        title: "Endpoint standardization (EDR rollout)"
+        category: tooling
+        capex_opex: opex
+        scale: per_user_year
+        low: 60
+        base: 130
+        high: 185
+        confidence: high
+        source: "CrowdStrike Falcon Pro $99.99 / Enterprise $184.99/device/yr (2026)"
+      - key: tenant_migration
+        title: "Directory / M365 tenant-to-tenant migration"
+        category: architecture
+        capex_opex: capex
+        scale: per_user
+        low: 300
+        base: 450
+        high: 600
+        confidence: medium
+        source: "M365 tenant-to-tenant M&A $300–600/user (EPC Group / SkyTerra 2026)"
+      - key: network_rearch
+        title: "Network re-architecture + segmentation merge"
+        category: architecture
+        capex_opex: capex
+        scale: fixed
+        low: 40000
+        base: 90000
+        high: 200000
+        confidence: low
+        source: "NGFW + segmentation project; Palo Alto subs 3–4× appliance/5yr"
+      - key: siem_unified
+        title: "Unified SIEM / SOC integration"
+        category: monitoring
+        capex_opex: mixed
+        scale: fixed
+        low: 30000
+        base: 65000
+        high: 130000
+        confidence: medium
+        source: "Microsoft Sentinel $2.46–5.20/GB (2026); merged estate"
+      - key: integration_pmo
+        title: "Integration PMO + security program (full)"
+        category: process
+        capex_opex: capex
+        scale: fixed
+        low: 60000
+        base: 140000
+        high: 300000
+        confidence: low
+        source: "Big-4 M&A IT integration (~50% of synergies are IT-driven, 2026)"

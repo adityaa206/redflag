@@ -208,6 +208,15 @@ class CostItemRow:
 
 
 @dataclass
+class CostLadderRow:
+    name: str
+    base: str
+    bar_w: str
+    active_class: str   # "cost-rung active" for the recommended model
+    tag: str            # "Recommended" on the chosen tier, else ""
+
+
+@dataclass
 class DonutSeg:
     label: str
     pct: str
@@ -762,6 +771,21 @@ class RedFlagState(rx.State):
     cost_categories: list[CostCatRow] = []
     cost_items: list[CostItemRow] = []
 
+    # ── Day-1 integration budget (separate bucket) + estimate accuracy ────────
+    cost_headcount: int = 250
+    cost_headcount_assumed: bool = True
+    cost_remediation_base: str = "$0"
+    cost_integration_base: str = "$0"
+    cost_integration_low: str = "$0"
+    cost_integration_high: str = "$0"
+    cost_integration_label: str = ""
+    cost_accuracy_pct: int = 0
+    cost_accuracy_band: int = 0
+    cost_accuracy_w: str = "0%"
+    cost_accuracy_class: str = "acc-mid"
+    cost_ladder: list[CostLadderRow] = []
+    cost_integration_items: list[CostItemRow] = []
+
     # ── internal apply ───────────────────────────────────────────────────────
     def _apply(self, d: dict):
         for k, v in d.items():
@@ -1242,21 +1266,45 @@ class RedFlagState(rx.State):
             return [f for f in self._findings if _v(f.deal_tier) in ("deal_killer", "critical")]
         return list(self._findings)
 
+    def set_cost_headcount(self, value):
+        """Acquired-company user count — drives the per-user integration costs."""
+        try:
+            self.cost_headcount = max(0, int(float(value)))
+        except (TypeError, ValueError):
+            self.cost_headcount = 0
+        self._build_cost()
+
+    def _reset_cost(self):
+        self.cost_ready = False
+        self.cost_scenarios, self.cost_categories, self.cost_items = [], [], []
+        self.cost_integration_items, self.cost_ladder = [], []
+        self.cost_headline = "$0"
+        self.cost_low = self.cost_base = self.cost_high = "$0"
+        self.cost_capex = self.cost_opex = "$0"
+        self.cost_remediation_base = self.cost_integration_base = "$0"
+        self.cost_integration_low = self.cost_integration_high = "$0"
+        self.cost_integration_label = ""
+        self.cost_flagged_n = 0
+        self.cost_accuracy_pct = 0
+        self.cost_accuracy_band = 0
+        self.cost_narrative = ""
+
     def _build_cost(self):
-        findings = self._scoped_findings()
-        if not findings:
-            self.cost_ready = False
-            self.cost_scenarios, self.cost_categories, self.cost_items = [], [], []
-            self.cost_headline = "$0"
-            self.cost_low = self.cost_base = self.cost_high = "$0"
-            self.cost_capex = self.cost_opex = "$0"
-            self.cost_flagged_n = 0
-            self.cost_narrative = ""
+        if not self._findings:
+            self._reset_cost()
             return
+        scoped = self._scoped_findings()
         gap = self._gap_report if self.cost_include_maturity else None
+        # Blueprint from the FULL findings set — the connectivity posture (and so
+        # the integration budget) is independent of the remediation scope filter.
+        bp = build_day1_blueprint(self._findings, assessment=self._assessment,
+                                  gap_report=self._gap_report, target=self.target or "target")
+        hc = self.cost_headcount if (self.cost_headcount and self.cost_headcount > 0) else None
+        self.cost_headcount_assumed = hc is None
         rollup = run_cost_pipeline(
-            findings, gap_report=gap, target=self.target or "target",
+            scoped, gap_report=gap, target=self.target or "target",
             include_maturity_gaps=self.cost_include_maturity,
+            blueprint=bp, include_integration=True, headcount=hc,
         )
         self.cost_ready = True
         self.cost_low = _money(rollup.total.low)
@@ -1270,6 +1318,36 @@ class RedFlagState(rx.State):
         self.cost_headline_label = label
         self.cost_flagged_n = len(rollup.flagged_items)
         self.cost_narrative = build_cost_narrative(rollup)
+
+        # ── Day-1 integration budget (separate bucket) ───────────────────────
+        self.cost_remediation_base = _money(rollup.remediation_total.base)
+        self.cost_integration_base = _money(rollup.integration_total.base)
+        self.cost_integration_low = _money(rollup.integration_total.low)
+        self.cost_integration_high = _money(rollup.integration_total.high)
+        self.cost_integration_label = f"{bp.recommended_label} — Day-1 connectivity"
+
+        # ── estimate accuracy readout ────────────────────────────────────────
+        self.cost_accuracy_pct = int(round(rollup.accuracy_pct))
+        self.cost_accuracy_band = int(round(rollup.accuracy_band_pct))
+        self.cost_accuracy_w = f"{int(round(rollup.accuracy_pct))}%"
+        self.cost_accuracy_class = ("acc-high" if rollup.accuracy_pct >= 75
+                                    else "acc-mid" if rollup.accuracy_pct >= 55 else "acc-low")
+
+        # ── connectivity ladder (cost of each tier) ──────────────────────────
+        from cost.day1_costing import cost_all_models
+        ladder = cost_all_models(headcount=hc)
+        maxb = max((t.base for t in ladder.values()), default=0.0) or 1.0
+        _LAB = {"isolate": "Isolate", "broker": "Broker", "federate": "Federate", "integrate": "Integrate"}
+        self.cost_ladder = [
+            CostLadderRow(
+                name=_LAB.get(k, k.title()),
+                base=_money(ladder[k].base),
+                bar_w=f"{int(round(ladder[k].base / maxb * 100))}%",
+                active_class="cost-rung active" if k == bp.recommended_model else "cost-rung",
+                tag="Recommended" if k == bp.recommended_model else "",
+            )
+            for k in ["isolate", "broker", "federate", "integrate"]
+        ]
 
         self.cost_scenarios = [
             CostScenarioRow(
@@ -1293,8 +1371,8 @@ class RedFlagState(rx.State):
             for cat, vals in sorted(rollup.by_category.items(), key=lambda kv: kv[1].get("base", 0.0), reverse=True)
         ]
 
-        self.cost_items = [
-            CostItemRow(
+        def _item_row(it) -> CostItemRow:
+            return CostItemRow(
                 title=it.title,
                 category=str(getattr(it.category, "value", it.category)).replace("_", " ").title(),
                 kind=str(getattr(it.capex_opex, "value", it.capex_opex)).upper(),
@@ -1303,8 +1381,15 @@ class RedFlagState(rx.State):
                 flag="Review" if it.needs_review else "",
                 flag_class="cost-flag on" if it.needs_review else "cost-flag",
             )
-            for it in sorted(rollup.line_items, key=lambda z: z.cost.base, reverse=True)
-        ]
+
+        remediation = [it for it in rollup.line_items
+                       if str(getattr(it, "bucket", "remediation")) != "integration"]
+        integration = [it for it in rollup.line_items
+                       if str(getattr(it, "bucket", "remediation")) == "integration"]
+        self.cost_items = [_item_row(it) for it in
+                           sorted(remediation, key=lambda z: z.cost.base, reverse=True)]
+        self.cost_integration_items = [_item_row(it) for it in
+                                       sorted(integration, key=lambda z: z.cost.base, reverse=True)]
 
     # ── shared refresh ───────────────────────────────────────────────────────
     def _refresh_all(self):

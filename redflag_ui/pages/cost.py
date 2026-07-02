@@ -3,7 +3,9 @@ from __future__ import annotations
 
 import reflex as rx
 
-from redflag_ui.state import RedFlagState, CostScenarioRow, CostCatRow, CostItemRow
+from redflag_ui.state import (
+    RedFlagState, CostScenarioRow, CostCatRow, CostItemRow, CostLadderRow,
+)
 from redflag_ui.components.shell import shell
 from redflag_ui.components.ui import section, placeholder, empty_state
 
@@ -52,6 +54,128 @@ def _item(it: CostItemRow) -> rx.Component:
     )
 
 
+def _accuracy() -> rx.Component:
+    """Prominent estimate-accuracy readout (confidence % + ± band)."""
+    return rx.el.div(
+        rx.el.div(
+            rx.el.div("Estimate accuracy", class_name="acc-kicker"),
+            rx.el.div(
+                rx.el.span(RedFlagState.cost_accuracy_pct, class_name="acc-pct-num"),
+                rx.el.span("%", class_name="acc-pct-sym"),
+                class_name="acc-pct-wrap " + RedFlagState.cost_accuracy_class,
+            ),
+            rx.el.div("± ", RedFlagState.cost_accuracy_band, "% around the base case",
+                      class_name="acc-band"),
+            class_name="acc-left",
+        ),
+        rx.el.div(
+            rx.el.div(
+                rx.el.div(class_name="acc-bar-fill " + RedFlagState.cost_accuracy_class,
+                          style={"width": RedFlagState.cost_accuracy_w}),
+                class_name="acc-bar",
+            ),
+            rx.el.div(
+                "Blends every line item's sourced-pricing confidence. ",
+                rx.cond(
+                    RedFlagState.cost_headcount_assumed,
+                    rx.el.span("Using an assumed headcount — enter the acquired employee "
+                               "count to tighten it.", class_name="acc-hint"),
+                    rx.el.span("Add vendor quotes to raise items to high confidence.",
+                               class_name="acc-hint"),
+                ),
+                class_name="acc-note",
+            ),
+            class_name="acc-right",
+        ),
+        class_name="acc-card",
+    )
+
+
+def _split() -> rx.Component:
+    """Remediation + Integration = combined Day-1 budget."""
+    return rx.el.div(
+        rx.el.div(
+            rx.el.div("Remediation", class_name="split-k"),
+            rx.el.div(RedFlagState.cost_remediation_base, class_name="split-v"),
+            rx.el.div("fix findings + maturity gaps", class_name="split-sub"),
+            class_name="split-cell",
+        ),
+        rx.el.div("+", class_name="split-op"),
+        rx.el.div(
+            rx.el.div("Integration", class_name="split-k"),
+            rx.el.div(RedFlagState.cost_integration_base, class_name="split-v c-teal"),
+            rx.el.div(RedFlagState.cost_integration_label, class_name="split-sub"),
+            class_name="split-cell",
+        ),
+        rx.el.div("=", class_name="split-op"),
+        rx.el.div(
+            rx.el.div("Total Day-1", class_name="split-k"),
+            rx.el.div(RedFlagState.cost_base, class_name="split-v split-total"),
+            rx.el.div("base case", class_name="split-sub"),
+            class_name="split-cell",
+        ),
+        class_name="cost-split",
+    )
+
+
+def _rung(r: CostLadderRow) -> rx.Component:
+    return rx.el.div(
+        rx.el.div(
+            rx.el.span(r.name, class_name="rung-name"),
+            rx.cond(r.tag != "", rx.el.span(r.tag, class_name="rung-tag")),
+            rx.el.span(r.base, class_name="rung-val"),
+            class_name="rung-head",
+        ),
+        rx.el.div(
+            rx.el.div(class_name="rung-fill", style={"width": r.bar_w}),
+            class_name="rung-bar",
+        ),
+        class_name=r.active_class,
+    )
+
+
+def _integration() -> rx.Component:
+    return rx.fragment(
+        section("Day-1 integration budget",
+                "What it costs to safely connect the acquired company",
+                "Prices the recommended connectivity model on sourced 2026 benchmarks "
+                "(VDI/DaaS, SSO, ZTNA, EDR, PAM, SIEM, migration, TSA). Separate from "
+                "remediation — this is the integration spend.", rule=True),
+        rx.el.div(
+            rx.el.div(
+                rx.el.div(RedFlagState.cost_integration_base, class_name="cost-big"),
+                rx.el.div(RedFlagState.cost_integration_label, class_name="cost-big-cap"),
+                class_name="cost-big-wrap",
+            ),
+            rx.el.div(
+                rx.el.div(rx.el.span("Low", class_name="cost-k"),
+                          rx.el.span(RedFlagState.cost_integration_low, class_name="cost-vv"), class_name="cost-kv"),
+                rx.el.div(rx.el.span("High", class_name="cost-k"),
+                          rx.el.span(RedFlagState.cost_integration_high, class_name="cost-vv"), class_name="cost-kv"),
+                class_name="cost-grid",
+            ),
+            class_name="cost-headline",
+        ),
+        rx.el.div("Cost of each connectivity tier — the price of integrating faster",
+                  class_name="rung-caption"),
+        rx.el.div(rx.foreach(RedFlagState.cost_ladder, _rung), class_name="cost-ladder"),
+        rx.el.table(
+            rx.el.thead(
+                rx.el.tr(
+                    rx.el.th("Integration item"),
+                    rx.el.th("Capex / Opex"),
+                    rx.el.th("Confidence"),
+                    rx.el.th("Review"),
+                    rx.el.th("Base cost", class_name="num"),
+                )
+            ),
+            rx.el.tbody(rx.foreach(RedFlagState.cost_integration_items, _item)),
+            class_name="tbl",
+            style={"marginTop": "14px"},
+        ),
+    )
+
+
 def _scn_btn(value: str, label: str) -> rx.Component:
     return rx.el.button(
         label,
@@ -76,6 +200,17 @@ def _controls() -> rx.Component:
                 rx.el.option("Deal-killers only", value="dk"),
                 value=RedFlagState.cost_scope,
                 on_change=RedFlagState.set_cost_scope,
+                class_name="cost-select",
+            ),
+            class_name="cost-control",
+        ),
+        rx.el.div(
+            rx.el.label("Acquired employees"),
+            rx.el.input(
+                value=RedFlagState.cost_headcount.to_string(),
+                on_change=RedFlagState.set_cost_headcount,
+                type="number",
+                min="0",
                 class_name="cost-select",
             ),
             class_name="cost-control",
@@ -114,6 +249,8 @@ def _headline() -> rx.Component:
 def _details() -> rx.Component:
     return rx.fragment(
         _headline(),
+        _accuracy(),
+        _split(),
         rx.cond(
             RedFlagState.cost_flagged_n > 0,
             rx.el.div(
@@ -125,9 +262,10 @@ def _details() -> rx.Component:
         rx.el.p(RedFlagState.cost_narrative, class_name="pillar-rec", style={"maxWidth": "820px", "marginTop": "18px"}),
         section("Scenarios", "Sensitivity across best / likely / worst case"),
         rx.el.div(rx.foreach(RedFlagState.cost_scenarios, _scn), class_name="cost-scn-grid"),
-        section("By category", "Where the remediation budget goes"),
+        section("By category", "Where the combined budget goes"),
         rx.el.div(rx.foreach(RedFlagState.cost_categories, _cat), class_name="cost-cats"),
-        section("Line items", "Every estimated remediation, highest first"),
+        _integration(),
+        section("Remediation line items", "Every estimated remediation, highest first", rule=True),
         rx.el.table(
             rx.el.thead(
                 rx.el.tr(
@@ -148,9 +286,11 @@ def _content() -> rx.Component:
     return rx.fragment(
         section(
             "Cost & budget",
-            "What remediation will cost the deal",
-            "Benchmark-based estimates per finding, deduplicated and rolled up. "
-            "Use the What-If controls to scope and stress-test the budget.",
+            "Remediation + Day-1 integration, with a stated accuracy",
+            "Benchmark-based estimates: deduplicated remediation per finding PLUS the "
+            "Day-1 integration budget for the recommended connectivity model. Every "
+            "estimate carries a confidence %. Use the What-If controls to scope and "
+            "stress-test the budget.",
         ),
         _controls(),
         rx.cond(

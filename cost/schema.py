@@ -27,6 +27,7 @@ class RemediationCategory(str, Enum):
     CREDENTIAL        = "credential"         # Password rotation, MFA rollout
     DATA_PROTECTION   = "data_protection"    # Encryption, DLP, backup
     MONITORING        = "monitoring"         # SIEM, logging, alerting
+    INTEGRATION       = "integration"        # Day-1 connectivity / integration standup
 
 
 class CapexOpex(str, Enum):
@@ -103,6 +104,10 @@ class CostLineItem(BaseModel):
     category:    RemediationCategory
     capex_opex:  CapexOpex
 
+    # Which budget this rolls into: "remediation" (fix findings/gaps) or
+    # "integration" (Day-1 connectivity standup).
+    bucket:      str = "remediation"
+
     # Linked findings (UUIDs from Finding.id)
     finding_ids: list[str] = Field(default_factory=list)
 
@@ -155,6 +160,15 @@ class CostRollup(BaseModel):
     total:       CostTriple = Field(default_factory=CostTriple.zero)
     capex_total: CostTriple = Field(default_factory=CostTriple.zero)
     opex_total:  CostTriple = Field(default_factory=CostTriple.zero)
+
+    # Bucket split: remediation (fix findings/gaps) vs integration (Day-1 standup)
+    remediation_total: CostTriple = Field(default_factory=CostTriple.zero)
+    integration_total: CostTriple = Field(default_factory=CostTriple.zero)
+
+    # Estimate accuracy readout (surfaced in the UI). accuracy_band_pct is the ±%
+    # around the base case; accuracy_pct = 100 - band (a confidence percentage).
+    accuracy_band_pct: float = 0.0
+    accuracy_pct:      float = 0.0
 
     # Per-scenario totals (populated by rollup engine)
     scenarios:   list[CostScenario] = Field(default_factory=list)
