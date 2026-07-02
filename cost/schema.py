@@ -170,6 +170,11 @@ class CostRollup(BaseModel):
     accuracy_band_pct: float = 0.0
     accuracy_pct:      float = 0.0
 
+    # 80% confidence interval (P10 / P50 / P90) from variance aggregation.
+    ci_low:  float = 0.0
+    ci_p50:  float = 0.0
+    ci_high: float = 0.0
+
     # Per-scenario totals (populated by rollup engine)
     scenarios:   list[CostScenario] = Field(default_factory=list)
 

@@ -783,6 +783,8 @@ class RedFlagState(rx.State):
     cost_accuracy_band: int = 0
     cost_accuracy_w: str = "0%"
     cost_accuracy_class: str = "acc-mid"
+    cost_ci_low: str = "$0"
+    cost_ci_high: str = "$0"
     cost_ladder: list[CostLadderRow] = []
     cost_integration_items: list[CostItemRow] = []
 
@@ -1332,6 +1334,8 @@ class RedFlagState(rx.State):
         self.cost_accuracy_w = f"{int(round(rollup.accuracy_pct))}%"
         self.cost_accuracy_class = ("acc-high" if rollup.accuracy_pct >= 75
                                     else "acc-mid" if rollup.accuracy_pct >= 55 else "acc-low")
+        self.cost_ci_low = _money(rollup.ci_low)
+        self.cost_ci_high = _money(rollup.ci_high)
 
         # ── connectivity ladder (cost of each tier) ──────────────────────────
         from cost.day1_costing import cost_all_models

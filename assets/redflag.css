@@ -665,8 +665,12 @@ a.contact-v:hover { color: var(--emerald); text-decoration: underline; }
 .acc-bar { height: 8px; background: var(--surface-soft); border-radius: 999px; overflow: hidden; margin-bottom: 10px; }
 .acc-bar-fill { height: 100%; border-radius: 999px; min-width: 4px; transition: width 0.4s ease; }
 .acc-bar-fill.acc-high { background: var(--emerald); } .acc-bar-fill.acc-mid { background: var(--ochre); } .acc-bar-fill.acc-low { background: var(--clay); }
-.acc-note { font-size: 13px; line-height: 1.55; color: var(--ink-mid); }
+.acc-note { font-size: 13px; line-height: 1.55; color: var(--ink-mid); margin-top: 10px; }
 .acc-hint { color: var(--ink-soft); }
+.acc-ci { display: flex; align-items: baseline; gap: 2px; margin-bottom: 4px; }
+.acc-ci-k { font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-soft); font-weight: 700; }
+.acc-ci-v { font-family: 'Geist Mono', monospace; font-size: 15px; font-weight: 600; color: var(--ink); }
+.acc-ci-dash { color: var(--ink-faint); }
 
 .cost-split { display: grid; grid-template-columns: 1fr auto 1fr auto 1fr; gap: 14px; align-items: center; margin-top: 16px; background: var(--grad-paper); border: 1px solid var(--rule); border-radius: 12px; padding: 20px 24px; }
 .split-cell { text-align: center; }

@@ -106,9 +106,9 @@ def build_rollup(items: list[CostLineItem], target: str = "",
     # Build scenarios
     scenarios = build_scenarios(items)
 
-    # Estimate accuracy (± band + confidence %) across the whole budget
-    from cost.day1_costing import compute_accuracy
-    band_pct, accuracy_pct = compute_accuracy(items, headcount_assumed)
+    # Estimate accuracy: variance-based 80% confidence interval + confidence %
+    from cost.simulation import estimate_uncertainty
+    unc = estimate_uncertainty(items, headcount_assumed)
 
     def _triple(d: dict) -> CostTriple:
         return CostTriple(low=round(d["low"], 2), base=round(d["base"], 2), high=round(d["high"], 2))
@@ -139,8 +139,11 @@ def build_rollup(items: list[CostLineItem], target: str = "",
                      for k, v in cat_totals.items()},
         remediation_total=_triple(bucket_totals["remediation"]),
         integration_total=_triple(bucket_totals["integration"]),
-        accuracy_band_pct=band_pct,
-        accuracy_pct=accuracy_pct,
+        accuracy_band_pct=unc.band_pct,
+        accuracy_pct=unc.accuracy_pct,
+        ci_low=unc.p10,
+        ci_p50=unc.p50,
+        ci_high=unc.p90,
         flagged_items=flagged_ids,
     )
 

@@ -75,7 +75,15 @@ def _accuracy() -> rx.Component:
                 class_name="acc-bar",
             ),
             rx.el.div(
-                "Blends every line item's sourced-pricing confidence. ",
+                rx.el.span("80% confidence range  ", class_name="acc-ci-k"),
+                rx.el.span(RedFlagState.cost_ci_low, class_name="acc-ci-v"),
+                rx.el.span("  –  ", class_name="acc-ci-dash"),
+                rx.el.span(RedFlagState.cost_ci_high, class_name="acc-ci-v"),
+                class_name="acc-ci",
+            ),
+            rx.el.div(
+                "Variance-based across every line item's sourced-pricing confidence "
+                "(independent errors partly cancel). ",
                 rx.cond(
                     RedFlagState.cost_headcount_assumed,
                     rx.el.span("Using an assumed headcount — enter the acquired employee "
