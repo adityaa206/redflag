@@ -156,6 +156,7 @@ def run_cost_pipeline(
     blueprint=None,
     include_integration: bool = True,
     headcount=None,
+    overrides: dict | None = None,
 ) -> CostRollup:
     """
     Full cost pipeline: estimate → deduplicate → scenario → rollup.
@@ -188,7 +189,7 @@ def run_cost_pipeline(
     headcount_assumed = False
     if include_integration and blueprint is not None:
         from cost.day1_costing import estimate_from_day1
-        day1_items = estimate_from_day1(blueprint, headcount=headcount)
+        day1_items = estimate_from_day1(blueprint, headcount=headcount, overrides=overrides)
         items += day1_items
         headcount_assumed = not (headcount and int(headcount) > 0)
 

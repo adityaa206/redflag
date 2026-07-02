@@ -76,3 +76,28 @@ def test_accuracy_drops_when_headcount_assumed():
 def test_integration_excluded_when_no_blueprint():
     roll = run_cost_pipeline(_scored_finding())  # no blueprint
     assert roll.integration_total.base == 0
+
+
+def test_vendor_quote_override_pins_item():
+    items = estimate_from_day1(_bp("broker"), headcount=500,
+                               overrides={"vdi_daas": 99000})
+    vdi = next(i for i in items if "VDI" in i.title or "DaaS" in i.title)
+    assert vdi.cost.base == 99000
+    assert vdi.cost.low == 99000 and vdi.cost.high == 99000   # firm quote, no spread
+    assert str(getattr(vdi.confidence, "value", vdi.confidence)) == "high"
+
+
+def test_quote_improves_accuracy():
+    bp = _bp("broker")
+    base = run_cost_pipeline([], blueprint=bp, headcount=500)
+    # quote the two biggest benchmark drivers as firm numbers
+    quoted = run_cost_pipeline([], blueprint=bp, headcount=500,
+                               overrides={"vdi_daas": 200000, "siem_day1": 40000,
+                                          "broker_services": 40000})
+    assert quoted.accuracy_pct >= base.accuracy_pct
+
+
+def test_ladder_reflects_overrides():
+    plain = cost_all_models(headcount=250)
+    quoted = cost_all_models(headcount=250, overrides={"vdi_daas": 10})
+    assert quoted["broker"].base < plain["broker"].base

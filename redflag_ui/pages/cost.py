@@ -4,7 +4,7 @@ from __future__ import annotations
 import reflex as rx
 
 from redflag_ui.state import (
-    RedFlagState, CostScenarioRow, CostCatRow, CostItemRow, CostLadderRow,
+    RedFlagState, CostScenarioRow, CostCatRow, CostItemRow, CostLadderRow, QuoteRow,
 )
 from redflag_ui.components.shell import shell
 from redflag_ui.components.ui import section, placeholder, empty_state
@@ -142,6 +142,52 @@ def _rung(r: CostLadderRow) -> rx.Component:
     )
 
 
+def _quote_input(q: QuoteRow) -> rx.Component:
+    return rx.el.div(
+        rx.el.label(q.title, class_name="quote-label"),
+        rx.el.input(
+            name=q.key,
+            default_value=q.quoted,
+            placeholder=q.benchmark,
+            type="number",
+            min="0",
+            class_name=rx.cond(q.is_quoted, "quote-input quoted", "quote-input"),
+        ),
+        class_name="quote-row",
+    )
+
+
+def _quotes() -> rx.Component:
+    return rx.el.div(
+        rx.el.div(
+            rx.el.div("Vendor quotes", class_name="quote-kicker"),
+            rx.el.span(
+                "Paste a real quoted total for any item — it replaces the benchmark, pins "
+                "that line to high confidence, and tightens the accuracy toward it.",
+                class_name="quote-help",
+            ),
+            class_name="quote-head",
+        ),
+        rx.form(
+            rx.el.div(rx.foreach(RedFlagState.cost_quote_rows, _quote_input), class_name="quote-grid"),
+            rx.el.div(
+                rx.el.button("Apply quotes", type="submit", class_name="btn"),
+                rx.el.button("Clear", type="button", on_click=RedFlagState.clear_quotes,
+                             class_name="btn ghost"),
+                rx.cond(
+                    RedFlagState.cost_quotes_n > 0,
+                    rx.el.span(RedFlagState.cost_quotes_n, " quote(s) applied",
+                               class_name="quote-count"),
+                ),
+                class_name="quote-actions",
+            ),
+            on_submit=RedFlagState.apply_quotes,
+            reset_on_submit=False,
+        ),
+        class_name="quote-box",
+    )
+
+
 def _integration() -> rx.Component:
     return rx.fragment(
         section("Day-1 integration budget",
@@ -181,6 +227,7 @@ def _integration() -> rx.Component:
             class_name="tbl",
             style={"marginTop": "14px"},
         ),
+        _quotes(),
     )
 
 

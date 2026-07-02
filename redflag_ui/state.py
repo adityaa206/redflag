@@ -217,6 +217,15 @@ class CostLadderRow:
 
 
 @dataclass
+class QuoteRow:
+    key: str            # item key (form input name)
+    title: str
+    benchmark: str      # benchmark base as placeholder, e.g. "$135K"
+    quoted: str         # current override value ("" if none) — prefills the input
+    is_quoted: bool
+
+
+@dataclass
 class DonutSeg:
     label: str
     pct: str
@@ -658,6 +667,8 @@ class RedFlagState(rx.State):
     # staged upload artefacts, consumed together with the live scan on Run scan.
     # kind ∈ {shodan, openvas, zap, asset} → {"name": str, "data": bytes}
     _staged: dict[str, Any] = {}
+    # vendor-quote overrides for integration items: item_key → firm quoted USD
+    _quote_overrides: dict[str, float] = {}
 
     # ── session / status ─────────────────────────────────────────────────────
     target: str = ""
@@ -787,6 +798,8 @@ class RedFlagState(rx.State):
     cost_ci_high: str = "$0"
     cost_ladder: list[CostLadderRow] = []
     cost_integration_items: list[CostItemRow] = []
+    cost_quote_rows: list[QuoteRow] = []
+    cost_quotes_n: int = 0
 
     # ── internal apply ───────────────────────────────────────────────────────
     def _apply(self, d: dict):
@@ -1276,10 +1289,34 @@ class RedFlagState(rx.State):
             self.cost_headcount = 0
         self._build_cost()
 
+    def apply_quotes(self, form_data: dict):
+        """Store firm vendor quotes (item_key → USD); empty fields clear a quote."""
+        overrides: dict[str, float] = {}
+        for key, raw in (form_data or {}).items():
+            if raw in ("", None):
+                continue
+            try:
+                val = float(str(raw).replace(",", "").replace("$", "").strip())
+            except (TypeError, ValueError):
+                continue
+            if val > 0:
+                overrides[key] = val
+        self._quote_overrides = overrides
+        self._build_cost()
+        n = len(overrides)
+        self.notice = (f"{n} vendor quote" + ("" if n == 1 else "s")
+                       + " applied — accuracy updated." if n else "Vendor quotes cleared.")
+
+    def clear_quotes(self):
+        self._quote_overrides = {}
+        self._build_cost()
+        self.notice = "Vendor quotes cleared — back to benchmark pricing."
+
     def _reset_cost(self):
         self.cost_ready = False
         self.cost_scenarios, self.cost_categories, self.cost_items = [], [], []
         self.cost_integration_items, self.cost_ladder = [], []
+        self.cost_quote_rows, self.cost_quotes_n = [], 0
         self.cost_headline = "$0"
         self.cost_low = self.cost_base = self.cost_high = "$0"
         self.cost_capex = self.cost_opex = "$0"
@@ -1307,6 +1344,7 @@ class RedFlagState(rx.State):
             scoped, gap_report=gap, target=self.target or "target",
             include_maturity_gaps=self.cost_include_maturity,
             blueprint=bp, include_integration=True, headcount=hc,
+            overrides=self._quote_overrides,
         )
         self.cost_ready = True
         self.cost_low = _money(rollup.total.low)
@@ -1339,7 +1377,7 @@ class RedFlagState(rx.State):
 
         # ── connectivity ladder (cost of each tier) ──────────────────────────
         from cost.day1_costing import cost_all_models
-        ladder = cost_all_models(headcount=hc)
+        ladder = cost_all_models(headcount=hc, overrides=self._quote_overrides)
         maxb = max((t.base for t in ladder.values()), default=0.0) or 1.0
         _LAB = {"isolate": "Isolate", "broker": "Broker", "federate": "Federate", "integrate": "Integrate"}
         self.cost_ladder = [
@@ -1376,14 +1414,21 @@ class RedFlagState(rx.State):
         ]
 
         def _item_row(it) -> CostItemRow:
+            quoted = str(getattr(it, "notes", "") or "") == "Vendor quote"
+            if quoted:
+                flag, flag_class = "Quoted", "cost-flag quoted"
+            elif it.needs_review:
+                flag, flag_class = "Review", "cost-flag on"
+            else:
+                flag, flag_class = "", "cost-flag"
             return CostItemRow(
                 title=it.title,
                 category=str(getattr(it.category, "value", it.category)).replace("_", " ").title(),
                 kind=str(getattr(it.capex_opex, "value", it.capex_opex)).upper(),
                 base=_money(it.cost.base),
                 confidence=str(getattr(it.confidence, "value", it.confidence)).title(),
-                flag="Review" if it.needs_review else "",
-                flag_class="cost-flag on" if it.needs_review else "cost-flag",
+                flag=flag,
+                flag_class=flag_class,
             )
 
         remediation = [it for it in rollup.line_items
@@ -1394,6 +1439,22 @@ class RedFlagState(rx.State):
                            sorted(remediation, key=lambda z: z.cost.base, reverse=True)]
         self.cost_integration_items = [_item_row(it) for it in
                                        sorted(integration, key=lambda z: z.cost.base, reverse=True)]
+
+        # ── vendor-quote form rows (benchmark base = placeholder) ────────────
+        from cost.day1_costing import estimate_from_day1
+        bench = estimate_from_day1(bp, headcount=hc)   # no overrides → benchmark bases
+        qrows: list[QuoteRow] = []
+        for it in bench:
+            key = str(getattr(it, "catalog_key", "") or "").split(".")[-1]
+            if not key:
+                continue
+            ov = self._quote_overrides.get(key)
+            qrows.append(QuoteRow(
+                key=key, title=it.title, benchmark=_money(it.cost.base),
+                quoted=(f"{ov:.0f}" if ov else ""), is_quoted=ov is not None,
+            ))
+        self.cost_quote_rows = qrows
+        self.cost_quotes_n = len(self._quote_overrides)
 
     # ── shared refresh ───────────────────────────────────────────────────────
     def _refresh_all(self):

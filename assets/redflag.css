@@ -693,6 +693,20 @@ a.contact-v:hover { color: var(--emerald); text-decoration: underline; }
 .rung-fill { height: 100%; background: var(--teal); border-radius: 999px; min-width: 4px; }
 .cost-rung.active .rung-fill { background: var(--emerald); }
 
+.quote-box { margin-top: 20px; background: var(--surface); border: 1px solid var(--rule); border-radius: 14px; padding: 22px 24px; }
+.quote-head { margin-bottom: 16px; }
+.quote-kicker { font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--emerald); font-weight: 700; margin-bottom: 5px; }
+.quote-help { font-size: 13px; line-height: 1.55; color: var(--ink-soft); }
+.quote-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px 20px; }
+.quote-row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--rule); }
+.quote-label { font-size: 13px; color: var(--ink-mid); }
+.quote-input { width: 130px; border: 1px solid var(--rule-strong); border-radius: 8px; padding: 8px 11px; font-size: 13px; font-family: 'Geist Mono', monospace; color: var(--ink); background: var(--paper); outline: none; text-align: right; }
+.quote-input:focus { border-color: var(--emerald-mid); box-shadow: 0 0 0 3px var(--emerald-soft); }
+.quote-input.quoted { border-color: var(--emerald); background: var(--emerald-soft); }
+.quote-actions { display: flex; align-items: center; gap: 12px; margin-top: 18px; }
+.quote-count { font-size: 12.5px; color: var(--emerald); font-weight: 600; }
+.cost-flag.quoted { color: var(--emerald); background: var(--emerald-soft); border-radius: 5px; padding: 2px 8px; font-size: 11px; font-weight: 600; }
+
 /* Animations --------------------------------------------------------------- */
 @keyframes rf-fade-in { from { opacity: 0; } to { opacity: 1; } }
 @keyframes rf-fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -721,4 +735,5 @@ a.contact-v:hover { color: var(--emerald); text-decoration: underline; }
   .acc-left { border-right: none; padding-right: 0; border-bottom: 1px solid var(--rule); padding-bottom: 16px; }
   .cost-split { grid-template-columns: 1fr; text-align: center; }
   .cost-split .split-op { display: none; }
+  .quote-grid { grid-template-columns: 1fr; }
 }

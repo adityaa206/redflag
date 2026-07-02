@@ -82,11 +82,27 @@ def _resolve_headcount(headcount, catalog: dict) -> tuple[int, bool]:
     return int(a.get("default_headcount", 250)), True
 
 
-def estimate_from_day1(blueprint, headcount=None, catalog: dict | None = None) -> list[CostLineItem]:
-    """Cost the RECOMMENDED connectivity model → integration CostLineItems."""
+def _apply_override(line: CostLineItem, quote: float) -> CostLineItem:
+    """Replace a line's benchmark cost with a firm vendor quote (HIGH confidence)."""
+    q = round(float(quote), 2)
+    line.cost = CostTriple(low=q, base=q, high=q)   # firm quote → no spread
+    line.confidence = CostConfidence.HIGH
+    line.notes = "Vendor quote"
+    line.review_flags = [f for f in line.review_flags if f != ReviewFlag.HIGH_VARIANCE]
+    return line
+
+
+def estimate_from_day1(blueprint, headcount=None, catalog: dict | None = None,
+                       overrides: dict | None = None) -> list[CostLineItem]:
+    """Cost the RECOMMENDED connectivity model → integration CostLineItems.
+
+    `overrides` maps an item key (e.g. "vdi_daas") to a firm vendor-quoted total,
+    which replaces the benchmark and pins that item to HIGH confidence.
+    """
     if blueprint is None:
         return []
     catalog = catalog or get_day1_cost_catalog()
+    overrides = overrides or {}
     a = _assumptions(catalog)
     n, _assumed = _resolve_headcount(headcount, catalog)
     months = int(a.get("opex_months", 12))
@@ -95,15 +111,21 @@ def estimate_from_day1(blueprint, headcount=None, catalog: dict | None = None) -
 
     model_key = str(getattr(blueprint, "recommended_model", "isolate"))
     model = (catalog.get("models", {}) or {}).get(model_key, {})
-    return [
-        _item_to_line(it, n, months, tsa_months, priv_ratio, model_key)
-        for it in model.get("items", [])
-    ]
+    out: list[CostLineItem] = []
+    for it in model.get("items", []):
+        line = _item_to_line(it, n, months, tsa_months, priv_ratio, model_key)
+        key = str(it.get("key", ""))
+        if key in overrides:
+            _apply_override(line, overrides[key])
+        out.append(line)
+    return out
 
 
-def cost_all_models(headcount=None, catalog: dict | None = None) -> dict[str, CostTriple]:
+def cost_all_models(headcount=None, catalog: dict | None = None,
+                    overrides: dict | None = None) -> dict[str, CostTriple]:
     """Cost every connectivity tier → {model_key: CostTriple}. The 'ladder'."""
     catalog = catalog or get_day1_cost_catalog()
+    overrides = overrides or {}
     a = _assumptions(catalog)
     n, _assumed = _resolve_headcount(headcount, catalog)
     months = int(a.get("opex_months", 12))
@@ -115,8 +137,13 @@ def cost_all_models(headcount=None, catalog: dict | None = None) -> dict[str, Co
     for key in _LADDER:
         total = CostTriple.zero()
         for it in models.get(key, {}).get("items", []):
-            low, base, high = _scale_triple(it, n, months, tsa_months, priv_ratio)
-            total = total + CostTriple(low=round(low, 2), base=round(base, 2), high=round(high, 2))
+            ikey = str(it.get("key", ""))
+            if ikey in overrides:
+                q = round(float(overrides[ikey]), 2)
+                total = total + CostTriple(low=q, base=q, high=q)
+            else:
+                low, base, high = _scale_triple(it, n, months, tsa_months, priv_ratio)
+                total = total + CostTriple(low=round(low, 2), base=round(base, 2), high=round(high, 2))
         out[key] = total
     return out
 
