@@ -21,18 +21,28 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Complete documentation set under `docs/` — handover, technical, operations, user, testing, legal
   and process groups, plus eight Architecture Decision Records.
 - Root community files: `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md`, this changelog.
+- `tools/` — `mdpdf.py` and `build_docs_pdf.py`, which render `docs/` into a bookmarked PDF and
+  one PDF per document.
+- Module docstrings and explanatory comments across `analysis/`, `scanners/`, `reports/` and
+  `config/`. No behaviour change.
+- `tests/fixtures/mock_nuclei.jsonl`, previously present on disk but absent from version control.
 
 ### Fixed
-- **`.gitignore` no longer ignores the documentation.** A blanket `*.md` rule was silently
-  excluding every Markdown file. `README.md` predated the rule and stayed tracked, which masked the
-  problem. Explicit negations now keep `docs/` and the community files under version control while
-  leaving local agent and scratch notes ignored.
+- **`.gitignore` no longer excludes the documentation.** A blanket `*.md` rule silently excluded
+  every Markdown file; `README.md` predated the rule and stayed tracked, which masked the effect.
+  Explicit negations now version `docs/` and the community files while leaving agent and scratch
+  notes local.
+- `README.md` stated 128 tests in three places. The suite contains **143**.
+
+### Removed
+- `lib/` — 2.7 MB of vendored JavaScript from the superseded pyvis attack-graph implementation,
+  with no remaining code references.
 
 ### Known issues
 - **No `LICENSE` file exists** although `README.md` declares MIT. Requires the copyright holder's
   name — see [docs/legal/LICENSES_AND_ATTRIBUTION.md](docs/legal/LICENSES_AND_ATTRIBUTION.md).
-- `README.md` states 128 tests; the suite contains **143**.
-- `tests/fixtures/mock_nuclei.jsonl` exists on disk but is not committed.
+- The README's mock-fixture table omits `mock_nuclei.jsonl`.
+- The README's Scoring Reference lists three deal-killer override rules; the code implements four.
 
 ---
 

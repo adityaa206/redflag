@@ -111,9 +111,8 @@ for the inventory, rotation procedures, and the transfer checklist.
 > before handover.** An exposed Shodan key lets a third party spend your credits and query the API
 > under your identity.
 
-**Verified as part of this documentation pass:** no API key, token or credential appears anywhere
-in the repository's tracked files. `.env` is correctly git-ignored, and `.env.example` contains
-only placeholders.
+No API key, token or credential appears in any tracked file. `.env` is git-ignored and
+`.env.example` contains only placeholders.
 
 ---
 
@@ -154,13 +153,11 @@ KEV list — which reveals nothing about who was assessed.
 Note that the *local* brain is not sanitised. `~/RedFlag-Brain/brain.json` and the vault's
 `Scans/` notes do name targets. They are outside version control, but they are real records.
 
-### A note on `.gitignore`
+### `.gitignore` and the documentation
 
-The repository's `.gitignore` contains a blanket `*.md` rule, which historically ignored every
-Markdown file. `README.md` predates the rule and so remained tracked, which masked the problem.
-On 2026-07-27 explicit negations were added so this documentation set, `CONTRIBUTING.md`,
-`SECURITY.md`, `CODE_OF_CONDUCT.md` and `CHANGELOG.md` are tracked, while local agent and scratch
-notes stay ignored. Verify with:
+The `.gitignore` carries a blanket `*.md` rule with explicit negations for the published
+documentation, `CONTRIBUTING.md`, `SECURITY.md`, `CODE_OF_CONDUCT.md` and `CHANGELOG.md`. Agent
+and scratch notes remain ignored. Verify with:
 
 ```bash
 git check-ignore -v docs/README.md

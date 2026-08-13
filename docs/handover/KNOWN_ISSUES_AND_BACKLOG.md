@@ -1,15 +1,14 @@
 # Known Issues & Backlog
 
-Everything not finished: defects found, unbuilt features, technical debt, and a recommended order
-of attack.
+Outstanding defects, unbuilt features, technical debt, and a suggested order of work.
 
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
 ---
 
-## 1. Defects found during the documentation pass
+## 1. Known defects
 
-These are real, verified against the code on 2026-07-27. None break a running scan.
+Each is verified against the code. None prevents a scan from running.
 
 ### 1.1 No `LICENSE` file exists — **highest priority**
 
@@ -18,46 +17,40 @@ present in the repository (`git ls-files` returns nothing for it). The repositor
 strictly, **all rights reserved** — publishing code with a licence claim but no licence text
 creates ambiguity for anyone who forks or reuses it.
 
-**Fix:** add a standard MIT `LICENSE` file naming the copyright holder and year. This requires
-the owner's legal name, so it has not been created automatically.
+The fix is a standard MIT `LICENSE` file naming the copyright holder and year. Naming a
+copyright holder is a legal declaration for the project owner to make.
 
 > ⚠️ TODO(Adi): supply the copyright holder name for the `LICENSE` file, or confirm the project
 > should not be MIT-licensed and correct the README instead.
 
-### 1.2 The README's test count is stale
+### 1.2 The README's test count was stale — resolved
 
-`README.md` claims **128 passing tests** in three places (badge, architecture tree, "Running
-Tests"). The suite actually contains **143 tests**, all passing.
+`README.md` stated **128 passing tests** in three places: the badge, the architecture tree and
+the "Running Tests" section. The suite contains **143 tests**, all passing. All three references
+now state 143. Recorded in [TEST_PLAN.md](../testing/TEST_PLAN.md).
 
-> ⚠️ DISCREPANCY: code/test suite says 143 tests; `README.md` says 128.
-
-**Fix:** update the three README references. Recorded in
-[TEST_PLAN.md](../testing/TEST_PLAN.md).
-
-### 1.3 `.gitignore` ignored the entire documentation set — **fixed**
+### 1.3 `.gitignore` excluded the entire documentation set — resolved
 
 `.gitignore` contained a blanket `*.md` rule. Because `README.md` was committed before that rule
 landed, git kept tracking it, which masked the problem — but **any new Markdown file was silently
 ignored**, including this entire `docs/` tree, `CONTRIBUTING.md`, `SECURITY.md` and
 `CHANGELOG.md`.
 
-**Fixed on 2026-07-27** by adding explicit negations for the published documentation while
-keeping `CLAUDE.md`, `AGENTS.md` and scratch notes local. Verify with:
+Explicit negations now version the published documentation and the root community files, while
+agent and scratch notes remain local. Verify with:
 
 ```bash
 git check-ignore -v docs/README.md   # should report the negation, not an ignore
 git status --short docs/             # should list the docs as untracked/new
 ```
 
-### 1.4 `tests/fixtures/mock_nuclei.jsonl` is untracked
+### 1.4 `tests/fixtures/mock_nuclei.jsonl` was untracked — resolved
 
-The Nuclei mock fixture exists on disk (4.2 KB) but has never been committed, so a fresh clone
-cannot reproduce the documented "upload a mock Nuclei file" workflow. The OpenVAS and ZAP mocks
-*are* committed.
+The Nuclei mock fixture (4.2 KB) was present on disk but absent from version control, so a fresh
+clone could not reproduce the documented Nuclei upload workflow. It is now committed alongside the
+OpenVAS and ZAP mocks.
 
-**Fix:** `git add tests/fixtures/mock_nuclei.jsonl` and commit.
-
-### 1.5 The README fixture table omits the Nuclei mock
+### 1.5 The README fixture table omits the Nuclei mock — open
 
 `README.md` → *Using the Mock Data Files* lists `mock_openvas.xml`, `mock_zap.xml` and
 `sample_assessment.json`, but not `mock_nuclei.jsonl`. Fixed in
@@ -108,21 +101,19 @@ The code carries no outstanding inline debt markers.
 
 ---
 
-## 5. Suggested next steps, in priority order
+## 5. Suggested order of work
 
-1. **Add the `LICENSE` file** (§1.1). One file; removes a legal ambiguity on a public repository.
-2. **Commit `tests/fixtures/mock_nuclei.jsonl`** (§1.4) and correct the README's test count and
-   fixture table (§1.2, §1.5). All three are minutes of work.
-3. **Delete the dead code** — `analysis/graph_builder.py` and the root `config.py` (§3). Confirm
-   with `grep -rn "graph_builder\|^import config$"` first.
-4. **Extend the cost PDF to cover the integration budget** (§3). The data is already computed;
-   this is a reporting gap, and it is the one place the UI is ahead of the exports.
-5. **Compliance gap mapping** (§2). The highest-value unbuilt feature for the M&A audience, and
-   it reuses the existing maturity domains and YAML pattern.
-6. **Log rather than swallow scanner exceptions** (§3). Small change, large debugging benefit.
-7. **Secret scanning via trufflehog** (§2). Slots into the existing scanner contract cleanly.
-8. **Multi-target comparison** (§2). Do this last — it is the only item that forces an
-   architectural change (persistence).
+1. **Add the `LICENSE` file** (§1.1). Removes a licensing ambiguity on a public repository.
+2. **Correct the README's fixture table** to include `mock_nuclei.jsonl` (§1.5).
+3. **Remove the dead code** — `analysis/graph_builder.py` and the root `config.py` (§3), having
+   confirmed with `grep -rn "graph_builder"` that nothing imports them.
+4. **Extend the cost PDF to cover the integration budget** (§3). The figures are already computed;
+   this is a reporting gap, and the one area where the interface is ahead of the exports.
+5. **Compliance gap mapping** (§2). The highest-value unbuilt feature for the M&A audience, and it
+   reuses the existing maturity domains and YAML pattern.
+6. **Log rather than discard scanner exceptions** (§3).
+7. **Secret scanning via trufflehog** (§2), which fits the existing scanner contract.
+8. **Multi-target comparison** (§2), last, as the only item requiring an architectural change.
 
 ---
 

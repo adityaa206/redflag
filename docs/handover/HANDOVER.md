@@ -79,12 +79,10 @@ It does **not** mean the roadmap is exhausted — see
 ## 3. What is not done
 
 Nothing in the shipped feature set is known to be broken. The open items are unbuilt roadmap
-features, one piece of superseded code, and two repository-hygiene defects found during the
-documentation pass:
+features, one piece of superseded code, and one outstanding repository defect:
 
 - **No `LICENSE` file exists** even though `README.md` declares MIT. See
   [LICENSES_AND_ATTRIBUTION.md](../legal/LICENSES_AND_ATTRIBUTION.md).
-- **The README's test count (128) is stale** — the suite is 143 tests.
 
 Full detail, including the unbuilt roadmap and tech debt:
 [KNOWN_ISSUES_AND_BACKLOG.md](KNOWN_ISSUES_AND_BACKLOG.md).

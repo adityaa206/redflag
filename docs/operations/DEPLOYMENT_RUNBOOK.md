@@ -211,7 +211,7 @@ There is **no logging framework**. Diagnostics are:
 | The UI notice bar | Scan result summary — finding count, deal-killer count, and which sources were fused |
 | The UI error bar | `Scan failed: …` when the pipeline raises |
 | Browser dev tools | Frontend and WebSocket errors |
-| `reflex_run.log` | Present in the working checkout if output was redirected there; not created automatically |
+| A log file | Only if `reflex run` output is explicitly redirected to one. None is created by default, and `*.log` is git-ignored |
 
 Because `run_scan` wraps each scanner in `except Exception: pass`, a scanner failing produces
 **no message at all** — it simply contributes nothing. To debug one, call it directly:

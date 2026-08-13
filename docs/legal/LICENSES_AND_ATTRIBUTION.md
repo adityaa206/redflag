@@ -44,10 +44,9 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-> ⚠️ TODO(Adi): supply the copyright holder's name for the `<copyright holder>` placeholder. The
-> file has deliberately **not** been created automatically, because naming a copyright holder is a
-> legal declaration only you can make. If the project should not be MIT-licensed, correct the
-> README instead.
+> ⚠️ TODO(Adi): supply the copyright holder's name for the `<copyright holder>` placeholder.
+> Naming a copyright holder is a legal declaration for the project owner to make. If the project
+> should not be MIT-licensed, correct the README instead.
 
 The MIT licence's warranty disclaimer would also reinforce
 [AUTHORIZED_USE.md](AUTHORIZED_USE.md) §7, which currently stands alone.
