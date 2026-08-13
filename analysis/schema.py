@@ -1,3 +1,22 @@
+"""
+analysis/schema.py — the Finding model and every enum. Single source of truth.
+
+Everything in RedFlag is an operation on a Finding: created by a scanner,
+improved by a correlation merge, scored by triage, sequenced by the Day-1
+engine, priced by the cost engine, narrated, exported, and remembered by the
+brain. This module is the vocabulary the whole codebase shares.
+
+CAREFUL — `use_enum_values=True` means an enum-typed field on a Finding INSTANCE
+holds the plain string ("internet_facing"), not the enum member. But
+analysis/triage.py assigns enum OBJECTS to deal_tier. The codebase therefore
+normalises everywhere with:
+
+    def _v(x) -> str:
+        return str(getattr(x, "value", x))
+
+Never use str(x) — on an enum member it yields "DealTier.CRITICAL", which
+silently fails every comparison and dict lookup.
+"""
 from pydantic import BaseModel, ConfigDict, Field
 from typing import Optional
 from enum import Enum

@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RedFlag — Design Direction Picker</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  background: #0a0a0f;
+  color: #d8d2f0;
+  min-height: 100vh;
+  padding: 60px 40px;
+}
+.wrap { max-width: 1100px; margin: 0 auto; }
+h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  background: linear-gradient(100deg, #ff3b5f, #8b5cf6 70%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.sub {
+  color: #6c5f97;
+  font-size: 1rem;
+  margin-bottom: 48px;
+  line-height: 1.6;
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+.card {
+  background: #130f23;
+  border: 1px solid #261d46;
+  border-radius: 16px;
+  padding: 28px;
+  text-decoration: none;
+  color: inherit;
+  display: block;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.2s ease;
+}
+.card:hover {
+  transform: translateY(-3px);
+  border-color: #8b5cf6;
+  box-shadow: 0 14px 40px rgba(139, 92, 246, 0.18);
+}
+.num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  color: #4d4274;
+  margin-bottom: 8px;
+}
+.t1 .num { color: #8b5cf6; }
+.t2 .num { color: #2563eb; }
+.t3 .num { color: #f59e0b; }
+.t4 .num { color: #be185d; }
+.t5 .num { color: #0f5e3a; }
+.featured {
+  position: relative;
+  border-color: #0f5e3a !important;
+}
+.featured::before {
+  content: 'YOUR HYBRID';
+  position: absolute; top: -10px; left: 24px;
+  background: #0f5e3a; color: #fff;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 9.5px; font-weight: 700;
+  letter-spacing: 0.16em;
+  padding: 4px 10px; border-radius: 5px;
+}
+.title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  margin-bottom: 8px;
+  color: #f1edfe;
+  letter-spacing: -0.01em;
+}
+.tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.66rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  color: #968ab8;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  border-radius: 6px;
+  padding: 3px 9px;
+  margin: 0 6px 12px 0;
+}
+.desc {
+  font-size: 0.92rem;
+  color: #968ab8;
+  line-height: 1.65;
+  margin-bottom: 14px;
+}
+.swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: 14px;
+}
+.sw {
+  width: 28px;
+  height: 28px;
+  border-radius: 7px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.cta {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  color: #b39dfb;
+  margin-top: 18px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+hr {
+  border: none;
+  border-top: 1px solid #1d1735;
+  margin: 56px 0 32px;
+}
+.note {
+  font-size: 0.85rem;
+  color: #6c5f97;
+  line-height: 1.7;
+}
+.note code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.82rem;
+  background: #1d1735;
+  padding: 2px 7px;
+  border-radius: 5px;
+  color: #b39dfb;
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>RedFlag — pick a design direction</h1>
+  <p class="sub">Same Overview + Day 1 Plan content in 4 different design languages. Open each, scroll, then tell me which one (or which hybrid) you want me to build the whole app in.</p>
+
+  <div class="grid">
+    <a class="card t5 featured" href="05_executive_editorial.html" style="grid-column: 1 / -1;">
+      <div class="num">05 / Hybrid you asked for</div>
+      <div class="title">Executive Editorial &mdash; Emerald</div>
+      <div>
+        <span class="tag">LIGHT</span><span class="tag">GEIST</span><span class="tag">EMERALD + CLAY</span><span class="tag">EDITORIAL PACING</span>
+      </div>
+      <div class="desc">Editorial structure (eyebrow + title sections, narrative editor's note, pull quote, big figures, article-style Day&nbsp;1 spread) executed with executive polish (white surfaces, hairline borders, restrained spacing). Geist throughout &mdash; modern sans, no newspaper serif. Emerald primary with warm clay + ochre + teal accents &mdash; deliberately nowhere near violet.</div>
+      <div class="swatches">
+        <div class="sw" style="background:#fafaf7;"></div>
+        <div class="sw" style="background:#0f1419;"></div>
+        <div class="sw" style="background:#0f5e3a;"></div>
+        <div class="sw" style="background:#b13b2a;"></div>
+        <div class="sw" style="background:#a16207;"></div>
+        <div class="sw" style="background:#0e4f6b;"></div>
+      </div>
+      <div class="cta" style="color:#0f5e3a;">OPEN MOCKUP &rarr;</div>
+    </a>
+
+    <a class="card t1" href="01_ultraviolet_refined.html">
+      <div class="num">01 / Direction A</div>
+      <div class="title">Ultraviolet Refined</div>
+      <div>
+        <span class="tag">DARK</span><span class="tag">NEON</span><span class="tag">SECURITY-OPS</span>
+      </div>
+      <div class="desc">Your current ULTRAVIOLET direction, cleaned up. Tighter typography, less glow noise, more disciplined use of accent colour. Same energy, more confident.</div>
+      <div class="swatches">
+        <div class="sw" style="background:#07060f;"></div>
+        <div class="sw" style="background:#130f23;"></div>
+        <div class="sw" style="background:#8b5cf6;"></div>
+        <div class="sw" style="background:#ff3b5f;"></div>
+        <div class="sw" style="background:#2dd4a0;"></div>
+      </div>
+      <div class="cta">OPEN MOCKUP &rarr;</div>
+    </a>
+
+    <a class="card t2" href="02_executive_light.html">
+      <div class="num">02 / Direction B</div>
+      <div class="title">Executive Light</div>
+      <div>
+        <span class="tag">LIGHT</span><span class="tag">PREMIUM-SAAS</span><span class="tag">STRIPE-LINEAR</span>
+      </div>
+      <div class="desc">Light-mode, generous whitespace, Inter type. The look an investment banker or M&amp;A lawyer expects from a serious diligence tool. Restrained, confident, executive-ready.</div>
+      <div class="swatches">
+        <div class="sw" style="background:#ffffff;"></div>
+        <div class="sw" style="background:#f7f7f9;"></div>
+        <div class="sw" style="background:#0a0e27;"></div>
+        <div class="sw" style="background:#2563eb;"></div>
+        <div class="sw" style="background:#dc2626;"></div>
+      </div>
+      <div class="cta">OPEN MOCKUP &rarr;</div>
+    </a>
+
+    <a class="card t3" href="03_terminal_dense.html">
+      <div class="num">03 / Direction C</div>
+      <div class="title">Terminal Dense</div>
+      <div>
+        <span class="tag">DARK</span><span class="tag">MONOSPACE</span><span class="tag">BLOOMBERG</span>
+      </div>
+      <div class="desc">Every pixel is data. Amber + cyan on near-black, IBM Plex Mono throughout, no decorative chrome. Reads like a trading terminal — &ldquo;I am serious about this number.&rdquo;</div>
+      <div class="swatches">
+        <div class="sw" style="background:#0a0a0a;"></div>
+        <div class="sw" style="background:#141414;"></div>
+        <div class="sw" style="background:#f59e0b;"></div>
+        <div class="sw" style="background:#22d3ee;"></div>
+        <div class="sw" style="background:#ef4444;"></div>
+      </div>
+      <div class="cta">OPEN MOCKUP &rarr;</div>
+    </a>
+
+    <a class="card t4" href="04_editorial_serif.html">
+      <div class="num">04 / Direction D</div>
+      <div class="title">Editorial Serif</div>
+      <div>
+        <span class="tag">LIGHT</span><span class="tag">SERIF</span><span class="tag">FT-MAGAZINE</span>
+      </div>
+      <div class="desc">Financial Times meets The Information. Serif headlines, editorial pacing, sophisticated colour. The opposite of every other security tool &mdash; reads like a deal memo, not a SOC console.</div>
+      <div class="swatches">
+        <div class="sw" style="background:#fff8f0;"></div>
+        <div class="sw" style="background:#1a1410;"></div>
+        <div class="sw" style="background:#be185d;"></div>
+        <div class="sw" style="background:#a16207;"></div>
+        <div class="sw" style="background:#15803d;"></div>
+      </div>
+      <div class="cta">OPEN MOCKUP &rarr;</div>
+    </a>
+  </div>
+
+  <hr>
+
+  <p class="note">
+    These are static HTML mockups &mdash; pure design exploration, no functionality. Open them in any browser. They have nothing to do with Streamlit; the question they answer is <em>&ldquo;which design language do we build toward?&rdquo;</em> Once you pick, the tech stack decision (Reflex vs FastAPI+Next.js) follows from the polish ceiling that direction needs. To view: open <code>design_mockups/index.html</code> in your browser, click any card.
+  </p>
+</div>
+</body>
+</html>

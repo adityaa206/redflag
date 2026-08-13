@@ -1,9 +1,23 @@
+"""
+reports/generator.py — CSV export of the triaged finding set.
+
+Flattens Findings into a 17-column pandas DataFrame, rendering every enum as
+human-readable Title Case rather than its raw value. Row order is whatever the
+caller supplies — normally triage_all()'s highest-risk-first ordering.
+
+Serialisation only: no scoring, no filtering, no business logic.
+"""
 import os
 import datetime
 import pandas as pd
 
 
 def findings_to_dataframe(findings):
+    """Flatten Findings into the 17-column export DataFrame.
+
+    Enum fields are normalised with getattr(x, "value", x) — Finding stores
+    plain strings but triage assigns enum objects, so both shapes occur.
+    """
     rows = []
     for f in findings:
         rows.append({
@@ -29,6 +43,11 @@ def findings_to_dataframe(findings):
 
 
 def export_findings_csv(findings, output_dir="data/results"):
+    """Write the findings CSV and return its path.
+
+    The Reflex UI overrides output_dir to a temp directory — writing inside the
+    worktree trips the dev file-watcher and resets backend state.
+    """
     os.makedirs(output_dir, exist_ok=True)
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     output_file = os.path.join(output_dir, f"redflag_report_{timestamp}.csv")

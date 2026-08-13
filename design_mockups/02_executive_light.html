@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RedFlag — Direction B: Executive Light</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #fafafa;
+  --surface: #ffffff;
+  --surface-soft: #f7f7f9;
+  --border: #ececef;
+  --border-strong: #d8d8dc;
+  --text: #0a0a0f;
+  --text-mid: #4a4a55;
+  --text-dim: #8a8a95;
+  --text-faint: #b8b8c1;
+  --primary: #2563eb;
+  --primary-soft: #eff5ff;
+  --red: #dc2626;
+  --red-soft: #fef2f2;
+  --orange: #ea580c;
+  --orange-soft: #fff7ed;
+  --amber: #b45309;
+  --amber-soft: #fffbeb;
+  --green: #15803d;
+  --green-soft: #f0fdf4;
+}
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.55;
+  font-feature-settings: 'cv02','cv03','cv04','cv11';
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+.app { max-width: 1240px; margin: 0 auto; padding: 0 40px 96px; }
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 22px 0; margin-bottom: 36px;
+  border-bottom: 1px solid var(--border);
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 30px; height: 30px; border-radius: 7px;
+  background: var(--text); color: #fff;
+  display: grid; place-items: center;
+  font-weight: 700; font-size: 12px; letter-spacing: -0.01em;
+}
+.brand-name {
+  font-weight: 600; font-size: 15.5px;
+  letter-spacing: -0.015em;
+}
+.brand-sub {
+  display: block; font-size: 11.5px;
+  color: var(--text-dim); font-weight: 400;
+  margin-top: -1px;
+}
+.nav { display: flex; gap: 2px; }
+.nav-tab {
+  font-size: 13px; font-weight: 500;
+  color: var(--text-mid); padding: 7px 13px;
+  border-radius: 6px; cursor: pointer;
+}
+.nav-tab.active {
+  color: var(--text); background: var(--surface-soft);
+}
+.nav-tab:hover:not(.active) {
+  color: var(--text); background: var(--surface-soft);
+}
+
+/* Page header */
+.page-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  margin-bottom: 28px;
+}
+.eyebrow {
+  font-size: 12px; font-weight: 500;
+  color: var(--text-dim); letter-spacing: 0.01em;
+  margin-bottom: 6px;
+  display: flex; align-items: center; gap: 8px;
+}
+.eyebrow .dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--green);
+}
+.page-title {
+  font-size: 28px; font-weight: 600;
+  letter-spacing: -0.025em;
+  color: var(--text);
+}
+.page-sub {
+  font-size: 14.5px; color: var(--text-mid);
+  margin-top: 4px;
+}
+.target-pill {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--text-mid);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 7px; padding: 8px 14px;
+}
+
+/* Verdict */
+.verdict {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 32px; align-items: center;
+  padding: 28px 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 28px;
+}
+.verdict-score { text-align: center; }
+.verdict-score .v {
+  font-size: 56px; font-weight: 600;
+  letter-spacing: -0.03em; line-height: 1;
+  color: var(--orange);
+}
+.verdict-score .cap {
+  display: block; margin-top: 4px;
+  font-size: 11px; color: var(--text-dim);
+  font-weight: 500;
+}
+.verdict-main {
+  border-left: 1px solid var(--border);
+  padding-left: 32px;
+}
+.verdict-kicker {
+  font-size: 12px; color: var(--text-dim);
+  font-weight: 500; margin-bottom: 6px;
+}
+.verdict-label {
+  font-size: 22px; font-weight: 600;
+  letter-spacing: -0.015em; color: var(--text);
+  margin-bottom: 6px;
+}
+.verdict-label .tag {
+  display: inline-block; vertical-align: middle;
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 5px;
+  margin-left: 10px;
+  background: var(--orange-soft); color: var(--orange);
+}
+.verdict-msg {
+  font-size: 13.5px; color: var(--text-mid); line-height: 1.6;
+  max-width: 540px;
+}
+.verdict-stats { display: flex; gap: 28px; }
+.verdict-stats .col { text-align: right; }
+.verdict-stats .num {
+  font-size: 22px; font-weight: 600;
+  display: block; line-height: 1;
+  letter-spacing: -0.02em;
+}
+.verdict-stats .lbl {
+  font-size: 11px; color: var(--text-dim);
+  font-weight: 500; margin-top: 4px; display: block;
+}
+.c-dk { color: var(--red); }
+.c-cr { color: var(--orange); }
+.c-mo { color: var(--amber); }
+.c-ma { color: var(--green); }
+
+/* Section header */
+.sect {
+  display: flex; align-items: center; justify-content: space-between;
+  margin: 36px 0 16px;
+}
+.sect-title {
+  font-size: 16px; font-weight: 600;
+  color: var(--text); letter-spacing: -0.01em;
+}
+.sect-sub {
+  font-size: 13px; color: var(--text-dim);
+}
+
+/* Metric cards */
+.metrics {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px;
+}
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 18px 16px;
+}
+.metric .lbl {
+  font-size: 12px; color: var(--text-dim);
+  font-weight: 500; margin-bottom: 12px;
+}
+.metric .val {
+  font-size: 30px; font-weight: 600;
+  letter-spacing: -0.025em; line-height: 1;
+  color: var(--text);
+}
+.metric.red .val { color: var(--red); }
+.metric.orange .val { color: var(--orange); }
+.metric.amber .val { color: var(--amber); }
+.metric.green .val { color: var(--green); }
+.metric .trend {
+  font-size: 11.5px; color: var(--text-dim);
+  margin-top: 8px;
+}
+
+/* Day 1 banner */
+.d1-banner {
+  display: grid; grid-template-columns: auto 1fr; gap: 28px;
+  padding: 24px 28px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 16px;
+}
+.d1-posture {
+  border-right: 1px solid var(--border);
+  padding-right: 28px; min-width: 140px;
+}
+.d1-posture .lbl {
+  font-size: 11px; color: var(--text-dim);
+  font-weight: 500; margin-bottom: 6px;
+}
+.d1-posture .val {
+  font-size: 22px; font-weight: 600;
+  color: var(--red); letter-spacing: -0.015em;
+}
+.d1-posture .sub {
+  font-size: 12px; color: var(--text-dim);
+  margin-top: 4px;
+}
+.d1-rationale .kicker {
+  font-size: 12px; color: var(--text-dim);
+  font-weight: 500; margin-bottom: 4px;
+}
+.d1-rationale .title {
+  font-size: 15px; font-weight: 600;
+  color: var(--text); margin-bottom: 6px;
+}
+.d1-rationale .txt {
+  font-size: 13.5px; color: var(--text-mid);
+  line-height: 1.65; max-width: 720px;
+}
+
+/* Ladder */
+.ladder {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 12px; margin: 20px 0 28px;
+}
+.rung {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  position: relative;
+}
+.rung.active {
+  border: 1.5px solid var(--red);
+  background: var(--red-soft);
+}
+.rung.locked { opacity: 0.6; }
+.rung .step {
+  font-size: 11px; color: var(--text-dim);
+  font-weight: 500; margin-bottom: 4px;
+}
+.rung.active .step { color: var(--red); }
+.rung .name {
+  font-size: 15px; font-weight: 600;
+  color: var(--text); letter-spacing: -0.01em;
+  margin-bottom: 6px;
+}
+.rung.active .name { color: var(--red); }
+.rung .desc {
+  font-size: 12px; color: var(--text-dim);
+  line-height: 1.45;
+}
+.rung .check {
+  position: absolute; top: 14px; right: 14px;
+  font-size: 12px; color: var(--text-faint);
+}
+.rung.active .check { color: var(--red); }
+
+/* Pillars */
+.pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.pillar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.pillar-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.pillar-name {
+  font-size: 14px; font-weight: 600;
+  color: var(--text); letter-spacing: -0.005em;
+}
+.rag {
+  font-size: 10.5px; font-weight: 600;
+  padding: 3px 9px; border-radius: 999px;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.rag::before {
+  content: ''; width: 6px; height: 6px; border-radius: 50%;
+}
+.rag.red { background: var(--red-soft); color: var(--red); }
+.rag.red::before { background: var(--red); }
+.rag.amber { background: var(--amber-soft); color: var(--amber); }
+.rag.amber::before { background: var(--amber); }
+.rag.green { background: var(--green-soft); color: var(--green); }
+.rag.green::before { background: var(--green); }
+.pillar-evidence {
+  list-style: none; font-size: 12.5px;
+  color: var(--text-mid); line-height: 1.55;
+  margin-bottom: 12px;
+}
+.pillar-evidence li {
+  display: flex; gap: 6px; align-items: flex-start;
+}
+.pillar-evidence li::before {
+  content: ''; flex: none; margin-top: 8px;
+  width: 4px; height: 4px; border-radius: 50%;
+  background: var(--text-faint);
+}
+.pillar-rec {
+  font-size: 13px; color: var(--text);
+  line-height: 1.65;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+/* Finding */
+.finding {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 22px 26px;
+  margin-bottom: 10px;
+  position: relative;
+}
+.finding::before {
+  content: ''; position: absolute;
+  left: 0; top: 16px; bottom: 16px; width: 3px;
+  background: var(--red); border-radius: 0 2px 2px 0;
+}
+.finding-head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 20px;
+}
+.finding-title {
+  font-size: 16px; font-weight: 600;
+  letter-spacing: -0.015em; color: var(--text);
+  margin-bottom: 8px;
+}
+.finding-meta {
+  display: flex; gap: 8px; flex-wrap: wrap;
+  align-items: center;
+  font-size: 12.5px; color: var(--text-mid);
+}
+.finding-meta .sep { color: var(--text-faint); }
+.badge {
+  font-size: 11px; font-weight: 600;
+  padding: 3px 8px; border-radius: 5px;
+  display: inline-flex; align-items: center;
+}
+.badge.dk { background: var(--red-soft); color: var(--red); }
+.badge.inet { background: var(--primary-soft); color: var(--primary); }
+.badge.kev {
+  background: #faf5ff; color: #6b21a8;
+}
+.score-pill {
+  min-width: 92px; text-align: center; padding: 12px 14px;
+  background: var(--red-soft); border-radius: 10px;
+}
+.score-pill .lbl {
+  font-size: 10.5px; color: var(--red);
+  font-weight: 500; margin-bottom: 2px;
+}
+.score-pill .val {
+  font-size: 26px; font-weight: 600; color: var(--red);
+  letter-spacing: -0.03em; line-height: 1;
+}
+.finding-body {
+  margin-top: 16px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+  font-size: 13.5px; color: var(--text-mid); line-height: 1.7;
+  max-width: 820px;
+}
+.finding-body strong { color: var(--text); font-weight: 600; }
+.cta-row {
+  display: flex; gap: 8px; margin-top: 16px;
+}
+.btn {
+  font-family: inherit; font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: 7px;
+  border: 1px solid var(--border); background: var(--surface);
+  color: var(--text); cursor: pointer;
+}
+.btn:hover { background: var(--surface-soft); }
+.btn.primary {
+  background: var(--text); color: #fff;
+  border-color: var(--text);
+}
+.btn.primary:hover { background: #1a1a1f; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">R</div>
+      <div>
+        <div class="brand-name">RedFlag</div>
+        <span class="brand-sub">M&amp;A Cybersecurity Intelligence</span>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-tab active">Overview</div>
+      <div class="nav-tab">Findings</div>
+      <div class="nav-tab">Attack path</div>
+      <div class="nav-tab">Maturity</div>
+      <div class="nav-tab">Day 1 plan</div>
+      <div class="nav-tab">Cost</div>
+      <div class="nav-tab">Export</div>
+    </div>
+  </div>
+
+  <!-- Page header -->
+  <div class="page-head">
+    <div>
+      <div class="eyebrow"><span class="dot"></span>Scan complete &middot; 47 seconds</div>
+      <div class="page-title">Diligence summary</div>
+      <div class="page-sub">target.example.com &middot; 10.0.0.5 &middot; 7 engines</div>
+    </div>
+    <div class="target-pill">23 Jun 2026, 14:08 UTC</div>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict">
+    <div class="verdict-score">
+      <div class="v">73</div>
+      <span class="cap">Average risk</span>
+    </div>
+    <div class="verdict-main">
+      <div class="verdict-kicker">Deal verdict</div>
+      <div class="verdict-label">Critical<span class="tag">Recommend price protection</span></div>
+      <div class="verdict-msg">Severe exposure detected on the perimeter. The acquirer should obtain remediation commitments and price adjustment before close.</div>
+    </div>
+    <div class="verdict-stats">
+      <div class="col"><span class="num c-dk">1</span><span class="lbl">Deal killers</span></div>
+      <div class="col"><span class="num c-cr">1</span><span class="lbl">Critical</span></div>
+      <div class="col"><span class="num c-mo">1</span><span class="lbl">Moderate</span></div>
+      <div class="col"><span class="num c-ma">1</span><span class="lbl">Manageable</span></div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="sect">
+    <div class="sect-title">At a glance</div>
+    <div class="sect-sub">All findings by tier</div>
+  </div>
+  <div class="metrics">
+    <div class="metric"><div class="lbl">Total findings</div><div class="val">4</div><div class="trend">across 4 hosts</div></div>
+    <div class="metric red"><div class="lbl">Deal killers</div><div class="val">1</div><div class="trend">block close</div></div>
+    <div class="metric orange"><div class="lbl">Critical</div><div class="val">1</div><div class="trend">30-day SLA</div></div>
+    <div class="metric amber"><div class="lbl">Moderate</div><div class="val">1</div><div class="trend">90-day SLA</div></div>
+    <div class="metric green"><div class="lbl">Manageable</div><div class="val">1</div><div class="trend">post-close</div></div>
+  </div>
+
+  <!-- Day 1 -->
+  <div class="sect">
+    <div class="sect-title">Day 1 Safe Harbor Blueprint</div>
+    <div class="sect-sub">Recommended connectivity posture</div>
+  </div>
+
+  <div class="d1-banner">
+    <div class="d1-posture">
+      <div class="lbl">Recommended posture</div>
+      <div class="val">Isolate</div>
+      <div class="sub">Clean room / TSA</div>
+    </div>
+    <div class="d1-rationale">
+      <div class="kicker">Architecture rationale</div>
+      <div class="title">No network route between target and parent.</div>
+      <div class="txt">Operate the acquired business standalone under a Transition Service Agreement until the 2 pre-connection blockers are remediated or formally mitigated. To advance to Broker: no actively-exploited vulnerabilities on the target.</div>
+    </div>
+  </div>
+
+  <div class="ladder">
+    <div class="rung active">
+      <span class="check">&#9679;</span>
+      <div class="step">Step 1</div>
+      <div class="name">Isolate</div>
+      <div class="desc">Clean room, no network route, TSA-driven operation.</div>
+    </div>
+    <div class="rung locked">
+      <span class="check">&#9675;</span>
+      <div class="step">Step 2</div>
+      <div class="name">Broker</div>
+      <div class="desc">VDI/DaaS access. Pixels in, no data egress.</div>
+    </div>
+    <div class="rung locked">
+      <span class="check">&#9675;</span>
+      <div class="step">Step 3</div>
+      <div class="name">Federate</div>
+      <div class="desc">One-way trust + ZTNA. Per-app access.</div>
+    </div>
+    <div class="rung locked">
+      <span class="check">&#9675;</span>
+      <div class="step">Step 4</div>
+      <div class="name">Integrate</div>
+      <div class="desc">Routed networks, full directory merge.</div>
+    </div>
+  </div>
+
+  <!-- Pillars -->
+  <div class="sect">
+    <div class="sect-title">Review pillars</div>
+    <div class="sect-sub">Identity &middot; network &middot; remote access</div>
+  </div>
+  <div class="pillars">
+    <div class="pillar">
+      <div class="pillar-head">
+        <div class="pillar-name">Identity sources</div>
+        <div class="rag amber">Needs work</div>
+      </div>
+      <ul class="pillar-evidence"><li>Identity &amp; Access maturity 2.1 of 5 (min 2, target 4)</li></ul>
+      <div class="pillar-rec">Tighten MFA and least-privilege before federating identity; broker access in the interim.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-head">
+        <div class="pillar-name">Network boundaries</div>
+        <div class="rag red">Blocker</div>
+      </div>
+      <ul class="pillar-evidence"><li>2 internet-facing deal-killer / actively-exploited findings</li></ul>
+      <div class="pillar-rec">Keep networks fully isolated. Flat segmentation means any compromise spreads to the parent.</div>
+    </div>
+    <div class="pillar">
+      <div class="pillar-head">
+        <div class="pillar-name">Remote access</div>
+        <div class="rag red">Blocker</div>
+      </div>
+      <ul class="pillar-evidence"><li>1 internet-facing remote-access pathway: microsoft-ds:445</li></ul>
+      <div class="pillar-rec">Kill before Day 1 and replace with VDI / ZTNA. Never route legacy SMB to the parent network.</div>
+    </div>
+  </div>
+
+  <!-- Top finding -->
+  <div class="sect">
+    <div class="sect-title">Top finding</div>
+    <div class="sect-sub">Highest-priority remediation item</div>
+  </div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-title">SMB Remote Code Execution &mdash; EternalBlue (CVE-2017-0144)</div>
+        <div class="finding-meta">
+          <span class="badge dk">Deal killer</span>
+          <span class="badge inet">Internet-facing</span>
+          <span class="badge kev">CISA KEV</span>
+          <span class="sep">&middot;</span>
+          <span>10.0.0.5 : 445 / microsoft-ds</span>
+          <span class="sep">&middot;</span>
+          <span>CVSS 9.8</span>
+        </div>
+      </div>
+      <div class="score-pill">
+        <div class="lbl">Risk score</div>
+        <div class="val">100</div>
+      </div>
+    </div>
+    <div class="finding-body">
+      MS17-010 SMBv1 remote code execution, actively exploited in the wild. <strong>The window between public exploit availability and organisational compromise is typically under 24 hours on internet-facing systems.</strong> Immediate action required &mdash; this finding must be remediated or formally mitigated before any deal close.
+    </div>
+    <div class="cta-row">
+      <button class="btn primary">View remediation</button>
+      <button class="btn">Add escrow note</button>
+      <button class="btn">Flag for legal</button>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

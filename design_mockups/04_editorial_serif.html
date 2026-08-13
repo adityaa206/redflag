@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RedFlag — Direction D: Editorial Serif</title>
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,400;8..60,500;8..60,600;8..60,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --paper: #fdfaf3;
+  --paper-2: #f7f2e8;
+  --surface: #ffffff;
+  --rule: #e3dccd;
+  --rule-strong: #c9bfa9;
+  --ink: #1a1410;
+  --ink-mid: #3d352c;
+  --ink-soft: #6b6055;
+  --ink-faint: #a8a094;
+  --accent: #9c1c4a;      /* oxblood/critical */
+  --accent-soft: #f9eef3;
+  --gold: #a16207;
+  --gold-soft: #fef6e4;
+  --moss: #15803d;
+  --moss-soft: #ecfaef;
+  --bone: #b5a98f;
+}
+body {
+  font-family: 'Inter', -apple-system, sans-serif;
+  background: var(--paper);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+.app { max-width: 1140px; margin: 0 auto; padding: 0 56px 96px; }
+
+/* Masthead */
+.masthead {
+  border-bottom: 1.5px solid var(--ink);
+  padding: 28px 0 18px;
+  margin-bottom: 24px;
+}
+.masthead-top {
+  display: flex; justify-content: space-between; align-items: baseline;
+  font-family: 'Inter', sans-serif; font-size: 11.5px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink-soft); font-weight: 500;
+  margin-bottom: 16px;
+}
+.masthead-top .right { display: flex; gap: 18px; }
+.title-row {
+  display: flex; align-items: baseline; justify-content: space-between;
+}
+.brand-title {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 44px; font-weight: 700;
+  letter-spacing: -0.025em; color: var(--ink);
+  font-feature-settings: 'lnum';
+}
+.brand-tagline {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px; font-style: italic;
+  color: var(--ink-soft); font-weight: 400;
+}
+
+/* Navigation */
+.nav {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 28px;
+}
+.nav-tab {
+  font-family: 'Inter', sans-serif; font-size: 12.5px;
+  font-weight: 500; letter-spacing: 0.04em;
+  color: var(--ink-soft); padding: 12px 18px;
+  cursor: pointer; border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+}
+.nav-tab.active {
+  color: var(--ink); border-bottom-color: var(--accent);
+  font-weight: 600;
+}
+.nav-tab:hover:not(.active) { color: var(--ink); }
+
+/* Article header */
+.article-head {
+  text-align: center;
+  padding: 16px 0 28px;
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 36px;
+}
+.dateline {
+  font-family: 'Inter', sans-serif; font-size: 11.5px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent); font-weight: 600;
+  margin-bottom: 14px;
+}
+.headline {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 52px; font-weight: 600; line-height: 1.1;
+  letter-spacing: -0.025em;
+  color: var(--ink); margin-bottom: 16px;
+  max-width: 880px; margin-left: auto; margin-right: auto;
+}
+.standfirst {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 20px; font-style: italic;
+  color: var(--ink-soft); line-height: 1.55;
+  max-width: 720px; margin: 0 auto;
+  font-weight: 400;
+}
+.byline {
+  font-family: 'Inter', sans-serif; font-size: 12px;
+  color: var(--ink-soft);
+  margin-top: 22px; letter-spacing: 0.02em;
+}
+.byline strong { color: var(--ink); font-weight: 600; }
+
+/* Verdict block */
+.verdict {
+  display: grid; grid-template-columns: 1fr 2fr;
+  gap: 0; padding: 32px 0;
+  border-top: 3px double var(--ink);
+  border-bottom: 3px double var(--ink);
+  margin-bottom: 36px;
+}
+.verdict-figure {
+  text-align: center;
+  border-right: 1px solid var(--rule);
+  padding-right: 32px;
+}
+.verdict-figure .v {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 100px; font-weight: 600; line-height: 1;
+  color: var(--accent); letter-spacing: -0.05em;
+  font-feature-settings: 'lnum';
+}
+.verdict-figure .cap {
+  font-family: 'Inter', sans-serif; font-size: 11px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--ink-soft); margin-top: 12px;
+}
+.verdict-body { padding-left: 36px; }
+.verdict-kicker {
+  font-family: 'Inter', sans-serif; font-size: 11px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 600;
+  margin-bottom: 8px;
+}
+.verdict-label {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 36px; font-weight: 600;
+  letter-spacing: -0.02em; color: var(--ink);
+  line-height: 1.1; margin-bottom: 12px;
+}
+.verdict-msg {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px; line-height: 1.65;
+  color: var(--ink-mid); max-width: 540px;
+}
+
+/* Section heading */
+.section {
+  margin: 48px 0 18px;
+}
+.section-eyebrow {
+  font-family: 'Inter', sans-serif; font-size: 11px;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--accent); font-weight: 600;
+  margin-bottom: 6px;
+}
+.section-title {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 28px; font-weight: 600;
+  letter-spacing: -0.018em; color: var(--ink);
+  line-height: 1.2;
+}
+.section-rule {
+  border-top: 1px solid var(--rule);
+  margin-top: 14px;
+}
+
+/* Tier table */
+.tier-stats {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+}
+.tier-stat {
+  padding: 20px 24px;
+  border-right: 1px solid var(--rule);
+}
+.tier-stat:last-child { border-right: none; }
+.tier-stat .figure {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 48px; font-weight: 600; line-height: 1;
+  letter-spacing: -0.03em; font-feature-settings: 'lnum';
+  margin-bottom: 6px;
+}
+.tier-stat .figure.dk { color: var(--accent); }
+.tier-stat .figure.cr { color: var(--gold); }
+.tier-stat .figure.mo { color: var(--bone); }
+.tier-stat .figure.ma { color: var(--moss); }
+.tier-stat .label {
+  font-family: 'Inter', sans-serif; font-size: 12px;
+  color: var(--ink-mid); letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.tier-stat .sub {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 13px; font-style: italic;
+  color: var(--ink-soft); margin-top: 4px;
+}
+
+/* Article body */
+.article {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px; line-height: 1.75;
+  color: var(--ink-mid);
+}
+.article p { margin-bottom: 16px; }
+.article p:first-of-type::first-letter {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 64px; font-weight: 600;
+  float: left; line-height: 0.9;
+  padding: 8px 12px 0 0;
+  color: var(--accent);
+}
+.article strong { color: var(--ink); font-weight: 600; }
+
+/* Pull quote */
+.pullquote {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 22px; font-style: italic;
+  color: var(--ink); line-height: 1.45;
+  border-left: 3px solid var(--accent);
+  padding: 8px 0 8px 24px; margin: 26px 0;
+  font-weight: 500;
+}
+
+/* Day 1 spread */
+.spread {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 36px; align-items: start;
+  margin-top: 18px;
+}
+.spread .col-left {
+  border-right: 1px solid var(--rule);
+  padding-right: 36px;
+}
+.posture-figure {
+  font-family: 'Inter', sans-serif; font-size: 11px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--accent); font-weight: 600;
+  margin-bottom: 8px;
+}
+.posture-name {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 56px; font-weight: 600; line-height: 1;
+  letter-spacing: -0.02em; color: var(--ink);
+  margin-bottom: 12px;
+}
+.posture-desc {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px; line-height: 1.65; font-style: italic;
+  color: var(--ink-soft); margin-bottom: 22px;
+}
+.ladder-list {
+  list-style: none;
+  border-top: 1px solid var(--rule);
+}
+.ladder-list li {
+  padding: 14px 0; border-bottom: 1px solid var(--rule);
+  display: grid; grid-template-columns: 32px 1fr auto;
+  gap: 16px; align-items: baseline;
+}
+.ladder-list .step-num {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 20px; font-weight: 600;
+  color: var(--ink-faint); font-feature-settings: 'lnum';
+}
+.ladder-list .step-name {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 19px; font-weight: 600;
+  letter-spacing: -0.01em; color: var(--ink);
+  margin-bottom: 2px;
+}
+.ladder-list .step-desc {
+  font-family: 'Inter', sans-serif; font-size: 12.5px;
+  color: var(--ink-soft); line-height: 1.5;
+}
+.ladder-list .step-stat {
+  font-family: 'Inter', sans-serif; font-size: 10.5px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  font-weight: 600; color: var(--ink-faint);
+}
+.ladder-list li.active .step-num,
+.ladder-list li.active .step-name { color: var(--accent); }
+.ladder-list li.active .step-stat { color: var(--accent); }
+
+/* Pillars (alongside Day 1) */
+.pillar-block {
+  padding-bottom: 16px; margin-bottom: 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.pillar-block:last-child { border-bottom: none; margin-bottom: 0; }
+.pillar-row {
+  display: flex; justify-content: space-between; align-items: baseline;
+  margin-bottom: 8px;
+}
+.pillar-name {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 20px; font-weight: 600;
+  letter-spacing: -0.01em; color: var(--ink);
+}
+.rag {
+  font-family: 'Inter', sans-serif; font-size: 10.5px;
+  font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+  padding: 4px 10px;
+}
+.rag.red { background: var(--accent-soft); color: var(--accent); }
+.rag.amber { background: var(--gold-soft); color: var(--gold); }
+.rag.green { background: var(--moss-soft); color: var(--moss); }
+.pillar-evidence {
+  font-family: 'Inter', sans-serif; font-size: 12.5px;
+  color: var(--ink-soft); margin-bottom: 6px;
+  font-style: italic;
+}
+.pillar-rec {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 16px; line-height: 1.6; color: var(--ink-mid);
+}
+
+/* Findings table - editorial style */
+.tbl {
+  width: 100%; border-collapse: collapse;
+  font-family: 'Source Serif 4', Georgia, serif;
+  margin-top: 12px;
+}
+.tbl thead th {
+  font-family: 'Inter', sans-serif; font-size: 11px;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--ink-soft); font-weight: 600;
+  text-align: left; padding: 10px 14px 10px 0;
+  border-bottom: 2px solid var(--ink);
+}
+.tbl thead th.num { text-align: right; }
+.tbl td {
+  padding: 14px 14px 14px 0;
+  border-bottom: 1px solid var(--rule);
+  font-size: 15px; color: var(--ink-mid); vertical-align: top;
+}
+.tbl .title-c {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 17px; font-weight: 600; color: var(--ink);
+  letter-spacing: -0.01em; margin-bottom: 2px;
+}
+.tbl .cve {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11.5px; color: var(--ink-soft);
+}
+.tbl .host {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px; color: var(--ink-soft);
+}
+.tbl .tag {
+  font-family: 'Inter', sans-serif; font-size: 10.5px;
+  font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase;
+}
+.tbl .tag.dk { color: var(--accent); }
+.tbl .tag.cr { color: var(--gold); }
+.tbl .tag.mo { color: var(--ink-soft); }
+.tbl .tag.ma { color: var(--moss); }
+.tbl .risk {
+  font-family: 'Source Serif 4', Georgia, serif;
+  font-size: 26px; font-weight: 600; text-align: right;
+  letter-spacing: -0.02em; font-feature-settings: 'lnum';
+  line-height: 1;
+}
+.tbl .risk.dk { color: var(--accent); }
+.tbl .risk.cr { color: var(--gold); }
+.tbl .risk.mo { color: var(--bone); }
+.tbl .risk.ma { color: var(--moss); }
+
+/* Footer */
+.colophon {
+  border-top: 1px solid var(--rule);
+  margin-top: 64px; padding-top: 22px;
+  font-family: 'Inter', sans-serif; font-size: 11.5px;
+  color: var(--ink-soft); letter-spacing: 0.04em;
+  text-align: center;
+  font-style: italic;
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Masthead -->
+  <div class="masthead">
+    <div class="masthead-top">
+      <span>Vol. III &middot; Diligence memorandum</span>
+      <div class="right">
+        <span>Tuesday, 23 June 2026</span>
+        <span>Confidential</span>
+      </div>
+    </div>
+    <div class="title-row">
+      <div class="brand-title">RedFlag</div>
+      <div class="brand-tagline">A cybersecurity due-diligence reading</div>
+    </div>
+  </div>
+
+  <!-- Nav -->
+  <div class="nav">
+    <div class="nav-tab active">Overview</div>
+    <div class="nav-tab">Findings</div>
+    <div class="nav-tab">Attack path</div>
+    <div class="nav-tab">Maturity</div>
+    <div class="nav-tab">Day 1 plan</div>
+    <div class="nav-tab">Cost</div>
+    <div class="nav-tab">Export</div>
+  </div>
+
+  <!-- Article header -->
+  <div class="article-head">
+    <div class="dateline">Deal verdict &middot; target.example.com</div>
+    <h1 class="headline">Severe perimeter exposure puts proposed acquisition at material risk.</h1>
+    <p class="standfirst">Two pre-connection blockers &mdash; an actively-exploited SMB vulnerability and an internet-facing remote-access pathway &mdash; should be remediated before any Day-1 link to the parent network.</p>
+    <div class="byline"><strong>Prepared by</strong> RedFlag engine &middot; 7 scanners &middot; 47 seconds &middot; <strong>For</strong> Acquirer M&amp;A team</div>
+  </div>
+
+  <!-- Verdict block -->
+  <div class="verdict">
+    <div class="verdict-figure">
+      <div class="v">73</div>
+      <div class="cap">Average risk score</div>
+    </div>
+    <div class="verdict-body">
+      <div class="verdict-kicker">The verdict</div>
+      <div class="verdict-label">Critical</div>
+      <div class="verdict-msg">Severe exposure detected on the perimeter. The acquirer should obtain remediation commitments &mdash; and a price adjustment or escrow &mdash; as a condition of close.</div>
+    </div>
+  </div>
+
+  <!-- Tier figures -->
+  <div class="section">
+    <div class="section-eyebrow">By the numbers</div>
+    <div class="section-title">A finding for each tier</div>
+  </div>
+  <div class="tier-stats">
+    <div class="tier-stat">
+      <div class="figure dk">1</div>
+      <div class="label">Deal killer</div>
+      <div class="sub">blocks the close</div>
+    </div>
+    <div class="tier-stat">
+      <div class="figure cr">1</div>
+      <div class="label">Critical</div>
+      <div class="sub">remediate within 30 days</div>
+    </div>
+    <div class="tier-stat">
+      <div class="figure mo">1</div>
+      <div class="label">Moderate</div>
+      <div class="sub">90-day integration item</div>
+    </div>
+    <div class="tier-stat">
+      <div class="figure ma">1</div>
+      <div class="label">Manageable</div>
+      <div class="sub">post-close hygiene</div>
+    </div>
+  </div>
+
+  <!-- Article narrative -->
+  <div class="section">
+    <div class="section-eyebrow">Editor's note</div>
+    <div class="section-title">What this scan tells us</div>
+    <div class="section-rule"></div>
+  </div>
+  <div class="article">
+    <p>The target&rsquo;s perimeter carries two findings that, on their own, would each justify pausing the integration plan. The first is a Microsoft SMB remote-code-execution vulnerability that appears on CISA&rsquo;s Known Exploited Vulnerabilities list &mdash; meaning it is not theoretical but is being weaponised in the wild today. The second is an internet-facing Remote Desktop pathway, the single most common ransomware ingress vector observed across enterprise breaches in the past 36 months.</p>
+
+    <p class="pullquote">&ldquo;Operate the acquired business standalone, behind a clean-room boundary, until the pre-connection blockers are remediated or formally mitigated.&rdquo;</p>
+
+    <p>Neither finding requires a clever attack chain &mdash; both are reachable from the public internet with off-the-shelf tooling. <strong>Connecting these systems to the parent network on Day 1 would extend that exposure to the acquirer&rsquo;s estate without remediation in place.</strong> The recommended posture, accordingly, is isolation: VDI-brokered access where the business case demands it, and no network or directory link to the parent until the perimeter has been verified clean.</p>
+  </div>
+
+  <!-- Day 1 plan -->
+  <div class="section">
+    <div class="section-eyebrow">Day 1 Safe Harbor Blueprint</div>
+    <div class="section-title">A staged connectivity ladder</div>
+    <div class="section-rule"></div>
+  </div>
+
+  <div class="spread">
+    <div class="col-left">
+      <div class="posture-figure">Recommended posture</div>
+      <div class="posture-name">Isolate</div>
+      <div class="posture-desc">Operate standalone under a Transition Service Agreement until pre-connection blockers are addressed. Data exchange through a governed clean room.</div>
+
+      <ul class="ladder-list">
+        <li class="active">
+          <span class="step-num">I</span>
+          <div>
+            <div class="step-name">Isolate</div>
+            <div class="step-desc">Clean room &middot; TSA &middot; no network route</div>
+          </div>
+          <span class="step-stat">Active</span>
+        </li>
+        <li>
+          <span class="step-num">II</span>
+          <div>
+            <div class="step-name">Broker</div>
+            <div class="step-desc">VDI / DaaS &middot; pixels in, no data out</div>
+          </div>
+          <span class="step-stat">Locked</span>
+        </li>
+        <li>
+          <span class="step-num">III</span>
+          <div>
+            <div class="step-name">Federate</div>
+            <div class="step-desc">One-way trust &middot; B2B &middot; ZTNA per-app</div>
+          </div>
+          <span class="step-stat">Locked</span>
+        </li>
+        <li>
+          <span class="step-num">IV</span>
+          <div>
+            <div class="step-name">Integrate</div>
+            <div class="step-desc">Routed networks &middot; full directory merge</div>
+          </div>
+          <span class="step-stat">Locked</span>
+        </li>
+      </ul>
+    </div>
+
+    <div class="col-right">
+      <div class="pillar-block">
+        <div class="pillar-row">
+          <div class="pillar-name">Identity sources</div>
+          <div class="rag amber">Needs work</div>
+        </div>
+        <div class="pillar-evidence">Identity &amp; Access maturity 2.1 of 5 (minimum 2, target 4)</div>
+        <div class="pillar-rec">Tighten MFA and least-privilege before federating identity; broker access in the interim.</div>
+      </div>
+      <div class="pillar-block">
+        <div class="pillar-row">
+          <div class="pillar-name">Network boundaries</div>
+          <div class="rag red">Blocker</div>
+        </div>
+        <div class="pillar-evidence">2 internet-facing deal-killer / actively-exploited findings</div>
+        <div class="pillar-rec">Keep networks fully isolated. Flat segmentation means any compromise spreads to the parent estate.</div>
+      </div>
+      <div class="pillar-block">
+        <div class="pillar-row">
+          <div class="pillar-name">Remote access pathways</div>
+          <div class="rag red">Blocker</div>
+        </div>
+        <div class="pillar-evidence">1 internet-facing pathway: microsoft-ds : 445</div>
+        <div class="pillar-rec">Kill before Day 1 and replace with VDI or ZTNA. Never route legacy SMB to the parent network.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Findings table -->
+  <div class="section">
+    <div class="section-eyebrow">The four findings</div>
+    <div class="section-title">In order of priority</div>
+  </div>
+  <table class="tbl">
+    <thead><tr>
+      <th>Finding</th>
+      <th>Host &middot; service</th>
+      <th>Exposure</th>
+      <th>Tier</th>
+      <th class="num">Risk</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td>
+          <div class="title-c">SMB remote code execution &mdash; EternalBlue</div>
+          <div class="cve">CVE-2017-0144 &middot; CVSS 9.8 &middot; CISA KEV</div>
+        </td>
+        <td class="host">10.0.0.5 : 445<br>microsoft-ds</td>
+        <td>Internet-facing</td>
+        <td><span class="tag dk">Deal killer</span></td>
+        <td><span class="risk dk">100</span></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="title-c">Log4Shell JNDI remote code execution</div>
+          <div class="cve">CVE-2021-44228 &middot; CVSS 10.0 &middot; public exploit</div>
+        </td>
+        <td class="host">10.0.0.6 : 8080<br>http</td>
+        <td>Internet-facing</td>
+        <td><span class="tag cr">Critical</span></td>
+        <td><span class="risk cr">78</span></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="title-c">OpenSSH exposed to partner network</div>
+          <div class="cve">No CVE &middot; CVSS 5.0</div>
+        </td>
+        <td class="host">10.0.0.7 : 22<br>ssh</td>
+        <td>Partner</td>
+        <td><span class="tag mo">Moderate</span></td>
+        <td><span class="risk mo">55</span></td>
+      </tr>
+      <tr>
+        <td>
+          <div class="title-c">HTTP service banner exposure</div>
+          <div class="cve">Informational &middot; CVSS 2.5</div>
+        </td>
+        <td class="host">10.0.0.8 : 80<br>http</td>
+        <td>Internal</td>
+        <td><span class="tag ma">Manageable</span></td>
+        <td><span class="risk ma">20</span></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Colophon -->
+  <div class="colophon">
+    Generated by RedFlag &middot; M&amp;A Cybersecurity Intelligence &middot; build f6329fd &middot; confidential
+  </div>
+
+</div>
+</body>
+</html>

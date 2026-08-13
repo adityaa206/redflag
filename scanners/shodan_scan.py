@@ -1,3 +1,25 @@
+"""
+scanners/shodan_scan.py — Shodan exposure intelligence + NVD CVSS enrichment.
+
+Shodan answers the question nothing else in the pipeline can: which ports are
+actually visible FROM THE INTERNET. That makes this the single biggest score
+mover in the product — the INTERNAL -> INTERNET_FACING upgrade is worth 17.5
+points of base score, and exposure carries 25% of the weighting.
+
+Two ways in:
+  • lookup_host(ip)      — the live API. Costs 1 Shodan credit per IP.
+  • parse_shodan_json(d) — an uploaded host record, normalised to the same shape.
+    The UPLOAD TAKES PRIORITY: if one is staged, the live API is never called.
+
+Three consumers:
+  • enrich_findings_with_shodan() upgrades matched Nmap findings in place.
+  • create_shodan_findings()      adds standalone CVE / risky-port findings.
+  • fetch_cvss_from_nvd/_batch()  looks up real CVSS scores from NIST.
+
+Degrades silently: no key, an API error, or an unresolvable hostname simply
+skips enrichment. The report then understates exposure with no warning — see
+docs/testing/LIMITATIONS.md.
+"""
 import os
 import requests
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -29,6 +51,9 @@ def fetch_cvss_from_nvd(cve_id: str) -> float:
     if cve_id in _nvd_cache:
         return _nvd_cache[cve_id]
 
+    # 6.5 is a SILENT fallback, not an error: if NVD is unreachable or
+    # rate-limited, a whole batch of CVEs will all score exactly 6.5 — a
+    # plausible-looking wrong number. Seeing uniform 6.5s is the diagnostic.
     score = 6.5
     try:
         resp = requests.get(

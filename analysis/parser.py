@@ -1,3 +1,24 @@
+"""
+analysis/parser.py — Nmap XML into Finding objects. The base evidence layer.
+
+Every other scanner either enriches these findings or adds to them, so this
+module establishes the port inventory the rest of the pipeline correlates
+against (see ADR-0008).
+
+Two deliberate choices worth knowing:
+
+  • CVSS is a flat 3.5 for every finding. Nmap confirms a service is OPEN, not
+    that it is vulnerable — the real severity arrives later from Vulners, NVD,
+    OpenVAS, ZAP or Nuclei.
+  • evidence_strength is CONFIRMED, which looks generous but is honest: the port
+    genuinely is open and Nmap tested it. The low CVSS, not the evidence
+    strength, is what keeps these findings from dominating the ranking.
+
+Exposure is set conservatively (PARTNER for commonly exposed services, INTERNAL
+otherwise); Shodan upgrades it to INTERNET_FACING when it confirms visibility.
+
+Triage happens LATER, after enrichment — never here.
+"""
 import xml.etree.ElementTree as ET
 from analysis.schema import (
     Finding,

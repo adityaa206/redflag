@@ -1,3 +1,18 @@
+"""
+scanners/vulners_enrich.py — Vulners API exploit confirmation.
+
+Asks one narrow question per CVE: does a public exploit exist? RedFlag never
+requests exploit content, only its existence (`size: 1` on the query).
+
+UPGRADE ONLY — get_exploit_status_from_vulners never downgrades, and never
+touches a finding already at ACTIVE_EXPLOITATION.
+
+Entirely optional. Without VULNERS_API_KEY it no-ops silently and exploit_status
+simply stays UNKNOWN — CISA KEV and EPSS cover most of the same ground for free.
+
+Distinct from scanners/vulners_parse.py, which reads the Vulners NSE script's
+output out of the Nmap XML and makes no API call of its own.
+"""
 import os
 import requests
 from dotenv import load_dotenv

@@ -1,3 +1,24 @@
+"""
+scanners/kev_lookup.py — CISA Known Exploited Vulnerabilities cross-reference.
+
+The authoritative list of CVEs CONFIRMED exploited in the wild. A KEV hit sets
+ExploitStatus.ACTIVE_EXPLOITATION, which is a deal-killer override — the score
+is forced to 100 and the tier to DEAL_KILLER.
+
+Free public feed, no API key. The whole catalogue is fetched once per process
+and held in memory.
+
+!! Degradation matters here more than anywhere else in the pipeline. If the
+feed is unreachable the cache becomes {} and every is_kev() returns False — so
+NO deal-killer override fires for an actively-exploited CVE, and the report
+looks REASSURING rather than broken. Diagnose with:
+
+    from scanners.kev_lookup import fetch_kev_catalog
+    print(len(fetch_kev_catalog()))     # 0 means the feed failed
+
+Note the feed is retrospective: a CVE enters KEV after exploitation is observed.
+scanners/epss_scan.py covers the window before that (see ADR-0007).
+"""
 import requests
 
 _kev_cache: dict[str, dict] | None = None

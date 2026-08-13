@@ -21,11 +21,22 @@ __pycache__/
 dist/
 build/
 
-# Markdown docs
+# Markdown — ignored by default (keeps scratch notes and agent files local),
+# with the published documentation set explicitly un-ignored below.
 *.md
+!README.md
+!CONTRIBUTING.md
+!SECURITY.md
+!CODE_OF_CONDUCT.md
+!CHANGELOG.md
+!docs/
+!docs/**/*.md
 
 # Backup files
 *.bak
+
+# Logs
+*.log
 
 # IDE
 .vscode/
@@ -35,8 +46,10 @@ build/
 .DS_Store
 Thumbs.db
 
-# Claude Code local files
+# Agent / assistant local files
 .claude/
+.agents/
+AGENTS.md
 
 # Generated docs / reports
 *.pdf

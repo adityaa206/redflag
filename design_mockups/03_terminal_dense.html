@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RedFlag — Direction C: Terminal Dense</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0a0a0a;
+  --surface: #111111;
+  --surface-2: #161616;
+  --line: #1f1f1f;
+  --line-strong: #2a2a2a;
+  --text: #d4d4d4;
+  --text-mid: #8a8a8a;
+  --text-dim: #555555;
+  --text-faint: #333333;
+  --amber: #f59e0b;
+  --amber-dim: #b45309;
+  --cyan: #22d3ee;
+  --cyan-dim: #0e7490;
+  --red: #ef4444;
+  --green: #22c55e;
+  --magenta: #d946ef;
+}
+body {
+  font-family: 'IBM Plex Mono', 'JetBrains Mono', Menlo, monospace;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 12.5px;
+  line-height: 1.5;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+.app { padding: 0 22px 60px; max-width: 1320px; margin: 0 auto; }
+
+/* Top status strip */
+.statusbar {
+  display: flex; align-items: center; gap: 18px;
+  padding: 9px 0; border-bottom: 1px solid var(--line);
+  font-size: 10.5px; letter-spacing: 0.04em;
+  color: var(--text-dim);
+}
+.statusbar .item { display: flex; align-items: center; gap: 6px; }
+.statusbar .lbl { color: var(--text-faint); }
+.statusbar .val { color: var(--text-mid); }
+.statusbar .blink {
+  width: 7px; height: 7px; background: var(--amber);
+  display: inline-block;
+  animation: blink 1.4s infinite;
+}
+@keyframes blink { 50% { opacity: 0.3; } }
+.statusbar .right {
+  margin-left: auto; color: var(--cyan);
+}
+
+/* Header bar */
+.headbar {
+  display: grid; grid-template-columns: auto 1fr auto;
+  gap: 0; padding: 14px 0;
+  border-bottom: 1px solid var(--line);
+}
+.brand {
+  display: flex; align-items: center; gap: 12px;
+  padding-right: 24px; border-right: 1px solid var(--line);
+}
+.logo-text {
+  font-size: 18px; font-weight: 700;
+  color: var(--amber); letter-spacing: -0.02em;
+}
+.logo-text::before {
+  content: '['; color: var(--text-dim); margin-right: 2px;
+}
+.logo-text::after {
+  content: ']'; color: var(--text-dim); margin-left: 2px;
+}
+.brand-sub {
+  font-size: 9.5px; letter-spacing: 0.18em;
+  color: var(--text-dim); text-transform: uppercase;
+}
+.tabs {
+  display: flex; padding-left: 24px;
+}
+.tab {
+  font-size: 10.5px; letter-spacing: 0.14em; text-transform: uppercase;
+  font-weight: 600;
+  padding: 6px 12px; color: var(--text-dim);
+  border-right: 1px solid var(--line);
+  cursor: pointer;
+}
+.tab:first-child { border-left: 1px solid var(--line); }
+.tab.active {
+  color: var(--bg); background: var(--amber);
+}
+.tab:hover:not(.active) { color: var(--text-mid); background: var(--surface); }
+.head-right {
+  display: flex; align-items: center; gap: 16px;
+  font-size: 10.5px; color: var(--text-dim);
+}
+.head-right .key { color: var(--text-mid); }
+.head-right .key::before { content: '['; }
+.head-right .key::after { content: ']'; }
+
+/* Section header */
+.h-rule {
+  display: flex; align-items: center; gap: 10px;
+  padding: 18px 0 8px;
+  font-size: 10.5px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--amber); font-weight: 700;
+}
+.h-rule::after {
+  content: ''; flex: 1; height: 1px; background: var(--line);
+}
+.h-rule .meta {
+  font-size: 9.5px; color: var(--text-dim); letter-spacing: 0.08em;
+  font-weight: 500;
+}
+
+/* Two-column key-value table */
+.kv {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+  border: 1px solid var(--line);
+}
+.kv .cell {
+  padding: 10px 14px; border-right: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+.kv .cell:nth-child(4n) { border-right: none; }
+.kv .cell:nth-last-child(-n+4) { border-bottom: none; }
+.kv .k {
+  font-size: 9.5px; letter-spacing: 0.16em;
+  color: var(--text-dim); text-transform: uppercase;
+  margin-bottom: 4px;
+}
+.kv .v {
+  font-size: 13px; color: var(--text); font-weight: 500;
+}
+.kv .v.amber { color: var(--amber); }
+.kv .v.cyan { color: var(--cyan); }
+.kv .v.red { color: var(--red); }
+.kv .v.green { color: var(--green); }
+
+/* Verdict block */
+.verdict {
+  display: grid; grid-template-columns: 180px 1fr 240px;
+  border: 1px solid var(--line);
+  margin: 12px 0 0;
+}
+.verdict > div {
+  padding: 18px 22px;
+  border-right: 1px solid var(--line);
+}
+.verdict > div:last-child { border-right: none; }
+.verdict .score-num {
+  font-size: 60px; font-weight: 700; line-height: 1;
+  color: var(--amber); letter-spacing: -0.04em;
+}
+.verdict .score-cap {
+  font-size: 9.5px; color: var(--text-dim);
+  letter-spacing: 0.16em; text-transform: uppercase;
+  margin-top: 6px;
+}
+.verdict .label {
+  font-size: 9.5px; letter-spacing: 0.18em;
+  text-transform: uppercase; color: var(--amber-dim);
+  margin-bottom: 6px;
+}
+.verdict .verdict-label {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 24px; font-weight: 600;
+  color: var(--amber); letter-spacing: -0.015em;
+  margin-bottom: 6px;
+}
+.verdict .verdict-msg {
+  font-size: 12px; color: var(--text-mid); line-height: 1.6;
+}
+.verdict .stats {
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;
+}
+.verdict .stat { }
+.verdict .stat .n {
+  font-size: 22px; font-weight: 700; line-height: 1;
+  display: block;
+}
+.verdict .stat .n.dk { color: var(--red); }
+.verdict .stat .n.cr { color: var(--amber); }
+.verdict .stat .n.mo { color: var(--cyan); }
+.verdict .stat .n.ma { color: var(--green); }
+.verdict .stat .l {
+  font-size: 9.5px; color: var(--text-dim);
+  letter-spacing: 0.14em; text-transform: uppercase;
+  margin-top: 4px;
+}
+
+/* Metric strip */
+.metrics {
+  display: grid; grid-template-columns: repeat(5, 1fr);
+  border: 1px solid var(--line); margin-top: 12px;
+}
+.m-cell {
+  padding: 16px 18px; border-right: 1px solid var(--line);
+}
+.m-cell:last-child { border-right: none; }
+.m-cell .lbl {
+  font-size: 9.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 8px;
+}
+.m-cell .val {
+  font-size: 32px; font-weight: 700; line-height: 1;
+  letter-spacing: -0.03em;
+}
+.m-cell .val.t { color: var(--cyan); }
+.m-cell .val.dk { color: var(--red); }
+.m-cell .val.cr { color: var(--amber); }
+.m-cell .val.mo { color: var(--magenta); }
+.m-cell .val.ma { color: var(--green); }
+.m-cell .delta {
+  font-size: 10px; color: var(--text-dim);
+  margin-top: 6px;
+}
+
+/* Day 1 banner */
+.d1 {
+  display: grid; grid-template-columns: 200px 1fr;
+  border: 1px solid var(--line); margin-top: 0;
+}
+.d1 > div {
+  padding: 18px 22px; border-right: 1px solid var(--line);
+}
+.d1 > div:last-child { border-right: none; }
+.d1-posture .lbl {
+  font-size: 9.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.d1-posture .val {
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 22px; font-weight: 600;
+  color: var(--red); letter-spacing: -0.01em;
+}
+.d1-posture .sub {
+  font-size: 10.5px; color: var(--text-dim); margin-top: 6px;
+}
+.d1-text .kicker {
+  font-size: 9.5px; letter-spacing: 0.16em;
+  text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 6px;
+}
+.d1-text .txt {
+  font-size: 12.5px; color: var(--text-mid);
+  line-height: 1.7; max-width: 760px;
+}
+.d1-text .txt strong { color: var(--text); font-weight: 600; }
+
+/* Ladder ASCII */
+.ladder {
+  border: 1px solid var(--line); border-top: none;
+  padding: 14px 22px; display: flex; align-items: center; gap: 0;
+  background: var(--surface);
+}
+.ladder .seg {
+  flex: 1; text-align: center; padding: 0 12px;
+  position: relative;
+}
+.ladder .seg + .seg::before {
+  content: '──'; position: absolute;
+  left: -10px; top: 4px;
+  color: var(--text-faint);
+}
+.ladder .seg .box {
+  border: 1px solid var(--line-strong);
+  padding: 8px 10px;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+.ladder .seg.on .box { color: var(--text-mid); border-color: var(--text-dim); }
+.ladder .seg.active .box {
+  background: var(--red); color: var(--bg);
+  border-color: var(--red);
+}
+.ladder .seg .stat-text {
+  font-size: 9.5px; letter-spacing: 0.1em;
+  color: var(--text-faint); text-transform: uppercase;
+}
+.ladder .seg.active .stat-text { color: var(--red); }
+
+/* Pillars */
+.pillars {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  border: 1px solid var(--line); border-top: none;
+}
+.pillar {
+  padding: 16px 20px; border-right: 1px solid var(--line);
+}
+.pillar:last-child { border-right: none; }
+.pillar.red { border-top: 2px solid var(--red); }
+.pillar.amber { border-top: 2px solid var(--amber); }
+.pillar.green { border-top: 2px solid var(--green); }
+.pillar-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 8px;
+}
+.pillar-name {
+  font-size: 11px; letter-spacing: 0.16em;
+  text-transform: uppercase; font-weight: 600;
+  color: var(--text);
+}
+.rag {
+  font-size: 9.5px; letter-spacing: 0.14em;
+  font-weight: 700; padding: 2px 8px;
+  text-transform: uppercase;
+}
+.rag.red { background: var(--red); color: var(--bg); }
+.rag.amber { background: var(--amber); color: var(--bg); }
+.rag.green { background: var(--green); color: var(--bg); }
+.pillar-ev {
+  list-style: none; font-size: 11.5px;
+  color: var(--text-mid); line-height: 1.6;
+  margin-bottom: 10px;
+}
+.pillar-ev li::before { content: '> '; color: var(--text-faint); }
+.pillar-rec {
+  font-size: 11.5px; color: var(--text-mid);
+  line-height: 1.65; border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+
+/* Findings table */
+.ftable {
+  width: 100%; border: 1px solid var(--line); border-collapse: collapse;
+}
+.ftable thead th {
+  text-align: left; padding: 10px 14px;
+  font-size: 9.5px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--text-dim); font-weight: 600;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.ftable td {
+  padding: 11px 14px; border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+.ftable tr:last-child td { border-bottom: none; }
+.ftable tr:hover td { background: var(--surface); }
+.ftable .tier-cell {
+  width: 10px; padding: 0;
+}
+.ftable .tier-dk { background: var(--red); }
+.ftable .tier-cr { background: var(--amber); }
+.ftable .tier-mo { background: var(--cyan); }
+.ftable .tier-ma { background: var(--green); }
+.ftable .title-c { color: var(--text); font-weight: 500; }
+.ftable .cve { color: var(--cyan); font-size: 11px; }
+.ftable .host { color: var(--text-mid); font-size: 11px; }
+.ftable .num { text-align: right; font-weight: 600; }
+.ftable .score-100 { color: var(--red); }
+.ftable .score-78 { color: var(--amber); }
+.ftable .score-55 { color: var(--cyan); }
+.ftable .score-20 { color: var(--green); }
+
+/* Footer */
+.footer {
+  margin-top: 14px;
+  padding: 9px 0; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between;
+  font-size: 10px; letter-spacing: 0.08em;
+  color: var(--text-faint);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Top status -->
+  <div class="statusbar">
+    <span class="item"><span class="blink"></span><span class="val">LIVE</span></span>
+    <span class="item"><span class="lbl">UTC</span><span class="val">2026-06-23 14:08:22</span></span>
+    <span class="item"><span class="lbl">SESSION</span><span class="val">rf-08b3e7</span></span>
+    <span class="item"><span class="lbl">ENGINES</span><span class="val">NMAP &middot; SHODAN &middot; OPENVAS &middot; ZAP &middot; VULNERS &middot; DNS &middot; TLS</span></span>
+    <span class="right">SHIFT+? HELP</span>
+  </div>
+
+  <!-- Brand + tabs -->
+  <div class="headbar">
+    <div class="brand">
+      <div>
+        <div class="logo-text">REDFLAG</div>
+        <div class="brand-sub">M&amp;A Cyber Intelligence</div>
+      </div>
+    </div>
+    <div class="tabs">
+      <div class="tab active">F1 Overview</div>
+      <div class="tab">F2 Findings</div>
+      <div class="tab">F3 Attack</div>
+      <div class="tab">F4 Maturity</div>
+      <div class="tab">F5 Day 1</div>
+      <div class="tab">F6 Cost</div>
+      <div class="tab">F7 Export</div>
+    </div>
+    <div class="head-right">
+      <span class="key">CTRL R</span> rescan
+      <span class="key">CTRL E</span> export
+    </div>
+  </div>
+
+  <!-- Target -->
+  <div class="h-rule">Target <span class="meta">/ Scan complete &middot; 47.21s &middot; 12 ports observed</span></div>
+  <div class="kv">
+    <div class="cell"><div class="k">Host</div><div class="v cyan">target.example.com</div></div>
+    <div class="cell"><div class="k">IP</div><div class="v">10.0.0.5</div></div>
+    <div class="cell"><div class="k">ASN</div><div class="v">AS13335 / Cloudflare</div></div>
+    <div class="cell"><div class="k">Country</div><div class="v">US</div></div>
+    <div class="cell"><div class="k">Hostnames</div><div class="v">target.example.com, *.acme.io</div></div>
+    <div class="cell"><div class="k">Open ports</div><div class="v amber">3389 &middot; 445 &middot; 8080 &middot; 22 &middot; 80</div></div>
+    <div class="cell"><div class="k">CVEs (Shodan)</div><div class="v red">2</div></div>
+    <div class="cell"><div class="k">TLS</div><div class="v">1.3 / valid</div></div>
+  </div>
+
+  <!-- Verdict -->
+  <div class="h-rule">Deal verdict</div>
+  <div class="verdict">
+    <div>
+      <div class="score-num">73</div>
+      <div class="score-cap">avg risk &middot; 0-100</div>
+    </div>
+    <div>
+      <div class="label">verdict</div>
+      <div class="verdict-label">Critical</div>
+      <div class="verdict-msg">Severe exposure on the perimeter. Price protection and pre-close remediation required before any link to the parent network.</div>
+    </div>
+    <div>
+      <div class="label">tier breakdown</div>
+      <div class="stats">
+        <div class="stat"><span class="n dk">1</span><span class="l">killers</span></div>
+        <div class="stat"><span class="n cr">1</span><span class="l">critical</span></div>
+        <div class="stat"><span class="n mo">1</span><span class="l">moderate</span></div>
+        <div class="stat"><span class="n ma">1</span><span class="l">manageable</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Metrics -->
+  <div class="metrics">
+    <div class="m-cell"><div class="lbl">Total</div><div class="val t">4</div><div class="delta">across 4 hosts</div></div>
+    <div class="m-cell"><div class="lbl">Deal killers</div><div class="val dk">1</div><div class="delta">block close</div></div>
+    <div class="m-cell"><div class="lbl">Critical</div><div class="val cr">1</div><div class="delta">30-day SLA</div></div>
+    <div class="m-cell"><div class="lbl">Moderate</div><div class="val mo">1</div><div class="delta">90-day SLA</div></div>
+    <div class="m-cell"><div class="lbl">Manageable</div><div class="val ma">1</div><div class="delta">post-close</div></div>
+  </div>
+
+  <!-- Day 1 -->
+  <div class="h-rule">Day 1 Safe Harbor Blueprint <span class="meta">/ Recommended connectivity posture</span></div>
+  <div class="d1">
+    <div class="d1-posture">
+      <div class="lbl">Posture</div>
+      <div class="val">ISOLATE</div>
+      <div class="sub">clean room &middot; TSA</div>
+    </div>
+    <div class="d1-text">
+      <div class="kicker">rationale</div>
+      <div class="txt">No network route between target and parent. Operate the acquired business standalone under a Transition Service Agreement until <strong>2 pre-connection blockers</strong> are remediated or formally mitigated. To advance to BROKER: no actively-exploited vulnerabilities on the target.</div>
+    </div>
+  </div>
+
+  <!-- Ladder -->
+  <div class="ladder">
+    <div class="seg active">
+      <div class="box">Isolate</div>
+      <div class="stat-text">ACTIVE</div>
+    </div>
+    <div class="seg">
+      <div class="box">Broker</div>
+      <div class="stat-text">locked</div>
+    </div>
+    <div class="seg">
+      <div class="box">Federate</div>
+      <div class="stat-text">locked</div>
+    </div>
+    <div class="seg">
+      <div class="box">Integrate</div>
+      <div class="stat-text">locked</div>
+    </div>
+  </div>
+
+  <!-- Pillars -->
+  <div class="pillars">
+    <div class="pillar amber">
+      <div class="pillar-head">
+        <div class="pillar-name">Identity</div>
+        <div class="rag amber">Needs work</div>
+      </div>
+      <ul class="pillar-ev"><li>I&amp;A maturity 2.1/5 (min 2, target 4)</li></ul>
+      <div class="pillar-rec">Tighten MFA and least-privilege before federating; broker access in the interim.</div>
+    </div>
+    <div class="pillar red">
+      <div class="pillar-head">
+        <div class="pillar-name">Network</div>
+        <div class="rag red">Blocker</div>
+      </div>
+      <ul class="pillar-ev"><li>2 inet-facing deal-killer / KEV findings</li></ul>
+      <div class="pillar-rec">Keep networks isolated. Flat segmentation = any compromise spreads to parent.</div>
+    </div>
+    <div class="pillar red">
+      <div class="pillar-head">
+        <div class="pillar-name">Remote access</div>
+        <div class="rag red">Blocker</div>
+      </div>
+      <ul class="pillar-ev"><li>1 inet-facing pathway: microsoft-ds:445</li></ul>
+      <div class="pillar-rec">Kill before Day 1, replace with VDI/ZTNA. Never route legacy SMB to parent.</div>
+    </div>
+  </div>
+
+  <!-- Findings -->
+  <div class="h-rule">Findings <span class="meta">/ sorted by risk_score desc</span></div>
+  <table class="ftable">
+    <thead><tr>
+      <th></th>
+      <th>Title</th>
+      <th>CVE</th>
+      <th>Host : Port / Service</th>
+      <th>Exposure</th>
+      <th>CVSS</th>
+      <th>Evidence</th>
+      <th>Tier</th>
+      <th class="num" style="text-align:right;">Risk</th>
+    </tr></thead>
+    <tbody>
+      <tr>
+        <td class="tier-cell tier-dk"></td>
+        <td class="title-c">SMB Remote Code Execution (EternalBlue)</td>
+        <td class="cve">CVE-2017-0144</td>
+        <td class="host">10.0.0.5:445 / microsoft-ds</td>
+        <td>internet</td>
+        <td>9.8</td>
+        <td>confirmed</td>
+        <td style="color:var(--red);font-weight:600;">DEAL_KILLER</td>
+        <td class="num score-100">100</td>
+      </tr>
+      <tr>
+        <td class="tier-cell tier-cr"></td>
+        <td class="title-c">Log4Shell JNDI Remote Code Execution</td>
+        <td class="cve">CVE-2021-44228</td>
+        <td class="host">10.0.0.6:8080 / http</td>
+        <td>internet</td>
+        <td>10.0</td>
+        <td>correlated</td>
+        <td style="color:var(--amber);font-weight:600;">CRITICAL</td>
+        <td class="num score-78">78</td>
+      </tr>
+      <tr>
+        <td class="tier-cell tier-mo"></td>
+        <td class="title-c">OpenSSH exposed to partner network</td>
+        <td class="cve">-</td>
+        <td class="host">10.0.0.7:22 / ssh</td>
+        <td>partner</td>
+        <td>5.0</td>
+        <td>inferred</td>
+        <td style="color:var(--cyan);font-weight:600;">MODERATE</td>
+        <td class="num score-55">55</td>
+      </tr>
+      <tr>
+        <td class="tier-cell tier-ma"></td>
+        <td class="title-c">HTTP service banner exposure</td>
+        <td class="cve">-</td>
+        <td class="host">10.0.0.8:80 / http</td>
+        <td>internal</td>
+        <td>2.5</td>
+        <td>inferred</td>
+        <td style="color:var(--green);font-weight:600;">MANAGEABLE</td>
+        <td class="num score-20">20</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Footer -->
+  <div class="footer">
+    <span>REDFLAG v3 &middot; build f6329fd &middot; engine: redflag-core/0.6.0</span>
+    <span>tab: F1 OVERVIEW</span>
+  </div>
+
+</div>
+</body>
+</html>

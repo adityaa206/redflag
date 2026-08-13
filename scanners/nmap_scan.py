@@ -1,3 +1,27 @@
+"""
+scanners/nmap_scan.py — the Nmap runner. The base of the evidence pipeline.
+
+Produces the XML that analysis/parser.py turns into the finding set everything
+else correlates into. Optionally attaches the Vulners NSE script, whose output
+is parsed straight out of the same XML by scanners/vulners_parse.py — no extra
+network call from RedFlag.
+
+Two things make this module unlike every other scanner:
+
+  1. It is the ONLY scanner that RAISES. run_nmap_scan throws FileNotFoundError
+     when the binary is missing, because without Nmap there is no assessment —
+     silence would be worse than an error.
+  2. It is the loudest thing RedFlag does. Nmap sends packets directly to the
+     target and will appear in its logs. Authorised targets only — see
+     docs/legal/AUTHORIZED_USE.md.
+
+Binary discovery is by ABSOLUTE WINDOWS PATH and does not consult PATH, so a
+Homebrew or Linux install will not be found (see find_nmap below).
+
+Callers must pass output_dir OUTSIDE the repository. Writing scan output inside
+the worktree trips Reflex's dev file-watcher, which hot-reloads the backend
+mid-scan and loses the findings.
+"""
 import os
 import datetime
 import nmap
@@ -13,6 +37,13 @@ NMAP_PATHS = [
 
 
 def find_nmap():
+    """Return the Nmap binary path, or None if it is not in a known location.
+
+    Probes NMAP_PATHS only — it does NOT consult PATH or use shutil.which, so a
+    macOS/Linux install (/opt/homebrew/bin/nmap, /usr/local/bin/nmap) will not
+    be found. Add your path to NMAP_PATHS above, or use RedFlag's upload-only
+    mode, which needs no local Nmap at all.
+    """
     for path in NMAP_PATHS:
         if os.path.exists(path):
             return path

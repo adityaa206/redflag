@@ -20,8 +20,18 @@ from analysis.schema import ExploitStatus
 _EPSS_API = "https://api.first.org/data/v1/epss"
 _BATCH = 100
 
-# A CVE this likely to be exploited, with no exploit flag yet, is treated as
-# having a public exploit (EPSS is exploitation-probability, KEV-adjacent).
+# Promotion threshold. A CVE at least this likely to be exploited within 30
+# days, with no exploit flag yet, is treated as having a public exploit.
+#
+# Why promotion exists: CISA KEV is RETROSPECTIVE — a CVE enters it after
+# exploitation has been observed. That leaves a window where a vulnerability is
+# trivially exploitable with PoC code circulating, but still scores UNKNOWN (30).
+# EPSS is predictive and closes that window.
+#
+# Why 0.50: a coin-flip chance of exploitation within a month is clearly
+# material. It is a judgement, not a calibrated value — EPSS distributions skew
+# hard toward zero, so a much lower threshold would promote most CVEs and
+# destroy the signal, while a much higher one would miss the window entirely.
 EPSS_PROMOTE_THRESHOLD = 0.50
 
 
@@ -82,8 +92,18 @@ def enrich_findings_with_epss(findings: list, scores: dict | None = None) -> lis
         s = scores.get(cid) if cid else None
         if not s:
             continue
+        # The probability is attached to every matched finding regardless of
+        # promotion, so the UI can show "EPSS 92%" even when the tier is unchanged.
         f.epss_score = s.get("epss")
         f.epss_percentile = s.get("percentile")
+
+        # Promotion is deliberately constrained three ways:
+        #   • only UNKNOWN / NO_EXPLOIT are promoted — never a downgrade;
+        #   • the ceiling is PUBLIC_EXPLOIT (65), NEVER ACTIVE_EXPLOITATION (100),
+        #     because that value forces a deal-killer verdict and a prediction
+        #     must not, on its own, stop a deal;
+        #   • the result is marked in raw_data so a reader can tell an inferred
+        #     status from a sourced one.
         if (s.get("epss") or 0) >= EPSS_PROMOTE_THRESHOLD and \
                 _norm(f.exploit_status) in ("unknown", "no_exploit"):
             f.exploit_status = ExploitStatus.PUBLIC_EXPLOIT

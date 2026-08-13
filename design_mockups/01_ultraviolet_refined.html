@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>RedFlag — Direction A: Ultraviolet Refined</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #07060f;
+  --surface: #110d22;
+  --surface-2: #1a1530;
+  --border: #221a3d;
+  --border-soft: #1a1530;
+  --text: #e8e3f7;
+  --text-mid: #968ab8;
+  --text-dim: #5b4e85;
+  --text-faint: #3d3260;
+  --violet: #8b5cf6;
+  --violet-soft: #b39dfb;
+  --red: #ff3b5f;
+  --orange: #ff8a5b;
+  --yellow: #fbbf24;
+  --green: #34d399;
+  --cyan: #22d3ee;
+}
+body {
+  font-family: 'Space Grotesk', -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.6;
+  min-height: 100vh;
+}
+.app { max-width: 1240px; margin: 0 auto; padding: 0 32px 80px; }
+
+/* Top bar */
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 0; border-bottom: 1px solid var(--border-soft);
+  margin-bottom: 28px;
+}
+.brand { display: flex; align-items: center; gap: 12px; }
+.logo {
+  width: 30px; height: 30px; border-radius: 8px;
+  background: linear-gradient(135deg, var(--red), var(--violet));
+  display: grid; place-items: center; color: #fff; font-weight: 700;
+  font-family: 'IBM Plex Mono', monospace; font-size: 12px;
+}
+.brand-name {
+  font-weight: 700; letter-spacing: -0.01em; font-size: 16px;
+}
+.brand-sub {
+  display: block;
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 0.18em; color: var(--text-dim); text-transform: uppercase;
+  margin-top: 1px;
+}
+.nav { display: flex; gap: 4px; }
+.nav-tab {
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--text-dim); padding: 8px 14px; border-radius: 8px;
+  cursor: pointer;
+}
+.nav-tab.active {
+  color: var(--violet-soft); background: rgba(139,92,246,0.1);
+}
+.nav-tab:hover:not(.active) { color: var(--text-mid); }
+
+/* Command strip */
+.cmd {
+  display: flex; align-items: center; gap: 14px;
+  padding: 12px 18px; border: 1px solid var(--border);
+  border-radius: 10px; margin-bottom: 24px;
+  background: var(--surface);
+}
+.cmd-label {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim);
+}
+.cmd-val { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--text); }
+.cmd-sep { color: var(--text-faint); }
+.cmd-chip {
+  margin-left: auto;
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.18em; font-weight: 600; text-transform: uppercase;
+  color: var(--green); background: rgba(52,211,153,0.08);
+  border: 1px solid rgba(52,211,153,0.2);
+  border-radius: 20px; padding: 5px 12px;
+}
+.dot {
+  display: inline-block; width: 6px; height: 6px;
+  border-radius: 50%; background: var(--green);
+  box-shadow: 0 0 6px var(--green);
+  margin-right: 6px; vertical-align: middle;
+}
+
+/* Verdict banner */
+.verdict {
+  display: flex; align-items: center; gap: 28px;
+  padding: 26px 30px; border-radius: 16px;
+  background: linear-gradient(135deg, var(--surface) 0%, var(--bg) 100%);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--orange);
+  margin-bottom: 28px;
+}
+.verdict-score {
+  text-align: center; padding-right: 28px;
+  border-right: 1px solid var(--border-soft); min-width: 100px;
+}
+.verdict-score .v {
+  font-family: 'IBM Plex Mono', monospace; font-size: 48px;
+  font-weight: 700; line-height: 1; color: var(--orange);
+}
+.verdict-score .cap {
+  display: block; margin-top: 6px;
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim);
+}
+.verdict-main { flex: 1; }
+.verdict-kicker {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+.verdict-label {
+  font-size: 26px; font-weight: 700; color: var(--orange);
+  letter-spacing: -0.015em; margin-bottom: 4px;
+}
+.verdict-msg { font-size: 13px; color: var(--text-mid); }
+.verdict-stats { display: flex; gap: 26px; }
+.verdict-stats .col { text-align: center; }
+.verdict-stats .num {
+  font-family: 'IBM Plex Mono', monospace; font-size: 22px;
+  font-weight: 700; display: block; line-height: 1;
+}
+.verdict-stats .lbl {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-dim);
+  margin-top: 4px; display: block;
+}
+.c-dk { color: var(--red); }
+.c-cr { color: var(--orange); }
+.c-mo { color: var(--yellow); }
+.c-ma { color: var(--green); }
+
+/* Section label */
+.sect {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.2em; font-weight: 700; text-transform: uppercase;
+  color: var(--text-dim); margin: 32px 0 14px;
+  display: flex; align-items: center; gap: 10px;
+}
+.sect::after {
+  content: ''; flex: 1; height: 1px;
+  background: linear-gradient(90deg, var(--border) 0%, transparent 100%);
+}
+
+/* Metric cards */
+.metrics {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px;
+}
+.metric {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--violet);
+  border-radius: 12px;
+  padding: 18px 16px;
+  text-align: center;
+}
+.metric.red { border-top-color: var(--red); }
+.metric.orange { border-top-color: var(--orange); }
+.metric.yellow { border-top-color: var(--yellow); }
+.metric.green { border-top-color: var(--green); }
+.metric .lbl {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 0.18em; text-transform: uppercase; color: var(--text-dim);
+  margin-bottom: 10px;
+}
+.metric .val {
+  font-family: 'IBM Plex Mono', monospace; font-size: 38px;
+  font-weight: 700; line-height: 1; color: var(--text);
+}
+.metric.red .val { color: var(--red); }
+.metric.orange .val { color: var(--orange); }
+.metric.yellow .val { color: var(--yellow); }
+.metric.green .val { color: var(--green); }
+
+/* Day 1 panel */
+.d1-banner {
+  display: flex; align-items: center; gap: 26px;
+  padding: 22px 26px; border-radius: 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  margin-bottom: 14px;
+}
+.d1-posture {
+  text-align: center; padding-right: 26px;
+  border-right: 1px solid var(--border-soft); min-width: 130px;
+}
+.d1-posture .lbl {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 6px;
+}
+.d1-posture .val {
+  font-size: 22px; font-weight: 700;
+  color: var(--red); letter-spacing: -0.01em;
+}
+.d1-rationale { flex: 1; }
+.d1-rationale .kicker {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 4px;
+}
+.d1-rationale .txt { font-size: 13.5px; color: var(--text-mid); line-height: 1.65; }
+
+/* Pip ladder */
+.pips { display: flex; gap: 10px; margin: 16px 0 24px; }
+.pip { flex: 1; text-align: center; }
+.pip-bar {
+  height: 4px; border-radius: 3px; margin-bottom: 8px;
+  background: var(--border);
+}
+.pip.on .pip-bar { background: var(--text-faint); }
+.pip.active .pip-bar { background: var(--red); }
+.pip-name {
+  font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+  letter-spacing: 0.12em; font-weight: 600; text-transform: uppercase;
+  color: var(--text-faint);
+}
+.pip.on .pip-name { color: var(--text-dim); }
+.pip.active .pip-name { color: var(--red); }
+
+/* Pillars */
+.pillars { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.pillar {
+  background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 16px 18px;
+}
+.pillar.red { border-left: 3px solid var(--red); }
+.pillar.amber { border-left: 3px solid var(--yellow); }
+.pillar.green { border-left: 3px solid var(--green); }
+.pillar-head {
+  display: flex; justify-content: space-between; align-items: center;
+  margin-bottom: 10px;
+}
+.pillar-name { font-size: 14px; font-weight: 600; color: var(--text); }
+.rag {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  letter-spacing: 0.14em; font-weight: 700; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 5px;
+}
+.rag.red { background: rgba(255,59,95,0.1); color: var(--red); border: 1px solid rgba(255,59,95,0.25); }
+.rag.amber { background: rgba(251,191,36,0.1); color: var(--yellow); border: 1px solid rgba(251,191,36,0.25); }
+.rag.green { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.25); }
+.pillar-evidence {
+  list-style: none; font-size: 12px; color: var(--text-mid);
+  margin-bottom: 10px; line-height: 1.55;
+}
+.pillar-evidence li::before { content: '— '; color: var(--text-faint); }
+.pillar-rec {
+  font-size: 12.5px; color: var(--text-mid); line-height: 1.65;
+  border-top: 1px solid var(--border-soft); padding-top: 10px;
+}
+
+/* Finding card */
+.finding {
+  background: var(--surface); border: 1px solid var(--border);
+  border-left: 3px solid var(--red);
+  border-radius: 12px; padding: 18px 22px; margin-bottom: 10px;
+}
+.finding-head {
+  display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+}
+.finding-title {
+  font-size: 15px; font-weight: 600; color: var(--text);
+  letter-spacing: -0.01em; margin-bottom: 6px;
+}
+.finding-meta {
+  display: flex; gap: 10px; flex-wrap: wrap;
+  font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+  color: var(--text-dim);
+}
+.badge {
+  display: inline-flex; align-items: center;
+  font-family: 'IBM Plex Mono', monospace; font-size: 9.5px;
+  font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 5px;
+}
+.badge.dk {
+  background: rgba(255,59,95,0.1); color: var(--red);
+  border: 1px solid rgba(255,59,95,0.3);
+}
+.badge.inet {
+  background: rgba(139,92,246,0.1); color: var(--violet-soft);
+  border: 1px solid rgba(139,92,246,0.25);
+}
+.score-pill {
+  min-width: 80px; text-align: center; padding: 12px;
+  border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg);
+}
+.score-pill .lbl {
+  font-family: 'IBM Plex Mono', monospace; font-size: 9px;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--text-dim); margin-bottom: 4px;
+}
+.score-pill .val {
+  font-family: 'IBM Plex Mono', monospace; font-size: 26px;
+  font-weight: 700; color: var(--red); line-height: 1;
+}
+.finding-body {
+  margin-top: 14px; padding-top: 14px;
+  border-top: 1px solid var(--border-soft);
+  font-size: 13px; color: var(--text-mid); line-height: 1.7;
+}
+.finding-body strong { color: var(--text); font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Top bar -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="logo">RF</div>
+      <div>
+        <div class="brand-name">RedFlag</div>
+        <span class="brand-sub">M&amp;A Cybersecurity Intelligence</span>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="nav-tab active">Overview</div>
+      <div class="nav-tab">Findings</div>
+      <div class="nav-tab">Attack Path</div>
+      <div class="nav-tab">Maturity</div>
+      <div class="nav-tab">Day 1 Plan</div>
+      <div class="nav-tab">Cost</div>
+      <div class="nav-tab">Export</div>
+    </div>
+  </div>
+
+  <!-- Command strip -->
+  <div class="cmd">
+    <span class="cmd-label">Target</span>
+    <span class="cmd-val">target.example.com</span>
+    <span class="cmd-sep">/</span>
+    <span class="cmd-val">10.0.0.5</span>
+    <span class="cmd-sep">/</span>
+    <span class="cmd-label">7 engines</span>
+    <span class="cmd-chip"><span class="dot"></span>scan complete &middot; 47s</span>
+  </div>
+
+  <!-- Verdict -->
+  <div class="verdict">
+    <div class="verdict-score">
+      <div class="v">73</div>
+      <span class="cap">avg risk</span>
+    </div>
+    <div class="verdict-main">
+      <div class="verdict-kicker">Deal verdict</div>
+      <div class="verdict-label">Critical</div>
+      <div class="verdict-msg">Severe exposure &mdash; price protection and pre-close remediation required.</div>
+    </div>
+    <div class="verdict-stats">
+      <div class="col"><span class="num c-dk">1</span><span class="lbl">killers</span></div>
+      <div class="col"><span class="num c-cr">1</span><span class="lbl">critical</span></div>
+      <div class="col"><span class="num c-mo">1</span><span class="lbl">moderate</span></div>
+      <div class="col"><span class="num c-ma">1</span><span class="lbl">manageable</span></div>
+    </div>
+  </div>
+
+  <!-- Metric cards -->
+  <div class="metrics">
+    <div class="metric"><div class="lbl">Total</div><div class="val">4</div></div>
+    <div class="metric red"><div class="lbl">Deal killers</div><div class="val">1</div></div>
+    <div class="metric orange"><div class="lbl">Critical</div><div class="val">1</div></div>
+    <div class="metric yellow"><div class="lbl">Moderate</div><div class="val">1</div></div>
+    <div class="metric green"><div class="lbl">Manageable</div><div class="val">1</div></div>
+  </div>
+
+  <!-- Day 1 -->
+  <div class="sect">Day 1 Safe Harbor Blueprint</div>
+
+  <div class="d1-banner">
+    <div class="d1-posture">
+      <div class="lbl">Posture</div>
+      <div class="val">Isolate</div>
+    </div>
+    <div class="d1-rationale">
+      <div class="kicker">Recommended connectivity &mdash; target.example.com</div>
+      <div class="txt">No network route between target and parent. Operate standalone under a TSA until the 2 pre-connection blockers are remediated.</div>
+    </div>
+  </div>
+
+  <div class="pips">
+    <div class="pip active"><div class="pip-bar"></div><div class="pip-name">Isolate</div></div>
+    <div class="pip"><div class="pip-bar"></div><div class="pip-name">Broker</div></div>
+    <div class="pip"><div class="pip-bar"></div><div class="pip-name">Federate</div></div>
+    <div class="pip"><div class="pip-bar"></div><div class="pip-name">Integrate</div></div>
+  </div>
+
+  <div class="pillars">
+    <div class="pillar amber">
+      <div class="pillar-head">
+        <div class="pillar-name">Identity Sources</div>
+        <div class="rag amber">Needs work</div>
+      </div>
+      <ul class="pillar-evidence"><li>Identity &amp; Access maturity 2.1/5 (min 2, target 4)</li></ul>
+      <div class="pillar-rec">Tighten MFA and least-privilege before federating identity; broker access in the interim.</div>
+    </div>
+    <div class="pillar red">
+      <div class="pillar-head">
+        <div class="pillar-name">Network Boundaries</div>
+        <div class="rag red">Blocker</div>
+      </div>
+      <ul class="pillar-evidence"><li>2 internet-facing deal-killer / actively-exploited findings</li></ul>
+      <div class="pillar-rec">Keep networks fully isolated. Any compromise spreads to the parent.</div>
+    </div>
+    <div class="pillar red">
+      <div class="pillar-head">
+        <div class="pillar-name">Remote Access</div>
+        <div class="rag red">Blocker</div>
+      </div>
+      <ul class="pillar-evidence"><li>1 internet-facing remote-access pathway: microsoft-ds:445</li></ul>
+      <div class="pillar-rec">Kill it before Day 1 and replace with VDI/ZTNA &mdash; never route legacy SMB to the parent.</div>
+    </div>
+  </div>
+
+  <!-- Top finding -->
+  <div class="sect">Top finding</div>
+
+  <div class="finding">
+    <div class="finding-head">
+      <div>
+        <div class="finding-title">SMB Remote Code Execution (EternalBlue) &middot; CVE-2017-0144</div>
+        <div class="finding-meta">
+          <span class="badge dk">Deal killer</span>
+          <span class="badge inet">Internet-facing</span>
+          <span>10.0.0.5:445 / microsoft-ds</span>
+          <span>CVSS 9.8</span>
+          <span>CISA KEV</span>
+        </div>
+      </div>
+      <div class="score-pill">
+        <div class="lbl">Risk</div>
+        <div class="val">100</div>
+      </div>
+    </div>
+    <div class="finding-body">
+      MS17-010 SMBv1 RCE actively exploited in the wild. <strong>Window between public exploit and organisational compromise is typically &lt;24h for internet-facing systems.</strong> Immediate action required regardless of other deal considerations.
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

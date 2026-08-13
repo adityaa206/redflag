@@ -14,7 +14,9 @@ about attack paths like an attacker — all in a single **Reflex** web applicati
 ![Python](https://img.shields.io/badge/Python-3.11%2B-3776AB?style=flat-square&logo=python&logoColor=white)
 ![Reflex](https://img.shields.io/badge/Reflex-0.9-5b4ee9?style=flat-square&logo=react&logoColor=white)
 ![License](https://img.shields.io/badge/License-MIT-34d399?style=flat-square)
-![Tests](https://img.shields.io/badge/Tests-128%20passing-34d399?style=flat-square)
+![Tests](https://img.shields.io/badge/Tests-143%20passing-34d399?style=flat-square)
+
+**[📚 Full documentation →](docs/README.md)**
 
 </div>
 
@@ -473,7 +475,8 @@ RedFlag/
 ├── config/                     loader + 6 YAMLs (maturity, corporate standard, pricing, remediation, narrative, day1)
 ├── reports/                    generator (CSV) · pdf_report (full / Day-1 / cost PDF)
 ├── assets/                     redflag.css (the whole emerald design) + favicon
-└── tests/                      128 engine tests (pytest) + fixtures
+├── docs/                       full documentation set (handover · technical · ops · user · legal)
+└── tests/                      143 engine tests (pytest) + fixtures
 ```
 
 ### Data Flow
@@ -533,7 +536,7 @@ Assessment   Blueprint   Pipeline          + Attack-Graph   Engine
 ## Running Tests
 
 ```bash
-# Run all 128 engine tests
+# Run all 143 engine tests
 pytest tests/ -v
 
 # Run a specific module
@@ -546,7 +549,39 @@ pytest tests/test_integration.py -v
 ```
 
 The test suite covers the scoring, maturity, cost, narrative, Day-1, and end-to-end engine
-pipelines — all independent of the UI layer.
+pipelines — all independent of the UI layer. See [docs/testing/TEST_PLAN.md](docs/testing/TEST_PLAN.md)
+for the per-module coverage map and what is deliberately **not** covered.
+
+---
+
+## Documentation
+
+The complete documentation set lives in **[`docs/`](docs/README.md)**.
+
+| Core documents | |
+|---|---|
+| **[Handover](docs/handover/HANDOVER.md)** | Project status, what shipped, where everything lives |
+| **[Authorized Use](docs/legal/AUTHORIZED_USE.md)** | ⚠️ **Read before running any scan** |
+| **[User Guide](docs/user/USER_GUIDE.md)** | Running an assessment, tab by tab |
+| **[Installation](docs/operations/INSTALLATION.md)** | Full setup for Windows and macOS |
+
+| Technical | |
+|---|---|
+| [Architecture](docs/technical/ARCHITECTURE.md) | Layering, component and data-flow diagrams |
+| [Data Model](docs/technical/DATA_MODEL.md) | The `Finding` object and every enum |
+| [Module Reference](docs/technical/MODULE_REFERENCE.md) | Public signatures and side effects |
+| [Configuration](docs/technical/CONFIGURATION.md) | Every `.env` variable, constant and YAML knob |
+| [Integrations](docs/technical/INTEGRATIONS.md) | Each external tool: endpoints, keys, degradation |
+| [Brain Knowledge Base](docs/technical/BRAIN_KNOWLEDGE_BASE.md) | The self-improving offline memory |
+
+| Also | |
+|---|---|
+| [Results Interpretation](docs/user/RESULTS_INTERPRETATION.md) | What every number means, and how far to trust it |
+| [Limitations](docs/testing/LIMITATIONS.md) | Honest accuracy caveats |
+| [Troubleshooting](docs/operations/TROUBLESHOOTING.md) | Symptom → cause → fix |
+| [Architecture Decision Records](docs/process/adr/README.md) | Why the eight big choices were made |
+| [Roadmap](docs/process/ROADMAP.md) · [Changelog](CHANGELOG.md) | Where it goes next; what has shipped |
+| [Contributing](CONTRIBUTING.md) · [Security](SECURITY.md) | How to help; how to report a vulnerability |
 
 ---
 

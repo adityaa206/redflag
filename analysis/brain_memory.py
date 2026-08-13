@@ -145,6 +145,15 @@ class BrainMemory:
         Strips the `targets` map — the only place a scanned host/IP is named — so
         the shipped seed carries aggregate pattern knowledge (technique / CVE /
         service / path prevalence + KEV) without revealing who was scanned.
+
+        !! THIS FUNCTION IS THE ENTIRE BOUNDARY between "local memory" and
+        "safe to publish". If you add a field to brain.json that could identify
+        a target, you MUST strip it here too. Everything else in the index is
+        aggregate counts, which reveal nothing about who was assessed.
+
+        Note the LOCAL brain is not sanitised — ~/RedFlag-Brain/brain.json and
+        the vault's Scans/ notes do name targets. They live outside the repo and
+        are never committed, but they are real records; see docs/legal/.
         """
         data = json.loads(json.dumps(self.data))   # deep copy
         data["targets"] = {}                        # drop who-was-scanned
@@ -157,6 +166,13 @@ class BrainMemory:
         return dest
 
     def _save(self) -> None:
+        # Atomic write (temp file + os.replace) so an interrupted save cannot
+        # leave a truncated brain.json behind.
+        #
+        # The bare except is deliberate: the brain must NEVER break a scan. The
+        # cost is that a permissions or disk problem is completely silent — if
+        # the brain "isn't learning", check that self.root exists and is
+        # writable rather than looking for an error message.
         try:
             os.makedirs(self.root, exist_ok=True)
             tmp = self.index_path + ".tmp"
@@ -168,6 +184,14 @@ class BrainMemory:
 
     # ── recall: read prior knowledge (call BEFORE learn) ─────────────────────
     def recall(self, findings: list, plan) -> tuple[str, list[BrainInsight]]:
+        """Look up what the brain already knows about this scan's CVEs and path.
+
+        MUST be called BEFORE learn_from_scan(). If you learn first, every CVE
+        reports "seen in 1 prior scan" — tautological rather than informative.
+        The insights have to reflect what the brain knew COMING IN.
+
+        Returns (summary_line, up to 6 prevalence insights sorted by weight).
+        """
         d = self.data
         cves = d.get("cves", {})
         paths = d.get("paths", {})
@@ -210,6 +234,20 @@ class BrainMemory:
 
     # ── learn: fold this scan into the brain (call AFTER recall) ─────────────
     def learn_from_scan(self, findings: list, plan, target: str = "") -> None:
+        """Fold this scan into the knowledge base, then persist and write notes.
+
+        Call AFTER recall(). Bumps prevalence counts for every service, port,
+        CVE, tier, MITRE technique and kill-chain signature seen, records the
+        target, saves brain.json, and refreshes the Obsidian vault.
+
+        Weighting is monotonic — nothing decays or is pruned, so a CVE seen a
+        year ago carries the same weight as one seen last week. Whether recency
+        should matter is an open design question (see ADR-0005).
+
+        Note this does NOT feed back into risk scoring, deliberately: making a
+        score depend on the operator's scan history would mean the same finding
+        scored differently on two analysts' machines.
+        """
         d = self.data
         ts = _now()
         d["scans"] = int(d.get("scans", 0)) + 1
