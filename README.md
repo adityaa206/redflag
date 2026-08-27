@@ -556,7 +556,8 @@ for the per-module coverage map and what is deliberately **not** covered.
 
 ## Documentation
 
-The complete documentation set lives in **[`docs/`](docs/README.md)**.
+The complete documentation set lives in **[`docs/`](docs/README.md)**, and is also available as
+a single bookmarked PDF: **[RedFlag_Documentation.pdf](docs/RedFlag_Documentation.pdf)** (208 pages).
 
 | Core documents | |
 |---|---|

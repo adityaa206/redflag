@@ -51,8 +51,10 @@ Thumbs.db
 .agents/
 AGENTS.md
 
-# Generated docs / reports
+# Generated docs / reports — the rendered documentation book is versioned so it
+# can be read without building it; everything else generated stays local.
 *.pdf
+!docs/RedFlag_Documentation.pdf
 *.docx
 *.png
 example_reports/

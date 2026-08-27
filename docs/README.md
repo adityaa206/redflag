@@ -2,6 +2,10 @@
 
 The complete documentation set for RedFlag, the M&A cybersecurity due-diligence platform.
 
+The whole set is also available as a single bookmarked PDF —
+**[RedFlag_Documentation.pdf](RedFlag_Documentation.pdf)** (208 pages) — regenerated from these
+Markdown sources with `python tools/build_docs_pdf.py . <output-dir>`.
+
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
 ---
