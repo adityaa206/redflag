@@ -151,17 +151,43 @@ Python shell rather than diagnosed through the interface.
 
 ---
 
-## 4. Author's assessment
+## 4. My assessment
 
-> ⚠️ TODO(Adi): to be completed by the outgoing owner. Points on which the code invites comment:
->
-> - Which components would be retained and which rebuilt.
-> - The knowledge base accumulates without ageing or forgetting. Whether prevalence-only
->   weighting is the correct model, or whether recency should carry weight.
-> - The cost engine applies a detailed uncertainty model (`cost/simulation.py`) to inputs derived
->   from a comparatively simple catalogue lookup. Whether that precision is proportionate to the
->   quality of the inputs.
-> - Conclusions drawn from the Streamlit to Reflex migration regarding architectural boundaries.
+**What I would keep unchanged.** The scoring model and the layering around it. Four weighted
+factors, an evidence multiplier and a small set of categorical overrides is enough to rank
+findings the way a deal team actually thinks, and it is simple enough to explain in a meeting
+without a slide. Keeping every one of those numbers in configuration rather than in code is what
+makes the model arguable instead of authoritative, which for a risk score is the more useful
+property. The scanner contract — every scanner returns `Finding` objects or an empty list, never
+an exception — is the other part I would not change; it is why fourteen integrations coexist
+without any one of them being able to end a scan.
+
+**Where the design is honestly weaker than it looks.** The cost engine applies a genuinely
+careful uncertainty model — triangular distributions widened by confidence, aggregated with
+partial correlation, producing an 80% interval — to inputs that ultimately come from a catalogue
+lookup and a headcount. The statistics are sound; the precision they imply exceeds the quality of
+what feeds them. The confidence interval should be read as a statement about spread in the
+benchmark data, not as a claim to know the true cost to within a band. Anyone extending this
+should invest in the input catalogue before refining the mathematics further.
+
+**The knowledge base weights by prevalence only.** A technique seen in twenty scans two months ago
+counts the same as one seen yesterday. For a corpus of this size that is the right simplification —
+recency weighting on sparse data mostly amplifies noise — but it will not stay right. Once the
+brain holds a few hundred scans, something in the finding will need to decay, or old estate
+patterns will quietly dominate the recall panel. That is the first change I would make as the
+corpus grows.
+
+**The largest structural gap is the interface layer's test coverage.** The engines carry 143
+tests; `redflag_ui/` carries none, because the Streamlit suite was retired in the migration and
+never replaced. The view-model flattening in `state.py` is real logic — it normalises enums,
+precomputes gradients and widths, and decides what each page can display — and it is currently
+verified only by running the application. That is the piece of this project I would fix first.
+
+**On the migration.** Replacing the entire UI without touching a single engine confirmed the
+boundary was drawn in the right place. The lesson I take from it is narrower than "keep layers
+separate": it is that the boundary has to be *enforced while it is inconvenient*. Every time it
+would have been quicker to compute something in a page, doing it in the engine instead is what
+made the eventual rewrite a two-day job rather than a rebuild.
 
 Concrete follow-on work derived from the code is recorded in
 [KNOWN_ISSUES_AND_BACKLOG.md](KNOWN_ISSUES_AND_BACKLOG.md) §5.

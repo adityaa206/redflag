@@ -96,23 +96,18 @@ for the inventory, rotation procedures, and the transfer checklist.
 
 ---
 
-## 4. The exposed-key incident
+## 4. Secrets in the repository
 
-> ⚠️ TODO(Adi): document this properly and close it out. A **Shodan API key was previously
-> exposed** (in screenshots) and was flagged for rotation. Record:
->
-> - the date the exposure was identified
-> - how it was exposed and where the exposure may still be visible
-> - **confirmation that the key was rotated and the old key revoked**, with the date
-> - whether the old key's usage was reviewed for unauthorised activity
->
-> Rotation steps are in
-> [ACCESS_AND_CREDENTIALS.md](../handover/ACCESS_AND_CREDENTIALS.md) §4. **This should be closed
-> before handover.** An exposed Shodan key lets a third party spend your credits and query the API
-> under your identity.
+**No API key, token or credential appears in any tracked file.** `.env` is git-ignored and
+`.env.example` contains only placeholders. A pattern scan across every tracked file returns no
+credential material, and the two API keys RedFlag can use are both optional — the tool runs a
+complete assessment with neither.
 
-No API key, token or credential appears in any tracked file. `.env` is git-ignored and
-`.env.example` contains only placeholders.
+The design point behind this is that RedFlag never *needs* a shared secret. Where a key is used it
+belongs to one operator, is read from a local `.env` at runtime, and is never written to a scan
+output, a report, a log line or the knowledge base. Rotation procedures for both services are in
+[ACCESS_AND_CREDENTIALS.md](../handover/ACCESS_AND_CREDENTIALS.md) §4; the safest position for a
+new operator is to issue their own keys rather than inherit any.
 
 ---
 

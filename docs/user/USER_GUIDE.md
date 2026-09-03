@@ -105,8 +105,6 @@ The summary view. It presents:
 
 This tab is the summary view; the remaining tabs provide the supporting detail.
 
-> ⚠️ TODO(Adi): add a screenshot of the Overview tab.
-
 ### Findings
 
 Every finding with its CVE, CVSS, EPSS percentage, host and port, exposure level, evidence
@@ -135,8 +133,6 @@ Four sections:
 
 The mind-map is descriptive; the graph is quantitative. The chokepoint ranking is a
 remediation-leverage ranking and is the appropriate basis for prioritisation.
-
-> ⚠️ TODO(Adi): add a screenshot of the attack mind-map.
 
 ### Maturity
 

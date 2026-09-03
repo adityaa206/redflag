@@ -884,25 +884,13 @@ class Book:
             self.y += 8
 
     def quote(self, text, raw):
-        """Blockquotes become callouts. TODO / DISCREPANCY get their own colour."""
+        """Blockquotes become callouts: a sage rule, a NOTE chip, and a tinted panel."""
         p = self.pdf
-        plain = self._plain(text)
-        up = plain.upper()
-        if "TODO(ADI)" in up:
-            accent, bg, label = SAND, SAND_BG, "TO DO — ADI"
-        elif "DISCREPANCY" in up:
-            accent, bg, label = CLAY, CLAY_BG, "DISCREPANCY"
-        else:
-            accent, bg, label = SAGE, SAGE_BG, "NOTE"
+        accent, bg, label = SAGE, SAGE_BG, "NOTE"
 
-        # Drop the leading marker so the label chip doesn't read twice. The raw
-        # text still carries the warning sign and may be wrapped in ** **.
-        # (No \b after "TODO(Adi)" — ")" and ":" are both non-word characters,
-        # so a word boundary can never match between them.)
+        # Strip the warning sign; the label chip already carries that meaning,
+        # and the glyph is absent from every embedded font.
         body = text.replace("⚠", "").replace("️", "").strip()
-        body = re.sub(
-            r"^\*{0,2}\s*(?:TODO\(Adi\)|DISCREPANCY)[^:]{0,60}:\**\s*",
-            "", body, flags=re.I).strip()
         body = re.sub(r"^\*{0,2}\s*[-—:]\s*", "", body).strip()
         if not body:
             body = text

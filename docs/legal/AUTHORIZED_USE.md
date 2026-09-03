@@ -4,9 +4,9 @@ The legal and ethical boundaries governing the operation of RedFlag.
 
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
-> ⚠️ TODO(Adi): have a supervisor or qualified counsel review this wording before the project is
-> relied upon in a commercial engagement. This document is written to be accurate and protective,
-> but it **is not legal advice** and its author is not a lawyer.
+> **This document is not legal advice.** It sets out the operating rules I hold this project to
+> and the reasoning behind them. Anyone relying on RedFlag in a commercial engagement should have
+> the terms of that engagement reviewed by qualified counsel.
 
 ---
 
@@ -210,10 +210,8 @@ output — including, without limitation:
 
 **Responsibility for lawful and authorized use rests entirely with the operator.**
 
-> ⚠️ TODO(Adi): confirm the project's licence position. `README.md` declares MIT but **no
-> `LICENSE` file exists in the repository** — see
-> [LICENSES_AND_ATTRIBUTION.md](LICENSES_AND_ATTRIBUTION.md) §1. The MIT licence's own warranty
-> disclaimer would normally reinforce this section, and it is currently absent.
+This section is reinforced by the MIT licence's own warranty disclaimer, in `LICENSE` at the
+repository root — see [LICENSES_AND_ATTRIBUTION.md](LICENSES_AND_ATTRIBUTION.md) §1.
 
 ---
 

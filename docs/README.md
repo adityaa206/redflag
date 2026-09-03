@@ -3,7 +3,7 @@
 The complete documentation set for RedFlag, the M&A cybersecurity due-diligence platform.
 
 The whole set is also available as a single bookmarked PDF —
-**[RedFlag_Documentation.pdf](RedFlag_Documentation.pdf)** (208 pages) — regenerated from these
+**[RedFlag_Documentation.pdf](RedFlag_Documentation.pdf)** (201 pages) — regenerated from these
 Markdown sources with `python tools/build_docs_pdf.py . <output-dir>`.
 
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
@@ -81,14 +81,6 @@ deliberately **offline, free, and LLM-free**: same input, same output, no paid A
 | [ROADMAP.md](process/ROADMAP.md) | Forward direction if the project continues |
 | [adr/](process/adr/README.md) | Eight Architecture Decision Records with rationale |
 
-## Status
-
-| Document | What it covers |
-|---|---|
-| [DOC_STATUS.md](DOC_STATUS.md) | Delivery checklist, every `TODO(Adi)` marker, every code/README discrepancy |
-
----
-
 ## Conventions
 
 Each fact is recorded in exactly one canonical document; other documents cross-reference it
@@ -97,17 +89,15 @@ receiving supervisor, `technical/` the maintaining engineer, `operations/` the o
 `user/` the analyst. `testing/`, `legal/` and `process/` hold the assurance, compliance and
 history material.
 
-Two markers are used throughout:
-
-| Marker | Meaning |
-|---|---|
-| `TODO(Adi)` | A fact that only the project owner can supply. All instances are catalogued in [DOC_STATUS.md](DOC_STATUS.md) |
-| `DISCREPANCY` | A point on which the code and the root `README.md` disagree. The documentation records the code's behaviour in every case |
+Every figure, signature, threshold and configuration key in this set was read from the source
+rather than from the README. Where the two disagreed, the code was treated as the truth and the
+README was corrected to match.
 
 ---
 
 ## Related documents
 
 - Repository front page: [../README.md](../README.md)
+- Licence: [../LICENSE](../LICENSE)
 - Contribution guide: [../CONTRIBUTING.md](../CONTRIBUTING.md)
 - Vulnerability reporting: [../SECURITY.md](../SECURITY.md)

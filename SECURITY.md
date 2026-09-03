@@ -34,11 +34,10 @@ This policy covers security defects in the RedFlag codebase — for example:
 
 **Please do not open a public GitHub issue for a security vulnerability.**
 
-Report it privately by one of:
-
-1. **GitHub private vulnerability reporting** — the repository's **Security** tab → *Report a
-   vulnerability*. Preferred, because it keeps the disclosure and the fix in one place.
-2. **Email** — ⚠️ TODO(Adi): add a contact address here.
+Report it privately through **GitHub private vulnerability reporting** — the repository's
+**Security** tab → *Report a vulnerability*. This is the only reporting channel, and it is the
+right one: the disclosure, the discussion and the fix stay in one place, visible only to the
+maintainers until a fix is published.
 
 Please include:
 
@@ -53,21 +52,16 @@ Please include:
 
 ## What to expect
 
-RedFlag is maintained on a best-effort basis. Response times are not contractually guaranteed.
+RedFlag is a personal project maintained on a best-effort basis. There is no service-level
+commitment, and no response time is guaranteed — a promise that cannot be kept is worse than none
+at all.
 
-| Stage | Target |
-|---|---|
-| Acknowledgement | Within 5 working days |
-| Initial assessment | Within 10 working days |
-| Fix or documented mitigation | Depends on severity and complexity |
+What a reporter can expect in practice: an acknowledgement once the report has been read, an
+assessment of whether the issue is in scope under the section above, and notification when a fix
+or a documented mitigation lands. Credit in the commit or release notes is given unless the
+reporter prefers otherwise.
 
-We will keep you informed of progress, credit you in the release notes unless you prefer
-otherwise, and let you know when a fix has landed.
-
-We ask that you give a reasonable opportunity to address the issue before disclosing it publicly.
-
-> ⚠️ TODO(Adi): confirm these targets are realistic for whoever maintains the project after
-> handover, and adjust or remove them if not. A commitment that cannot be met is worse than none.
+Please give a reasonable opportunity to address the issue before disclosing it publicly.
 
 ---
 

@@ -83,9 +83,6 @@ PARTS = [
         ("SECURITY.md", "Security Policy"),
         ("CODE_OF_CONDUCT.md", "Code of Conduct"),
     ]),
-    ("Appendix", "Delivery status and outstanding items", [
-        ("docs/DOC_STATUS.md", "Documentation Status"),
-    ]),
 ]
 
 

@@ -21,8 +21,9 @@ container, no database, no authentication layer, and no multi-user support.
 | Network exposure | Binds `localhost` only |
 | CI/CD | None configured |
 
-> ⚠️ TODO(Adi): confirm no cloud or hosted deployment exists anywhere. This document assumes
-> local-only.
+There is no hosted instance of RedFlag anywhere. The repository contains no Dockerfile, no CI
+workflows, no infrastructure-as-code and no deployment configuration, and `rxconfig.py` declares
+no remote API or deploy URL.
 
 **Do not expose the backend port to a network.** There is no authentication, and anyone who can
 reach it can launch an active Nmap scan against an arbitrary target from your machine and your IP

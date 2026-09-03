@@ -116,10 +116,6 @@ Four conditions **bypass scoring entirely**. When one fires, `risk_score` is for
 | 3 | `data_sensitivity == REGULATED` **and** `cvss >= 9.5` **and** `exposure == INTERNET_FACING` | Regulatory liability at critical severity, publicly reachable |
 | 4 | `override_reason` contains the phrase `"active compromise"` | Manual analyst flag |
 
-> ⚠️ The README documents three override rules. **There are four** — the manual
-> `"active compromise"` flag is implemented in `check_override_rules()` but not documented in the
-> README.
-
 **Reading a deal killer:** it is not "a very high score". It is a categorical statement that this
 finding alone should stop the deal until it is resolved or contractually mitigated. Rules 2 and 3
 can only fire if you uploaded an asset inventory.

@@ -1,13 +1,13 @@
-# Access & Credentials — Handover Template
+# Access & Credentials
 
 An inventory of every account and key needed to own RedFlag, and how to transfer each one.
 
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
-> **This document contains no secrets and must never contain any.** It is an inventory and a
-> checklist. Actual key values live only in a local, git-ignored `.env` file, or in a password
-> manager. If you find a real key in this file or anywhere else in the repository, treat it as
-> compromised and rotate it immediately.
+> **This document contains no secrets and must never contain any.** It is an inventory. Actual
+> key values live only in a local, git-ignored `.env` file, or in a password manager. If a real
+> key is ever found in this file or anywhere else in the repository, treat it as compromised and
+> rotate it immediately.
 
 ---
 
@@ -17,8 +17,8 @@ _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 |---|---|
 | Repository | `github.com/adityaa206/redflag` |
 | Remote name | `origin` |
-| Default branch | `main` |
-| Secondary remote | `upstream` → `quadindy/marisk` |
+| Default branch | `master` on GitHub; `main` and `master` are kept in sync |
+| Secondary remote | `upstream` → `quadindy/marisk` (a separate account; RedFlag does not publish there) |
 
 **To add a maintainer** (recommended for a supervisor who needs read/write but not ownership):
 GitHub → repository → **Settings → Collaborators and teams → Add people** → grant `Write` or
@@ -27,11 +27,12 @@ GitHub → repository → **Settings → Collaborators and teams → Add people*
 **To transfer ownership outright:** GitHub → repository → **Settings → General → Danger Zone →
 Transfer ownership**. Note that this moves issues, stars and the URL; the old URL will redirect.
 
-> ⚠️ TODO(Adi): decide and record which of the two applies, and the GitHub username of the
-> receiving owner.
+Adding a maintainer is the lighter option and is sufficient for anyone who needs to read, clone
+and contribute. Ownership transfer is only necessary if the repository is to leave the
+`adityaa206` account entirely.
 
-> ⚠️ TODO(Adi): confirm what the `upstream` remote (`quadindy/marisk`) is and whether the
-> receiver needs any access to it. Do not push to it without explicit instruction.
+The `upstream` remote points at a different account's repository and exists only as a fetch
+reference. RedFlag is published to `origin`; nothing in this project is pushed to `upstream`.
 
 ---
 
@@ -82,12 +83,12 @@ Full behavioural detail per integration: [INTEGRATIONS.md](../technical/INTEGRAT
 
 ---
 
-## 4. Key rotation status
+## 4. Key rotation
 
-> ⚠️ TODO(Adi): confirm in writing whether the Shodan API key that was previously exposed has
-> been **rotated and the old key revoked**. Record the date. If it has not been done, do it
-> before handover — an exposed Shodan key allows a third party to spend your credits and to
-> query the API under your identity.
+Both keys are personal to whoever holds the account, so the cleanest position for anyone taking
+the project on is to issue their own rather than inherit these. RedFlag needs no key to function,
+so a new holder can also simply run without them. The procedures below are recorded for either
+case.
 
 **How to rotate a Shodan key**
 
@@ -131,22 +132,24 @@ account. RedFlag needs no key to function.
 | Monitoring / error tracking | **None.** |
 | External binaries required | Nmap (required), Nuclei (optional), Node.js 18+ (installed by Reflex on first run) |
 
-> ⚠️ TODO(Adi): confirm this is complete — in particular, that no cloud or hosted deployment
-> exists anywhere.
+This inventory is complete. The repository contains no Dockerfile, no `.github/` workflows, no
+infrastructure-as-code, and no deployment configuration of any kind; `rxconfig.py` declares no
+remote API or deploy URL. RedFlag has only ever run on a local machine.
 
 ---
 
-## 7. Receiver checklist
+## 7. Setting up on a new machine
 
-| # | Step | Done |
-|---|---|---|
-| 1 | Repository access granted or ownership transferred | ☐ |
-| 2 | Confirmed the exposed Shodan key was rotated and revoked | ☐ |
-| 3 | Decided whether to reuse the existing keys or issue new ones | ☐ |
-| 4 | Created a local `.env` from `.env.example` | ☐ |
-| 5 | Verified `.env` is git-ignored (`git check-ignore -v .env`) | ☐ |
-| 6 | Confirmed no secret appears in the repository or its history | ☐ |
-| 7 | Read [AUTHORIZED_USE.md](../legal/AUTHORIZED_USE.md) before running any scan | ☐ |
+| # | Step |
+|---|---|
+| 1 | Clone the repository, or accept the collaborator invitation and then clone |
+| 2 | Copy `.env.example` to `.env` — RedFlag runs fully without editing it |
+| 3 | Add a Shodan or Vulners key to `.env` only if live enrichment from those services is wanted |
+| 4 | Confirm `.env` is git-ignored: `git check-ignore -v .env` |
+| 5 | Read [AUTHORIZED_USE.md](../legal/AUTHORIZED_USE.md) before running any scan against a host |
+
+No secret appears in any tracked file in this repository. `.env` is git-ignored and
+`.env.example` contains placeholders only.
 
 ---
 

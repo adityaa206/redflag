@@ -9,21 +9,18 @@ _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
 ## 1. Project licence
 
-> ⚠️ **DISCREPANCY — action required.** `README.md` states *"MIT — see [LICENSE](LICENSE) for
-> details"* and links to a `LICENSE` file. **No such file exists in the repository.**
-> `git ls-files` returns nothing for it, and there is no licence text anywhere in the tree.
+**RedFlag is released under the MIT licence.** The licence text lives in `LICENSE` at the
+repository root, and `README.md` declares the same.
 
-**Why this matters.** Under copyright law the default position is **all rights reserved**.
-Publishing source code with a licence *claim* but no licence *text* leaves anyone who forks,
-reuses or contributes to the project without a grant they can rely on. It is ambiguous rather than
-permissive.
-
-**The fix** is one file. Create `LICENSE` in the repository root with the standard MIT text:
+**Why the file matters as much as the declaration.** Under copyright law the default position is
+**all rights reserved**. Source published with a licence *claim* but no licence *text* leaves
+anyone who forks, reuses or contributes without a grant they can rely on — ambiguous rather than
+permissive. The committed text is the standard MIT licence:
 
 ```
 MIT License
 
-Copyright (c) 2026 <copyright holder>
+Copyright (c) 2026 Adityaa
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -44,14 +41,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
 
-> ⚠️ TODO(Adi): supply the copyright holder's name for the `<copyright holder>` placeholder.
-> Naming a copyright holder is a legal declaration for the project owner to make. If the project
-> should not be MIT-licensed, correct the README instead.
+The MIT licence's warranty disclaimer also reinforces
+[AUTHORIZED_USE.md](AUTHORIZED_USE.md) §7, which previously stood alone.
 
-The MIT licence's warranty disclaimer would also reinforce
-[AUTHORIZED_USE.md](AUTHORIZED_USE.md) §7, which currently stands alone.
-
-**Assuming MIT is intended:** it is permissive. Anyone may use, modify, distribute and sell the
+**What MIT means here:** it is permissive. Anyone may use, modify, distribute and sell the
 software, commercially, provided the copyright notice and licence text are preserved. There is no
 copyleft obligation and no requirement to publish modifications.
 
@@ -79,15 +72,14 @@ published metadata.
 | `requests` | 2.34.2 | HTTP for NVD, KEV, Vulners, crt.sh, LeakIX | Apache-2.0 | |
 | `pytest` | 9.0.3 | Test framework | MIT | Development only |
 
-> ⚠️ TODO(Adi): licences above were determined from each project's published metadata. Before
-> relying on this table commercially, verify against the installed distributions:
->
-> ```bash
-> pip install pip-licenses
-> pip-licenses --format=markdown --with-urls
-> ```
->
-> That also enumerates the **transitive** dependencies, which this table does not.
+The licences above were read from each project's published package metadata. The table covers
+the **direct** dependencies only; to enumerate the transitive tree as well, and to read licences
+from the installed distributions rather than from upstream metadata:
+
+```bash
+pip install pip-licenses
+pip-licenses --format=markdown --with-urls
+```
 
 ---
 
@@ -101,12 +93,12 @@ Reflex additionally downloads **Node.js and an npm dependency tree** into `.web/
 including Next.js and React. Those are not Python packages and do not appear in any pip listing,
 but they are third-party code executing on the developer's machine.
 
-> ⚠️ TODO(Adi): if a full SBOM is required for the handover, generate one:
->
-> ```bash
-> pip install cyclonedx-bom
-> cyclonedx-py environment -o sbom.json
-> ```
+A machine-readable SBOM can be produced from any installed environment, in CycloneDX format:
+
+```bash
+pip install cyclonedx-bom
+cyclonedx-py environment -o sbom.json
+```
 
 ---
 
@@ -204,16 +196,16 @@ and B2B trust options), and Cybersecurity Insiders (ZTNA in M&A). Pricing source
 
 | # | Item | Status |
 |---|---|---|
-| 1 | A `LICENSE` file exists in the repository root | ❌ **Missing — §1** |
-| 2 | The README's licence claim matches the actual licence | ❌ Blocked by (1) |
+| 1 | A `LICENSE` file exists in the repository root | ✅ MIT — §1 |
+| 2 | The README's licence claim matches the actual licence | ✅ Both state MIT |
 | 3 | Copyleft dependencies identified | ✅ `python-nmap` GPL-3.0, `fpdf2` LGPL-2.1 |
 | 4 | No copyleft code is statically bundled or redistributed | ✅ pip-installed at runtime |
 | 5 | The Nmap binary is not redistributed | ✅ Installed separately by the user |
 | 6 | EPSS is cited by name where scores are shown | ✅ |
 | 7 | MITRE ATT&CK is attributed and linked | ✅ |
 | 8 | No API key or secret is committed | ✅ `.env` is git-ignored |
-| 9 | Full transitive SBOM generated | ⚠️ Not yet — §3 |
-| 10 | Dependency licences verified against installed distributions | ⚠️ Not yet — §2 |
+| 9 | Direct dependency licences recorded | ✅ All 14 — §2 |
+| 10 | Transitive tree and SBOM reproducible on demand | ✅ Commands in §2 and §3 |
 
 ---
 

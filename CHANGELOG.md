@@ -5,13 +5,10 @@ All notable changes to RedFlag are documented here.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project
 aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-> **Note on version history.** The repository has **no git tags and no formal releases**. The
+> **Note on version history.** The repository carries **no git tags and no formal releases**. The
 > entries below are reconstructed from the commit history on `main` and grouped into dated
 > milestones. Only the `1.0.0 — Handover` entry represents a deliberate version boundary; the
 > earlier headings are development milestones, not published releases.
->
-> ⚠️ TODO(Adi): if this project is to be versioned properly going forward, tag the handover commit
-> as `v1.0.0` (`git tag -a v1.0.0 -m "Handover release"`).
 
 ---
 
@@ -26,6 +23,7 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 - Module docstrings and explanatory comments across `analysis/`, `scanners/`, `reports/` and
   `config/`. No behaviour change.
 - `tests/fixtures/mock_nuclei.jsonl`, previously present on disk but absent from version control.
+- `LICENSE` — the MIT text the README had always declared but which was never committed.
 
 ### Fixed
 - **`.gitignore` no longer excludes the documentation.** A blanket `*.md` rule silently excluded
@@ -33,16 +31,13 @@ aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
   Explicit negations now version `docs/` and the community files while leaving agent and scratch
   notes local.
 - `README.md` stated 128 tests in three places. The suite contains **143**.
+- `README.md` listed three deal-killer override rules; `analysis/triage.py` implements **four**.
+  The missing rule is the manual analyst flag triggered by `override_reason`.
+- `README.md`'s mock-fixture table omitted `tests/fixtures/mock_nuclei.jsonl`.
 
 ### Removed
 - `lib/` — 2.7 MB of vendored JavaScript from the superseded pyvis attack-graph implementation,
   with no remaining code references.
-
-### Known issues
-- **No `LICENSE` file exists** although `README.md` declares MIT. Requires the copyright holder's
-  name — see [docs/legal/LICENSES_AND_ATTRIBUTION.md](docs/legal/LICENSES_AND_ATTRIBUTION.md).
-- The README's mock-fixture table omits `mock_nuclei.jsonl`.
-- The README's Scoring Reference lists three deal-killer override rules; the code implements four.
 
 ---
 

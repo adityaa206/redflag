@@ -10,18 +10,13 @@ _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
 Each is verified against the code. None prevents a scan from running.
 
-### 1.1 No `LICENSE` file exists — **highest priority**
+### 1.1 `LICENSE` file was missing — resolved
 
-`README.md` states *"MIT — see LICENSE for details"* and links to `LICENSE`, but no such file is
-present in the repository (`git ls-files` returns nothing for it). The repository is therefore,
-strictly, **all rights reserved** — publishing code with a licence claim but no licence text
-creates ambiguity for anyone who forks or reuses it.
-
-The fix is a standard MIT `LICENSE` file naming the copyright holder and year. Naming a
-copyright holder is a legal declaration for the project owner to make.
-
-> ⚠️ TODO(Adi): supply the copyright holder name for the `LICENSE` file, or confirm the project
-> should not be MIT-licensed and correct the README instead.
+`README.md` stated *"MIT — see LICENSE for details"* and linked to `LICENSE`, but no such file
+was present, which left the repository strictly **all rights reserved** — a licence claim with no
+licence text is ambiguous rather than permissive. A standard MIT `LICENSE` is now committed at the
+repository root and matches the README's declaration. Recorded in
+[LICENSES_AND_ATTRIBUTION.md](../legal/LICENSES_AND_ATTRIBUTION.md) §1.
 
 ### 1.2 The README's test count was stale — resolved
 
@@ -37,12 +32,10 @@ ignored**, including this entire `docs/` tree, `CONTRIBUTING.md`, `SECURITY.md` 
 `CHANGELOG.md`.
 
 Explicit negations now version the published documentation and the root community files, while
-agent and scratch notes remain local. Verify with:
-
-```bash
-git check-ignore -v docs/README.md   # should report the negation, not an ignore
-git status --short docs/             # should list the docs as untracked/new
-```
+agent and scratch notes remain local. The whole `docs/` tree, the community files and `LICENSE`
+are tracked; anything generated stays out, with one deliberate exception —
+`docs/RedFlag_Documentation.pdf`, the rendered book, is versioned so it can be read without
+building it.
 
 ### 1.4 `tests/fixtures/mock_nuclei.jsonl` was untracked — resolved
 
@@ -50,11 +43,18 @@ The Nuclei mock fixture (4.2 KB) was present on disk but absent from version con
 clone could not reproduce the documented Nuclei upload workflow. It is now committed alongside the
 OpenVAS and ZAP mocks.
 
-### 1.5 The README fixture table omits the Nuclei mock — open
+### 1.5 The README fixture table omitted the Nuclei mock — resolved
 
-`README.md` → *Using the Mock Data Files* lists `mock_openvas.xml`, `mock_zap.xml` and
-`sample_assessment.json`, but not `mock_nuclei.jsonl`. Fixed in
-[USER_GUIDE.md](../user/USER_GUIDE.md); the README still needs updating.
+`README.md` → *Using the Mock Data Files* listed `mock_openvas.xml`, `mock_zap.xml` and
+`sample_assessment.json`, but not `mock_nuclei.jsonl`. The table now lists all four. Also
+documented in [USER_GUIDE.md](../user/USER_GUIDE.md).
+
+### 1.6 The README documented three deal-killer override rules — resolved
+
+`analysis/triage.py` → `check_override_rules()` implements **four**; the README's Scoring
+Reference listed three, omitting the manual analyst flag that fires when `override_reason`
+contains `"active compromise"`. The README table now lists all four. The full set is documented in
+[RESULTS_INTERPRETATION.md](../user/RESULTS_INTERPRETATION.md) §3.
 
 ---
 
@@ -77,8 +77,8 @@ From the README roadmap, unchecked items — none are started.
 
 | Item | Location | Assessment |
 |---|---|---|
-| **Legacy attack-graph builder** | `analysis/graph_builder.py` (182 lines) | Superseded by `analysis/attack_brain.py` and `analysis/attack_graph.py`. Not imported by the Reflex UI. Still carries an old "Design System v4" colour palette. **Safe to delete** once you confirm nothing imports it. |
-| **Shadowed legacy constants module** | `config.py` at the repository root (43 lines) | Python resolves the `config/` **package** before the `config.py` **module**, so `from config import WEIGHT_CVSS` always reads `config/__init__.py`. The root file is dead — but it is the only place the *rationale* for the scoring weights is written down. Port those comments into `config/__init__.py` before deleting it. |
+| **Legacy attack-graph builder** | `analysis/graph_builder.py` (182 lines) | Superseded by `analysis/attack_brain.py` and `analysis/attack_graph.py`. Still carries an old "Design System v4" colour palette. A repository-wide search for `graph_builder` returns no importers, so it is dead code and safe to delete. |
+| **Shadowed legacy constants module** | `config.py` at the repository root (43 lines) | Python resolves the `config/` **package** before the `config.py` **module**, so `from config import WEIGHT_CVSS` always reads `config/__init__.py`. The root file is dead. It was the only place the *rationale* for the scoring weights was written down; those comments now live at the top of `config/__init__.py`, so the file can be deleted without losing anything. |
 | **Streamlit-era docstring** | `analysis/maturity.py` → `get_all_question_ids()` | Docstring says *"used to build the Streamlit form"*. Streamlit is gone; the Reflex form is built by `_build_maturity_form()` in `redflag_ui/state.py`. Cosmetic. |
 | **Broad `except Exception` in the scan pipeline** | `redflag_ui/state.py` → `run_scan` | Deliberate: it is what makes a twelve-integration pipeline survive one feed being down. The trade-off is that a genuine bug in a scanner is swallowed silently. Consider logging the exception rather than passing. |
 | **Duplicated `_higher_exploit` / `_is_ip` helpers** | `scanners/{openvas_parse,zap_scan,nuclei_scan,vulners_parse}.py`; `scanners/{dns_scan,tls_scan,breach_scan}.py` | Four and three near-identical copies respectively. Candidates for a shared `scanners/_common.py`. Low risk, low urgency. |
@@ -88,32 +88,30 @@ From the README roadmap, unchecked items — none are started.
 
 ---
 
-## 4. Open `TODO` / `FIXME` markers in code
+## 4. Inline debt markers in code
 
-A repository-wide search for `TODO`, `FIXME`, `XXX` and `HACK` across all `.py` files returns
-**no genuine markers**. The two matches are false positives — literal `CVE-XXXX-XXXX` placeholder
-strings in comments:
-
-- `scanners/shodan_scan.py:113`
-- `scanners/openvas_parse.py:39`
-
-The code carries no outstanding inline debt markers.
+The source carries **none**. A repository-wide search for `TODO`, `FIXME`, `XXX` and `HACK` across
+all `.py` files returns two matches, both false positives — literal `CVE-XXXX-XXXX` placeholder
+strings inside comments in `scanners/shodan_scan.py` and `scanners/openvas_parse.py`.
 
 ---
 
 ## 5. Suggested order of work
 
-1. **Add the `LICENSE` file** (§1.1). Removes a licensing ambiguity on a public repository.
-2. **Correct the README's fixture table** to include `mock_nuclei.jsonl` (§1.5).
-3. **Remove the dead code** — `analysis/graph_builder.py` and the root `config.py` (§3), having
-   confirmed with `grep -rn "graph_builder"` that nothing imports them.
-4. **Extend the cost PDF to cover the integration budget** (§3). The figures are already computed;
+Every defect in §1 is closed. What follows is unbuilt work, ordered by value against effort.
+
+1. **Cover `redflag_ui/` with tests.** The engines carry 143 tests; the interface layer carries
+   none, because the Streamlit suite was retired in the migration and not replaced. The view-model
+   flattening in `state.py` is real logic and is currently verified only by running the app.
+2. **Extend the cost PDF to cover the integration budget** (§3). The figures are already computed;
    this is a reporting gap, and the one area where the interface is ahead of the exports.
-5. **Compliance gap mapping** (§2). The highest-value unbuilt feature for the M&A audience, and it
+3. **Compliance gap mapping** (§2). The highest-value unbuilt feature for the M&A audience, and it
    reuses the existing maturity domains and YAML pattern.
-6. **Log rather than discard scanner exceptions** (§3).
-7. **Secret scanning via trufflehog** (§2), which fits the existing scanner contract.
-8. **Multi-target comparison** (§2), last, as the only item requiring an architectural change.
+4. **Remove the dead code** — `analysis/graph_builder.py` and the root `config.py` (§3). Both are
+   confirmed unimported.
+5. **Log rather than discard scanner exceptions** (§3).
+6. **Secret scanning via trufflehog** (§2), which fits the existing scanner contract.
+7. **Multi-target comparison** (§2), last, as the only item requiring an architectural change.
 
 ---
 
@@ -122,4 +120,3 @@ The code carries no outstanding inline debt markers.
 - [ROADMAP.md](../process/ROADMAP.md) — direction, as opposed to the concrete tasks here
 - [LIMITATIONS.md](../testing/LIMITATIONS.md) — accuracy caveats that are *by design*, not bugs
 - [TEST_PLAN.md](../testing/TEST_PLAN.md) — what is and is not covered by tests
-- [DOC_STATUS.md](../DOC_STATUS.md) — the full TODO and discrepancy register

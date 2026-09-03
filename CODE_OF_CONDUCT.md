@@ -71,10 +71,10 @@ representative at an online or offline event.
 ## Enforcement
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
-reported to the community leaders responsible for enforcement at:
-
-> ⚠️ TODO(Adi): add a contact email address for Code of Conduct reports. A code of
-> conduct with no reporting channel cannot be enforced.
+reported privately to the maintainers through the repository's **Security** tab →
+*Report a vulnerability*, which opens a private channel visible only to the
+maintainers. Conduct reports are welcome there even though the form is labelled for
+security issues; it is the repository's only private reporting route.
 
 All complaints will be reviewed and investigated promptly and fairly.
 

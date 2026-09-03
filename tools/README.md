@@ -35,8 +35,7 @@ Two arguments: the repository root, and an output directory. It produces:
 
 Headings, paragraphs with inline `**bold**` / `*italic*` / `` `code` `` / `[links](url)`, bullet
 and numbered lists, task list checkboxes, GitHub tables (including `\|` escaped pipes), fenced
-code, horizontal rules, and blockquote callouts — `TODO(Adi)` and `DISCREPANCY` blocks get their
-own colour.
+code, horizontal rules, and blockquote callouts, which are tinted by their leading label.
 
 **Mermaid diagrams** are parsed and laid out natively: `subgraph` blocks become titled groups and
 the edges become a flow list. A page of Mermaid source is useless on paper.

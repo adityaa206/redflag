@@ -19,11 +19,6 @@ _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 | Target required | **No** |
 | External binaries required | **No** |
 
-> ⚠️ **DISCREPANCY:** `README.md` states "128 passing tests" in three places (the badge, the
-> architecture tree, and the "Running Tests" section). The suite actually contains **143 tests**.
-> The code is the truth; the README needs updating. Tracked in
-> [KNOWN_ISSUES_AND_BACKLOG.md](../handover/KNOWN_ISSUES_AND_BACKLOG.md) §1.2.
-
 The suite is a pure **engine** suite. It exercises the deterministic layers — scoring, maturity,
 Day-1, cost, narrative, EPSS, Nuclei parsing and graph analytics — and deliberately excludes the
 Reflex UI and all live network behaviour. That is why it runs in nine seconds on a plane.
@@ -114,18 +109,17 @@ keys, so a missing fixture fails loudly rather than skipping silently.
 | `tests/fixtures/mock_openvas.xml` | 9.8 KB | OpenVAS/GVM report for upload testing and manual demos | ✅ |
 | `tests/fixtures/mock_zap.xml` | 14.2 KB | OWASP ZAP report | ✅ |
 | `tests/fixtures/sample_assessment.json` | 4.1 KB | Drives `test_integration.py` | ✅ |
-| `tests/fixtures/mock_nuclei.jsonl` | 4.2 KB | Nuclei JSONL for upload testing | ❌ **untracked** |
+| `tests/fixtures/mock_nuclei.jsonl` | 4.2 KB | Nuclei JSONL for upload testing | ✅ |
 
 **Contents of the mocks** — `mock_openvas.xml` contains EternalBlue, PrintNightmare, Log4Shell,
 default credentials, Telnet, Redis exposure, TLS misconfiguration and missing security headers.
 `mock_zap.xml` contains SQL injection, reflected XSS, IDOR, missing CSRF protection, directory
 listing, insecure cookie flags, a vulnerable jQuery and an exposed Spring Actuator endpoint.
 
-> ⚠️ `mock_nuclei.jsonl` has never been committed, so a fresh clone cannot reproduce the
-> "upload a mock Nuclei file" workflow described in
-> [USER_GUIDE.md](../user/USER_GUIDE.md). Fix: `git add tests/fixtures/mock_nuclei.jsonl`.
-> Note that `test_nuclei.py` does **not** depend on it — it injects JSONL inline — so the suite
-> still passes.
+All four fixtures are committed, so a fresh clone can reproduce every upload workflow described
+in [USER_GUIDE.md](../user/USER_GUIDE.md). Note that `test_nuclei.py` does **not** read
+`mock_nuclei.jsonl` — it injects its JSONL inline — so the fixture serves the manual upload
+walkthrough rather than the suite.
 
 ---
 

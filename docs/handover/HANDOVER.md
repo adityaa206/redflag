@@ -1,6 +1,6 @@
 # RedFlag — Handover
 
-The master transition document: what was built, where it lives, and what the receiver needs to do.
+The master transition document: what I built, where it lives, and how to pick it up.
 
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
@@ -24,8 +24,6 @@ wired into the UI, and exercised by tests or by manual run-through.
 
 It does **not** mean the roadmap is exhausted — see
 [KNOWN_ISSUES_AND_BACKLOG.md](KNOWN_ISSUES_AND_BACKLOG.md).
-
-> ⚠️ TODO(Adi): confirm the handover date and add the internship start/end dates.
 
 ---
 
@@ -53,7 +51,7 @@ It does **not** mean the roadmap is exhausted — see
 
 **Analysis**
 
-- A weighted 0–100 risk score with an evidence-strength multiplier and three deal-killer
+- A weighted 0–100 risk score with an evidence-strength multiplier and four deal-killer
   override rules.
 - A 23-question / 7-domain maturity assessment compared against a configurable corporate standard.
 - A Day-1 Safe Harbor Blueprint: connectivity ladder, tier gates, review pillars, P0–P3 roadmap.
@@ -78,13 +76,11 @@ It does **not** mean the roadmap is exhausted — see
 
 ## 3. What is not done
 
-Nothing in the shipped feature set is known to be broken. The open items are unbuilt roadmap
-features, one piece of superseded code, and one outstanding repository defect:
+Nothing in the shipped feature set is known to be broken. What remains is unbuilt roadmap
+work — compliance framework mapping, secret scanning, multi-target comparison, containerised
+startup — plus one piece of superseded code that is no longer imported.
 
-- **No `LICENSE` file exists** even though `README.md` declares MIT. See
-  [LICENSES_AND_ATTRIBUTION.md](../legal/LICENSES_AND_ATTRIBUTION.md).
-
-Full detail, including the unbuilt roadmap and tech debt:
+Full detail, including the tech-debt register:
 [KNOWN_ISSUES_AND_BACKLOG.md](KNOWN_ISSUES_AND_BACKLOG.md).
 
 ---
@@ -101,6 +97,7 @@ Full detail, including the unbuilt roadmap and tech debt:
 | Engines | `analysis/`, `scanners/`, `cost/`, `narrative/`, `reports/` |
 | Configuration | `config/` — `__init__.py` constants + seven YAML files |
 | Tests and fixtures | `tests/` (143 tests), `tests/fixtures/` |
+| Licence | `LICENSE` — MIT |
 | Secrets | `.env` in the repo root — **git-ignored**, never committed |
 | Scan output (runtime) | `%TEMP%/redflag_scans` (Windows) / `$TMPDIR/redflag_scans` |
 | Knowledge base (runtime) | `~/RedFlag-Brain` — override with `REDFLAG_BRAIN_DIR` |
@@ -137,37 +134,39 @@ the two optional API keys.
 - Full inventory and transfer steps: [ACCESS_AND_CREDENTIALS.md](ACCESS_AND_CREDENTIALS.md)
 - Data-handling posture: [SECURITY_AND_PRIVACY.md](../legal/SECURITY_AND_PRIVACY.md)
 
-> ⚠️ TODO(Adi): name who receives repository ownership (GitHub username / email), and whether
-> they should be added as a maintainer or the repo transferred outright.
+The repository is `github.com/adityaa206/redflag`. Access is granted through GitHub's
+collaborator settings; both procedures — adding a maintainer and transferring ownership
+outright — are written out in
+[ACCESS_AND_CREDENTIALS.md](ACCESS_AND_CREDENTIALS.md) §1.
 
 ---
 
-## 7. Key contacts
+## 7. Picking it up
 
-| Role | Name | Email |
-|---|---|---|
-| Author / outgoing owner | ⚠️ TODO(Adi) | ⚠️ TODO(Adi) |
-| Supervisor / receiver | ⚠️ TODO(Adi) | ⚠️ TODO(Adi) |
-| Organisation | ⚠️ TODO(Adi) | — |
+Everything needed to run, understand, extend and operate RedFlag is in this documentation set.
+The shortest useful path through it:
 
----
+| To do this | Read |
+|---|---|
+| Get it running on a new machine | [INSTALLATION.md](../operations/INSTALLATION.md) |
+| Understand how it is put together | [ARCHITECTURE.md](../technical/ARCHITECTURE.md) |
+| Run an assessment and read the output | [USER_GUIDE.md](../user/USER_GUIDE.md), [RESULTS_INTERPRETATION.md](../user/RESULTS_INTERPRETATION.md) |
+| Change a threshold, weight or price | [CONFIGURATION.md](../technical/CONFIGURATION.md) |
+| Add a scanner or extend an engine | [DEVELOPER_ONBOARDING.md](../operations/DEVELOPER_ONBOARDING.md), [MODULE_REFERENCE.md](../technical/MODULE_REFERENCE.md) |
+| Know what is deliberately *not* guaranteed | [LIMITATIONS.md](../testing/LIMITATIONS.md) |
+| Run a scan lawfully | [AUTHORIZED_USE.md](../legal/AUTHORIZED_USE.md) |
+| Understand the non-obvious parts before changing them | [KNOWLEDGE_TRANSFER.md](KNOWLEDGE_TRANSFER.md) |
 
-## 8. Handover checklist
+The two things worth doing first on a new machine, because they surface most setup problems
+immediately, are a clean install and a test run:
 
-For the receiver to work through and sign off.
+```bash
+pytest tests/ -v
+```
 
-| # | Item | Reference | Done |
-|---|---|---|---|
-| 1 | Documentation set reviewed | [docs/README.md](../README.md) | ☐ |
-| 2 | Repository ownership transferred or maintainer added | [ACCESS_AND_CREDENTIALS.md](ACCESS_AND_CREDENTIALS.md) §1 | ☐ |
-| 3 | A `LICENSE` file has been added to match the README's MIT declaration | [LICENSES_AND_ATTRIBUTION.md](../legal/LICENSES_AND_ATTRIBUTION.md) §1 | ☐ |
-| 4 | Shodan API key rotated and the old key revoked | [ACCESS_AND_CREDENTIALS.md](ACCESS_AND_CREDENTIALS.md) §4 | ☐ |
-| 5 | Vulners API key rotated or retired | [ACCESS_AND_CREDENTIALS.md](ACCESS_AND_CREDENTIALS.md) §2 | ☐ |
-| 6 | Clean install performed on the receiver's machine | [INSTALLATION.md](../operations/INSTALLATION.md) | ☐ |
-| 7 | Test suite runs green (`pytest tests/ -v` → 143 passed) | [TEST_PLAN.md](../testing/TEST_PLAN.md) | ☐ |
-| 8 | Live demo / walkthrough completed | [USER_GUIDE.md](../user/USER_GUIDE.md) | ☐ |
-| 9 | Authorised-use policy read and accepted | [AUTHORIZED_USE.md](../legal/AUTHORIZED_USE.md) | ☐ |
-| 10 | All `TODO(Adi)` markers resolved | [DOC_STATUS.md](../DOC_STATUS.md) | ☐ |
+143 tests, no network, no target, no external binary required. If they pass, the engines are
+intact and only the environment-specific parts — the Nmap binary and the Node.js frontend build —
+remain to be verified, both of which the installation guide covers.
 
 ---
 

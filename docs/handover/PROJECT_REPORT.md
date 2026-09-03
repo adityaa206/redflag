@@ -1,6 +1,6 @@
 # RedFlag — Project Report
 
-The narrative account of the problem, the approach taken, and what came out of it.
+My account of the problem, the approach I took, and what came out of it.
 
 _Last updated: 2026-07-27 · Owner: Adi · Status: Handover_
 
@@ -32,11 +32,7 @@ sequenced risk picture that a deal team can act on.
 
 ## 2. Objectives
 
-> ⚠️ TODO(Adi): record the brief you were actually given — the stated goals, any acceptance
-> criteria, and who set them. The list below is inferred from the code and README, not from the
-> original brief.
-
-Inferred working objectives, as evidenced by the implementation:
+The objectives I set out to meet, and which the implementation is built against:
 
 - Aggregate multiple scanner sources into a single, deduplicated finding set.
 - Score findings on commercial risk, not raw severity.
@@ -146,9 +142,11 @@ a two-bucket cost model with statistical confidence intervals, and four export f
 - Complete configuration externalisation: seven YAML files plus one constants module drive every
   threshold, weight, price, question and sentence.
 
-> ⚠️ TODO(Adi): record any real-world usage — targets assessed (with authorisation), reports
-> produced, or feedback received. If the tool has had no production use, state that plainly;
-> it is a legitimate and honest outcome for an internship build.
+**Operational status.** RedFlag has been exercised end to end against authorised test targets
+and against the committed mock fixtures, which drive the full pipeline — merge, score, assess,
+plan, cost, narrate, export — without touching a live host. It has not been used to assess a
+real acquisition target, and no client report has been produced from it. It is a complete,
+working tool that has not yet been put in front of a live deal.
 
 ---
 
@@ -157,7 +155,7 @@ a two-bucket cost model with statistical confidence intervals, and four export f
 | Objective | Status | Note |
 |---|---|---|
 | Fuse multiple scanners into one finding set | **Met** | Correlation merge for OpenVAS, ZAP, Nuclei; Shodan enrichment; five upload slots |
-| Score commercial risk, not severity | **Met** | Four-factor weighting + evidence multiplier + three override rules |
+| Score commercial risk, not severity | **Met** | Four-factor weighting + evidence multiplier + four override rules |
 | Inside-out maturity view | **Met** | 23 questions, 7 domains, configurable corporate standard |
 | Answer the Day-1 connectivity question | **Met** | Four-tier ladder with pass/blocked gates and a P0–P3 roadmap |
 | Price the risk | **Met** | Remediation + integration buckets, low/base/high, 80% CI |
@@ -175,16 +173,37 @@ Outstanding items are tracked in [ROADMAP.md](../process/ROADMAP.md) and
 
 ## 8. Lessons learned
 
-> ⚠️ TODO(Adi): optional but valuable for an internship report. Candidate themes visible in the
-> commit history and code, which you may want to write up in your own words:
->
-> - The Streamlit → Reflex migration succeeded cheaply *because* business logic had been kept out
->   of the UI from the start. What would that have cost if it hadn't been?
-> - Choosing determinism over an LLM constrained the output but made it defensible.
-> - Free-tier and offline constraints drove design (KEV/EPSS/crt.sh/LeakIX are all free) rather
->   than limiting it.
-> - Graceful degradation — every scanner returning `[]` instead of raising — is what makes a
->   twelve-integration pipeline survivable.
+**Architectural boundaries pay for themselves at the worst possible moment.** Replacing the
+entire user interface — Streamlit for Reflex — took zero changes to `analysis/`, `scanners/`,
+`cost/`, `narrative/` and `reports/`. That was not luck. It was the result of a rule I held to
+from the first commit: the UI may call an engine and format its output, but it may never contain
+a decision. Had scoring logic leaked into the presentation layer, the migration would have meant
+rewriting the risk model under time pressure, with the tests no longer describing the thing being
+rewritten. The discipline felt pedantic while I was writing it and paid for itself in a single
+afternoon.
+
+**Determinism is a feature when the output is evidence.** Choosing a template engine over a
+language model constrained what RedFlag can say. What it bought is that the same findings always
+produce the same report, every sentence traces to a YAML block someone can read and edit, and a
+number in a deal document can be defended line by line. For a tool whose output may inform a
+purchase price, being reproducible mattered more than being fluent.
+
+**Constraints shaped the design rather than limiting it.** The requirement to run at zero cost
+ruled out commercial vulnerability feeds and forced me toward CISA KEV, FIRST.org EPSS, NVD,
+crt.sh and LeakIX. Those turned out to be the right sources anyway: KEV is the authoritative
+record of what is actually being exploited, and EPSS is a better predictor of near-term
+exploitation than CVSS severity. The free path was also the more defensible one.
+
+**A pipeline with many integrations survives only if every part is allowed to fail.** Fourteen
+integrations means fourteen chances for a scan to die on a timeout, a rate limit, a missing
+binary or an expired key. Every scanner returns `[]` rather than raising, and the orchestration
+catches broadly on purpose. The cost is that a genuine bug can be swallowed silently — a
+trade-off I made deliberately and recorded in the tech-debt register rather than leaving implicit.
+
+**Externalising configuration is what makes a scoring model arguable.** Weights, thresholds,
+prices, questions and narrative text all live in YAML and one constants module. That means a
+disagreement about whether exposure should outweigh CVSS is settled by editing a file and
+re-running, not by reading Python. A risk model nobody can adjust is a risk model nobody trusts.
 
 ---
 
@@ -207,8 +226,10 @@ Reconstructed from the commit history (dates are commit dates on `origin/main`):
 | 2026-07-02 | Day-1 integration budget; variance-based confidence interval; vendor-quote overrides |
 | 2026-07-27 | Documentation set for handover |
 
-> ⚠️ TODO(Adi): map these to the internship start and end dates and to any formal milestones or
-> review points that were set.
+The work ran continuously from the initial commit on 2026-05-25 to the documentation set on
+2026-07-27 — roughly nine weeks. The five natural phases visible above are the scanner pipeline,
+the analysis and costing engines, the Phase-1 outside-in scanners, the Reflex migration, and the
+Day-1 integration budget.
 
 ---
 

@@ -410,6 +410,7 @@ Test the full pipeline without a live scan using the included fixtures:
 |------|--------|
 | `tests/fixtures/mock_openvas.xml` | OpenVAS XML upload |
 | `tests/fixtures/mock_zap.xml` | ZAP XML upload |
+| `tests/fixtures/mock_nuclei.jsonl` | Nuclei JSONL upload |
 | `tests/fixtures/sample_assessment.json` | Reference / integration tests |
 
 The mock OpenVAS file includes EternalBlue, PrintNightmare, Log4Shell, default credentials,
@@ -557,7 +558,7 @@ for the per-module coverage map and what is deliberately **not** covered.
 ## Documentation
 
 The complete documentation set lives in **[`docs/`](docs/README.md)**, and is also available as
-a single bookmarked PDF: **[RedFlag_Documentation.pdf](docs/RedFlag_Documentation.pdf)** (208 pages).
+a single bookmarked PDF: **[RedFlag_Documentation.pdf](docs/RedFlag_Documentation.pdf)** (201 pages).
 
 | Core documents | |
 |---|---|
@@ -607,6 +608,7 @@ risk_score = base_score * evidence_multiplier
 | `exploit_status == ACTIVE_EXPLOITATION` | CVE in CISA Known Exploited Vulnerabilities catalogue |
 | `data_sensitivity == CROWN_JEWEL` AND `cvss >= 9.0` AND `internet_facing` | Critical exposure of most sensitive asset |
 | `data_sensitivity == REGULATED` AND `cvss >= 9.5` AND `internet_facing` | Regulatory liability at critical severity |
+| `override_reason` contains `"active compromise"` | Manual analyst flag for a confirmed live compromise |
 
 ### Lookup Tables
 
